@@ -10,8 +10,24 @@ import { NewPatientModal } from "@/components/patients/NewPatientModal";
 import { useToast } from "@/hooks/use-toast";
 import { usePatients, useCreatePatient, useDeletePatient } from "@/hooks/usePatients";
 import { Skeleton } from "@/components/ui/skeleton";
-import { formatDistanceToNow } from "date-fns";
-import { ptBR } from "date-fns/locale";
+
+function formatLastVisit(date: string | null): string {
+  if (!date) return "-";
+  try {
+    const visitDate = new Date(date);
+    const now = new Date();
+    const diffMs = now.getTime() - visitDate.getTime();
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+    
+    if (diffDays === 0) return "Hoje";
+    if (diffDays === 1) return "Ontem";
+    if (diffDays < 7) return `Há ${diffDays} dias`;
+    if (diffDays < 30) return `Há ${Math.floor(diffDays / 7)} semana(s)`;
+    return `Há ${Math.floor(diffDays / 30)} mês(es)`;
+  } catch {
+    return "-";
+  }
+}
 
 export default function Patients() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -32,17 +48,7 @@ export default function Patients() {
 
   // Transform data for PatientsTable component
   const tablePatients = filteredPatients.map((patient) => {
-    let lastVisit = "-";
-    if (patient.last_appointment_at) {
-      try {
-        lastVisit = formatDistanceToNow(new Date(patient.last_appointment_at), {
-          addSuffix: true,
-          locale: ptBR,
-        });
-      } catch {
-        lastVisit = "-";
-      }
-    }
+    const lastVisit = formatLastVisit(patient.last_appointment_at);
 
     return {
       id: patient.patient_id,
