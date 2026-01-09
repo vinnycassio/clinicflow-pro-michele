@@ -26,7 +26,7 @@ export const isSupabaseConfigured = (): boolean => {
   return Boolean(
     supabaseUrl &&
     supabaseAnonKey &&
-    supabaseUrl !== "https://placeholder.supabase.co" &&
+    supabaseUrl !== "https://urqxtqfszqwbixpeeusd.supabase.co" &&
     supabaseAnonKey !== "placeholder-key",
   );
 };
