@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import { toast } from "sonner";
 
-export const Patients = () => {
+const Patients = () => {
   const { patients, loading, error, searchPatients, deletePatient } = usePatients();
 
   const [searchTerm, setSearchTerm] = useState("");
@@ -26,7 +26,6 @@ export const Patients = () => {
     }
   };
 
-  // Usar loading e error do hook
   if (loading) {
     return (
       <div className="flex items-center justify-center h-screen">
@@ -89,3 +88,6 @@ export const Patients = () => {
     </div>
   );
 };
+
+// ✅ IMPORTANTE: Export default
+export default Patients;
