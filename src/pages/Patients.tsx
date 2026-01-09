@@ -5,67 +5,11 @@ import { AppLayout } from "@/components/layout/AppLayout";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { PatientsTable, Patient } from "@/components/patients/PatientsTable";
+import { PatientsTable } from "@/components/patients/PatientsTable";
 import { NewPatientModal } from "@/components/patients/NewPatientModal";
 import { useToast } from "@/hooks/use-toast";
-
-// Mock data
-const mockPatients: Patient[] = [
-  {
-    id: "1",
-    name: "Maria Silva",
-    email: "maria.silva@email.com",
-    phone: "(11) 99999-9999",
-    lastVisit: "Ontem",
-    status: "active",
-    totalVisits: 8,
-  },
-  {
-    id: "2",
-    name: "João Santos",
-    email: "joao.santos@email.com",
-    phone: "(11) 98888-8888",
-    lastVisit: "Há 3 dias",
-    status: "active",
-    totalVisits: 12,
-  },
-  {
-    id: "3",
-    name: "Ana Costa",
-    email: "ana.costa@email.com",
-    phone: "(11) 97777-7777",
-    lastVisit: "Há 1 semana",
-    status: "active",
-    totalVisits: 5,
-  },
-  {
-    id: "4",
-    name: "Lucas Martins",
-    email: "lucas.martins@email.com",
-    phone: "(11) 96666-6666",
-    lastVisit: "Hoje",
-    status: "active",
-    totalVisits: 3,
-  },
-  {
-    id: "5",
-    name: "Carla Oliveira",
-    email: "carla.oliveira@email.com",
-    phone: "(11) 95555-5555",
-    lastVisit: "Há 2 semanas",
-    status: "pending",
-    totalVisits: 1,
-  },
-  {
-    id: "6",
-    name: "Pedro Almeida",
-    email: "pedro.almeida@email.com",
-    phone: "(11) 94444-4444",
-    lastVisit: "Há 1 mês",
-    status: "inactive",
-    totalVisits: 6,
-  },
-];
+import { usePatients, useCreatePatient, useDeletePatient } from "@/hooks/usePatients";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function Patients() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -73,29 +17,95 @@ export default function Patients() {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const filteredPatients = mockPatients.filter((patient) =>
+  const { data: patients, isLoading, error } = usePatients();
+  const createPatient = useCreatePatient();
+  const deletePatient = useDeletePatient();
+
+  const filteredPatients = (patients ?? []).filter((patient) =>
     patient.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    patient.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    patient.phone.includes(searchQuery)
+    (patient.email?.toLowerCase().includes(searchQuery.toLowerCase()) ?? false) ||
+    (patient.phone?.includes(searchQuery) ?? false)
   );
 
-  const handleViewPatient = (patient: Patient) => {
+  // Transform data for PatientsTable component
+  const tablePatients = filteredPatients.map((patient) => ({
+    id: patient.id,
+    name: patient.name,
+    email: patient.email ?? "",
+    phone: patient.phone ?? "",
+    lastVisit: "-",
+    status: patient.status,
+    totalVisits: 0,
+  }));
+
+  const handleViewPatient = (patient: { id: string }) => {
     navigate(`/pacientes/${patient.id}`);
   };
 
-  const handleNewPatient = () => {
-    toast({
-      title: "Paciente cadastrado!",
-      description: "O novo paciente foi adicionado com sucesso.",
-    });
-    setIsNewPatientOpen(false);
+  const handleNewPatient = async (data: { 
+    fullName: string; 
+    email: string; 
+    phone: string; 
+    cpf: string;
+    birthDate: string;
+  }) => {
+    try {
+      await createPatient.mutateAsync({
+        name: data.fullName,
+        email: data.email || null,
+        phone: data.phone || null,
+        cpf: data.cpf || null,
+        birth_date: data.birthDate || null,
+        status: "active",
+      });
+      toast({
+        title: "Paciente cadastrado!",
+        description: "O novo paciente foi adicionado com sucesso.",
+      });
+      setIsNewPatientOpen(false);
+    } catch (err) {
+      toast({
+        title: "Erro ao cadastrar",
+        description: "Não foi possível cadastrar o paciente.",
+        variant: "destructive",
+      });
+    }
   };
+
+  const handleDeletePatient = async (patient: { id: string; name: string }) => {
+    try {
+      await deletePatient.mutateAsync(patient.id);
+      toast({
+        title: "Paciente excluído",
+        description: `${patient.name} foi removido.`,
+      });
+    } catch (err) {
+      toast({
+        title: "Erro ao excluir",
+        description: "Não foi possível excluir o paciente.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  if (error) {
+    return (
+      <AppLayout>
+        <div className="flex items-center justify-center h-64">
+          <div className="text-center">
+            <p className="text-destructive mb-2">Erro ao carregar pacientes</p>
+            <p className="text-sm text-muted-foreground">{(error as Error).message}</p>
+          </div>
+        </div>
+      </AppLayout>
+    );
+  }
 
   return (
     <AppLayout>
       <PageHeader
         title="Pacientes"
-        subtitle={`${mockPatients.length} pacientes cadastrados`}
+        subtitle={`${patients?.length ?? 0} pacientes cadastrados`}
         breadcrumbs={[{ label: "Pacientes" }]}
         actions={
           <Button
@@ -131,29 +141,31 @@ export default function Patients() {
         </div>
 
         {/* Patients Table */}
-        <PatientsTable
-          patients={filteredPatients}
-          onView={handleViewPatient}
-          onEdit={(patient) => {
-            toast({
-              title: "Editar paciente",
-              description: `Editando ${patient.name}...`,
-            });
-          }}
-          onDelete={(patient) => {
-            toast({
-              title: "Paciente excluído",
-              description: `${patient.name} foi removido.`,
-              variant: "destructive",
-            });
-          }}
-          onSchedule={(patient) => {
-            toast({
-              title: "Agendar consulta",
-              description: `Agendando consulta para ${patient.name}...`,
-            });
-          }}
-        />
+        {isLoading ? (
+          <div className="space-y-3">
+            {[...Array(5)].map((_, i) => (
+              <Skeleton key={i} className="h-16 w-full" />
+            ))}
+          </div>
+        ) : (
+          <PatientsTable
+            patients={tablePatients}
+            onView={handleViewPatient}
+            onEdit={(patient) => {
+              toast({
+                title: "Editar paciente",
+                description: `Editando ${patient.name}...`,
+              });
+            }}
+            onDelete={handleDeletePatient}
+            onSchedule={(patient) => {
+              toast({
+                title: "Agendar consulta",
+                description: `Agendando consulta para ${patient.name}...`,
+              });
+            }}
+          />
+        )}
 
         {/* Pagination */}
         <div className="flex items-center justify-between mt-6 text-sm text-muted-foreground">
@@ -164,7 +176,7 @@ export default function Patients() {
             </span>{" "}
             de{" "}
             <span className="font-medium text-foreground">
-              {mockPatients.length}
+              {patients?.length ?? 0}
             </span>{" "}
             pacientes
           </p>
