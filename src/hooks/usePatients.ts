@@ -7,7 +7,7 @@ export function usePatients() {
     queryKey: ['patients'],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('patients')
+        .from('vl_clinic_core_patients')
         .select('*')
         .order('created_at', { ascending: false });
 
@@ -22,7 +22,7 @@ export function usePatient(id: string) {
     queryKey: ['patients', id],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('patients')
+        .from('vl_clinic_core_patients')
         .select('*')
         .eq('id', id)
         .maybeSingle();
@@ -40,7 +40,7 @@ export function useCreatePatient() {
   return useMutation({
     mutationFn: async (patient: Omit<Patient, 'id' | 'created_at' | 'updated_at'>) => {
       const { data, error } = await supabase
-        .from('patients')
+        .from('vl_clinic_core_patients')
         .insert(patient)
         .select()
         .single();
@@ -60,7 +60,7 @@ export function useUpdatePatient() {
   return useMutation({
     mutationFn: async ({ id, ...updates }: Partial<Patient> & { id: string }) => {
       const { data, error } = await supabase
-        .from('patients')
+        .from('vl_clinic_core_patients')
         .update({ ...updates, updated_at: new Date().toISOString() })
         .eq('id', id)
         .select()
@@ -81,7 +81,7 @@ export function useDeletePatient() {
   return useMutation({
     mutationFn: async (id: string) => {
       const { error } = await supabase
-        .from('patients')
+        .from('vl_clinic_core_patients')
         .delete()
         .eq('id', id);
 
