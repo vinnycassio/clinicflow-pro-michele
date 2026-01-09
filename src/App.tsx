@@ -1,12 +1,18 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Patients from "@/pages/Patients"; // ✅ Import sem chaves
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import Index from "@/pages/Index";
+import Patients from "@/pages/Patients";
+import NotFound from "@/pages/NotFound";
 
 function App() {
   return (
     <Router>
       <Routes>
+        <Route path="/" element={<Index />} />
         <Route path="/patients" element={<Patients />} />
-        {/* outras rotas */}
+
+        {/* Fallbacks */}
+        <Route path="/index" element={<Navigate to="/" replace />} />
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </Router>
   );
