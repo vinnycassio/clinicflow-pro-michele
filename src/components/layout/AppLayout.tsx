@@ -1,5 +1,6 @@
 import { ReactNode } from "react";
 import { AppSidebar } from "./AppSidebar";
+import { TooltipProvider } from "@/components/ui/tooltip";
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -7,11 +8,13 @@ interface AppLayoutProps {
 
 export function AppLayout({ children }: AppLayoutProps) {
   return (
-    <div className="flex min-h-screen w-full bg-background">
-      <AppSidebar />
-      <main className="flex-1 overflow-x-hidden">
-        {children}
-      </main>
-    </div>
+    <TooltipProvider>
+      <div className="flex min-h-screen w-full bg-background">
+        <AppSidebar />
+        <main className="flex-1 overflow-x-hidden">
+          {children}
+        </main>
+      </div>
+    </TooltipProvider>
   );
 }
