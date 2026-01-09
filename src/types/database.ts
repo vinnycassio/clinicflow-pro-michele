@@ -365,10 +365,18 @@ export type MedicalRecordUpdate = Partial<Omit<MedicalRecord, "record_id" | "cre
 export interface Database {
   public: {
     Tables: {
+      [key: string]: {
+        Row: any;
+        Insert: any;
+        Update: any;
+        Relationships: any[];
+      };
+
       vl_clinic_core_patients: {
         Row: Patient;
         Insert: PatientInsert;
         Update: PatientUpdate;
+        Relationships: [];
       };
       vl_clinic_core_professionals: {
         Row: Professional;
@@ -376,11 +384,13 @@ export interface Database {
           professional_id?: string;
         };
         Update: Partial<Omit<Professional, "professional_id" | "created_at">>;
+        Relationships: [];
       };
       vl_clinic_core_appointments: {
         Row: Appointment;
         Insert: AppointmentInsert;
         Update: AppointmentUpdate;
+        Relationships: [];
       };
       vl_ana_records: {
         Row: Anamnesis;
@@ -388,11 +398,13 @@ export interface Database {
           anamnesis_id?: string;
         };
         Update: Partial<Omit<Anamnesis, "anamnesis_id" | "created_at">>;
+        Relationships: [];
       };
       vl_clinic_medical_records: {
         Row: MedicalRecord;
         Insert: MedicalRecordInsert;
         Update: MedicalRecordUpdate;
+        Relationships: [];
       };
       vl_clinic_patient_photos: {
         Row: PatientPhoto;
@@ -400,6 +412,7 @@ export interface Database {
           photo_id?: string;
         };
         Update: Partial<Omit<PatientPhoto, "photo_id" | "uploaded_at">>;
+        Relationships: [];
       };
       vl_clinic_patient_treatments: {
         Row: Treatment;
@@ -407,6 +420,7 @@ export interface Database {
           treatment_id?: string;
         };
         Update: Partial<Omit<Treatment, "treatment_id" | "created_at">>;
+        Relationships: [];
       };
       vl_fin_budgets: {
         Row: Budget;
@@ -415,6 +429,7 @@ export interface Database {
           budget_number?: string;
         };
         Update: Partial<Omit<Budget, "budget_id" | "created_at">>;
+        Relationships: [];
       };
       vl_fin_sales: {
         Row: Sale;
@@ -423,6 +438,7 @@ export interface Database {
           sale_number?: string;
         };
         Update: Partial<Omit<Sale, "sale_id" | "created_at">>;
+        Relationships: [];
       };
       vl_fin_payments: {
         Row: Payment;
@@ -430,9 +446,16 @@ export interface Database {
           payment_id?: string;
         };
         Update: Partial<Omit<Payment, "payment_id" | "created_at">>;
+        Relationships: [];
       };
     };
+
     Views: {
+      [key: string]: {
+        Row: any;
+        Relationships: any[];
+      };
+
       vw_patient_financial_summary: {
         Row: {
           patient_id: string;
@@ -446,6 +469,7 @@ export interface Database {
           next_due_date: string | null;
           lifetime_value: number | null;
         };
+        Relationships: [];
       };
       vw_active_treatments: {
         Row: {
@@ -462,9 +486,16 @@ export interface Database {
           status: string | null;
           progress_percentage: number | null;
         };
+        Relationships: [];
       };
     };
+
     Functions: {
+      [key: string]: {
+        Args: any;
+        Returns: any;
+      };
+
       is_admin: {
         Args: Record<string, never>;
         Returns: boolean;
@@ -482,5 +513,8 @@ export interface Database {
         Returns: boolean;
       };
     };
+
+    Enums: Record<string, never>;
+    CompositeTypes: Record<string, never>;
   };
 }

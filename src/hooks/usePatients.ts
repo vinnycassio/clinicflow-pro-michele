@@ -19,7 +19,7 @@ export const usePatients = () => {
         .order("full_name", { ascending: true });
 
       if (fetchError) throw fetchError;
-      setPatients(data || []);
+      setPatients((data as Patient[]) || []);
     } catch (err: any) {
       console.error("Error fetching patients:", err);
       setError(err.message);
@@ -37,7 +37,7 @@ export const usePatients = () => {
         .single();
 
       if (fetchError) throw fetchError;
-      return data;
+      return (data as Patient) ?? null;
     } catch (err: any) {
       console.error("Error fetching patient:", err);
       setError(err.message);
@@ -55,7 +55,7 @@ export const usePatients = () => {
 
       if (insertError) throw insertError;
       await fetchPatients();
-      return data;
+      return (data as Patient) ?? null;
     } catch (err: any) {
       console.error("Error creating patient:", err);
       setError(err.message);
@@ -74,7 +74,7 @@ export const usePatients = () => {
 
       if (updateError) throw updateError;
       await fetchPatients();
-      return data;
+      return (data as Patient) ?? null;
     } catch (err: any) {
       console.error("Error updating patient:", err);
       setError(err.message);
@@ -111,7 +111,7 @@ export const usePatients = () => {
         .order("full_name", { ascending: true });
 
       if (searchError) throw searchError;
-      setPatients(data || []);
+      setPatients((data as Patient[]) || []);
     } catch (err: any) {
       console.error("Error searching patients:", err);
       setError(err.message);

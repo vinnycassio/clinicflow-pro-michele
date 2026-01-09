@@ -25,7 +25,7 @@ export const useProfessionals = () => {
         .order("full_name", { ascending: true });
 
       if (fetchError) throw fetchError;
-      setProfessionals(data || []);
+      setProfessionals((data as Professional[]) || []);
     } catch (err: any) {
       console.error("Error fetching professionals:", err);
       setError(err.message);
@@ -43,7 +43,7 @@ export const useProfessionals = () => {
         .single();
 
       if (fetchError) throw fetchError;
-      return data;
+      return (data as Professional) ?? null;
     } catch (err: any) {
       console.error("Error fetching professional:", err);
       setError(err.message);
@@ -61,7 +61,7 @@ export const useProfessionals = () => {
 
       if (insertError) throw insertError;
       await fetchProfessionals();
-      return data;
+      return (data as Professional) ?? null;
     } catch (err: any) {
       console.error("Error creating professional:", err);
       setError(err.message);
@@ -80,7 +80,7 @@ export const useProfessionals = () => {
 
       if (updateError) throw updateError;
       await fetchProfessionals();
-      return data;
+      return (data as Professional) ?? null;
     } catch (err: any) {
       console.error("Error updating professional:", err);
       setError(err.message);

@@ -42,10 +42,10 @@ export const useAppointments = (professionalId?: string, date?: string) => {
         query = query.eq("appointment_date", date);
       }
 
-      const { data, error: fetchError } = await query;
+       const { data, error: fetchError } = await query;
 
       if (fetchError) throw fetchError;
-      setAppointments((data as AppointmentWithDetails[]) || []);
+      setAppointments(((data as unknown) as AppointmentWithDetails[]) || []);
     } catch (err: any) {
       console.error("Error fetching appointments:", err);
       setError(err.message);
@@ -69,7 +69,7 @@ export const useAppointments = (professionalId?: string, date?: string) => {
         .single();
 
       if (fetchError) throw fetchError;
-      return data as AppointmentWithDetails;
+      return ((data as unknown) as AppointmentWithDetails) ?? null;
     } catch (err: any) {
       console.error("Error fetching appointment:", err);
       setError(err.message);
@@ -87,7 +87,7 @@ export const useAppointments = (professionalId?: string, date?: string) => {
 
       if (insertError) throw insertError;
       await fetchAppointments();
-      return data;
+      return (data as Appointment) ?? null;
     } catch (err: any) {
       console.error("Error creating appointment:", err);
       setError(err.message);
@@ -106,7 +106,7 @@ export const useAppointments = (professionalId?: string, date?: string) => {
 
       if (updateError) throw updateError;
       await fetchAppointments();
-      return data;
+      return (data as Appointment) ?? null;
     } catch (err: any) {
       console.error("Error updating appointment:", err);
       setError(err.message);
@@ -128,7 +128,7 @@ export const useAppointments = (professionalId?: string, date?: string) => {
 
       if (updateError) throw updateError;
       await fetchAppointments();
-      return data;
+      return (data as Appointment) ?? null;
     } catch (err: any) {
       console.error("Error cancelling appointment:", err);
       setError(err.message);
