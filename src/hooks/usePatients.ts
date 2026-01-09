@@ -24,7 +24,7 @@ export function usePatient(id: string) {
       const { data, error } = await supabase
         .from('vl_clinic_core_patients')
         .select('*')
-        .eq('id', id)
+        .eq('patient_id', id)
         .maybeSingle();
 
       if (error) throw error;
@@ -34,11 +34,24 @@ export function usePatient(id: string) {
   });
 }
 
+export interface CreatePatientData {
+  full_name: string;
+  social_name?: string | null;
+  birth_date?: string | null;
+  gender?: string | null;
+  document_cpf?: string | null;
+  document_rg?: string | null;
+  phone_main?: string | null;
+  phone_secondary?: string | null;
+  email?: string | null;
+  status?: string;
+}
+
 export function useCreatePatient() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (patient: Omit<Patient, 'id' | 'created_at' | 'updated_at'>) => {
+    mutationFn: async (patient: CreatePatientData) => {
       const { data, error } = await supabase
         .from('vl_clinic_core_patients')
         .insert(patient)
@@ -58,11 +71,11 @@ export function useUpdatePatient() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ id, ...updates }: Partial<Patient> & { id: string }) => {
+    mutationFn: async ({ patient_id, ...updates }: Partial<Patient> & { patient_id: string }) => {
       const { data, error } = await supabase
         .from('vl_clinic_core_patients')
-        .update({ ...updates, updated_at: new Date().toISOString() })
-        .eq('id', id)
+        .update(updates)
+        .eq('patient_id', patient_id)
         .select()
         .single();
 
@@ -79,11 +92,11 @@ export function useDeletePatient() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (id: string) => {
+    mutationFn: async (patient_id: string) => {
       const { error } = await supabase
         .from('vl_clinic_core_patients')
         .delete()
-        .eq('id', id);
+        .eq('patient_id', patient_id);
 
       if (error) throw error;
     },

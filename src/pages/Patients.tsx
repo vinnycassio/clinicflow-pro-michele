@@ -10,6 +10,8 @@ import { NewPatientModal } from "@/components/patients/NewPatientModal";
 import { useToast } from "@/hooks/use-toast";
 import { usePatients, useCreatePatient, useDeletePatient } from "@/hooks/usePatients";
 import { Skeleton } from "@/components/ui/skeleton";
+import { formatDistanceToNow } from "date-fns";
+import { ptBR } from "date-fns/locale";
 
 export default function Patients() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -22,21 +24,36 @@ export default function Patients() {
   const deletePatient = useDeletePatient();
 
   const filteredPatients = (patients ?? []).filter((patient) =>
-    patient.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    patient.full_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     (patient.email?.toLowerCase().includes(searchQuery.toLowerCase()) ?? false) ||
-    (patient.phone?.includes(searchQuery) ?? false)
+    (patient.phone_main?.includes(searchQuery) ?? false) ||
+    (patient.document_cpf?.includes(searchQuery) ?? false)
   );
 
   // Transform data for PatientsTable component
-  const tablePatients = filteredPatients.map((patient) => ({
-    id: patient.id,
-    name: patient.name,
-    email: patient.email ?? "",
-    phone: patient.phone ?? "",
-    lastVisit: "-",
-    status: patient.status,
-    totalVisits: 0,
-  }));
+  const tablePatients = filteredPatients.map((patient) => {
+    let lastVisit = "-";
+    if (patient.last_appointment_at) {
+      try {
+        lastVisit = formatDistanceToNow(new Date(patient.last_appointment_at), {
+          addSuffix: true,
+          locale: ptBR,
+        });
+      } catch {
+        lastVisit = "-";
+      }
+    }
+
+    return {
+      id: patient.patient_id,
+      name: patient.social_name || patient.full_name,
+      email: patient.email ?? "",
+      phone: patient.phone_main ?? "",
+      lastVisit,
+      status: (patient.status as "active" | "inactive" | "pending") ?? "active",
+      totalVisits: 0,
+    };
+  });
 
   const handleViewPatient = (patient: { id: string }) => {
     navigate(`/pacientes/${patient.id}`);
@@ -44,18 +61,22 @@ export default function Patients() {
 
   const handleNewPatient = async (data: { 
     fullName: string; 
+    socialName?: string;
     email: string; 
     phone: string; 
     cpf: string;
     birthDate: string;
+    gender: string;
   }) => {
     try {
       await createPatient.mutateAsync({
-        name: data.fullName,
+        full_name: data.fullName,
+        social_name: data.socialName || null,
         email: data.email || null,
-        phone: data.phone || null,
-        cpf: data.cpf || null,
+        phone_main: data.phone || null,
+        document_cpf: data.cpf || null,
         birth_date: data.birthDate || null,
+        gender: data.gender || null,
         status: "active",
       });
       toast({
@@ -64,6 +85,7 @@ export default function Patients() {
       });
       setIsNewPatientOpen(false);
     } catch (err) {
+      console.error('Error creating patient:', err);
       toast({
         title: "Erro ao cadastrar",
         description: "Não foi possível cadastrar o paciente.",
@@ -124,7 +146,7 @@ export default function Patients() {
           <div className="relative flex-1 max-w-md">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <Input
-              placeholder="Buscar paciente..."
+              placeholder="Buscar por nome, email, telefone ou CPF..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-9 input-focus-ring"
