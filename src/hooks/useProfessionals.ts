@@ -1,94 +1,122 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/lib/supabase';
-import { Professional } from '@/types/database';
+import { useState, useEffect } from "react";
+import { supabase } from "@/lib/supabase";
+import type { Professional } from "@/types/database";
 
-export function useProfessionals() {
-  return useQuery({
-    queryKey: ['professionals'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('professionals')
-        .select('*')
-        .order('created_at', { ascending: false });
+type ProfessionalInsert = Omit<Professional, "professional_id" | "created_at" | "updated_at"> & {
+  professional_id?: string;
+};
 
-      if (error) throw error;
-      return data as Professional[];
-    },
-  });
-}
+type ProfessionalUpdate = Partial<Omit<Professional, "professional_id" | "created_at">>;
 
-export function useProfessional(id: string) {
-  return useQuery({
-    queryKey: ['professionals', id],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('professionals')
-        .select('*')
-        .eq('id', id)
-        .maybeSingle();
+export const useProfessionals = () => {
+  const [professionals, setProfessionals] = useState<Professional[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-      if (error) throw error;
-      return data as Professional | null;
-    },
-    enabled: !!id,
-  });
-}
+  const fetchProfessionals = async () => {
+    try {
+      setLoading(true);
+      setError(null);
 
-export function useCreateProfessional() {
-  const queryClient = useQueryClient();
+      const { data, error: fetchError } = await supabase
+        .from("vl_clinic_core_professionals")
+        .select("*")
+        .eq("is_active", true)
+        .order("full_name", { ascending: true });
 
-  return useMutation({
-    mutationFn: async (professional: Omit<Professional, 'id' | 'created_at' | 'updated_at'>) => {
-      const { data, error } = await supabase
-        .from('professionals')
-        .insert(professional)
+      if (fetchError) throw fetchError;
+      setProfessionals(data || []);
+    } catch (err: any) {
+      console.error("Error fetching professionals:", err);
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getProfessionalById = async (id: string): Promise<Professional | null> => {
+    try {
+      const { data, error: fetchError } = await supabase
+        .from("vl_clinic_core_professionals")
+        .select("*")
+        .eq("professional_id", id)
+        .single();
+
+      if (fetchError) throw fetchError;
+      return data;
+    } catch (err: any) {
+      console.error("Error fetching professional:", err);
+      setError(err.message);
+      return null;
+    }
+  };
+
+  const createProfessional = async (professional: ProfessionalInsert): Promise<Professional | null> => {
+    try {
+      const { data, error: insertError } = await supabase
+        .from("vl_clinic_core_professionals")
+        .insert([professional]) // Envolver em array
         .select()
         .single();
 
-      if (error) throw error;
-      return data as Professional;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['professionals'] });
-    },
-  });
-}
+      if (insertError) throw insertError;
+      await fetchProfessionals();
+      return data;
+    } catch (err: any) {
+      console.error("Error creating professional:", err);
+      setError(err.message);
+      return null;
+    }
+  };
 
-export function useUpdateProfessional() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async ({ id, ...updates }: Partial<Professional> & { id: string }) => {
-      const { data, error } = await supabase
-        .from('professionals')
-        .update({ ...updates, updated_at: new Date().toISOString() })
-        .eq('id', id)
+  const updateProfessional = async (id: string, updates: ProfessionalUpdate): Promise<Professional | null> => {
+    try {
+      const { data, error: updateError } = await supabase
+        .from("vl_clinic_core_professionals")
+        .update(updates)
+        .eq("professional_id", id)
         .select()
         .single();
 
-      if (error) throw error;
-      return data as Professional;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['professionals'] });
-    },
-  });
-}
+      if (updateError) throw updateError;
+      await fetchProfessionals();
+      return data;
+    } catch (err: any) {
+      console.error("Error updating professional:", err);
+      setError(err.message);
+      return null;
+    }
+  };
 
-export function useDeleteProfessional() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async (id: string) => {
-      const { error } = await supabase
-        .from('professionals')
+  const deleteProfessional = async (id: string): Promise<boolean> => {
+    try {
+      const { error: deleteError } = await supabase
+        .from("vl_clinic_core_professionals")
         .delete()
-        .eq('id', id);
+        .eq("professional_id", id);
 
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['professionals'] });
-    },
-  });
-}
+      if (deleteError) throw deleteError;
+      await fetchProfessionals();
+      return true;
+    } catch (err: any) {
+      console.error("Error deleting professional:", err);
+      setError(err.message);
+      return false;
+    }
+  };
+
+  useEffect(() => {
+    fetchProfessionals();
+  }, []);
+
+  return {
+    professionals,
+    loading,
+    error,
+    fetchProfessionals,
+    getProfessionalById,
+    createProfessional,
+    updateProfessional,
+    deleteProfessional,
+  };
+};
