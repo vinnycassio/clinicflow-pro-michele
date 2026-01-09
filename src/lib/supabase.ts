@@ -1,24 +1,48 @@
-import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import { createClient } from "@supabase/supabase-js";
+import type { Database } from "@/types/database";
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || "";
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || "";
 
-// Log for debugging
-console.log('Supabase URL configured:', !!supabaseUrl);
-console.log('Supabase Key configured:', !!supabaseAnonKey);
-
-let supabase: SupabaseClient;
-
-try {
-  supabase = createClient(supabaseUrl, supabaseAnonKey);
-} catch (error) {
-  console.error('Failed to create Supabase client:', error);
-  // Create a dummy client that won't crash the app
-  supabase = createClient('https://placeholder.supabase.co', 'placeholder-key');
+// Validação das credenciais
+if (!supabaseUrl || !supabaseAnonKey) {
+  console.error("⚠️ Supabase credentials are missing!");
+  console.error("VITE_SUPABASE_URL:", supabaseUrl ? "✓ Configured" : "✗ Missing");
+  console.error("VITE_SUPABASE_ANON_KEY:", supabaseAnonKey ? "✓ Configured" : "✗ Missing");
 }
 
-export { supabase };
+export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
+  auth: {
+    persistSession: true,
+    autoRefreshToken: true,
+    detectSessionInUrl: true,
+  },
+  db: {
+    schema: "public",
+  },
+});
 
-export const isSupabaseConfigured = () => {
-  return Boolean(supabaseUrl && supabaseAnonKey);
+export const isSupabaseConfigured = (): boolean => {
+  return Boolean(
+    supabaseUrl &&
+    supabaseAnonKey &&
+    supabaseUrl !== "https://placeholder.supabase.co" &&
+    supabaseAnonKey !== "placeholder-key",
+  );
+};
+
+// Helper para verificar conexão
+export const testSupabaseConnection = async (): Promise<boolean> => {
+  try {
+    const { error } = await supabase.from("vl_clinic_core_patients").select("patient_id").limit(1);
+    if (error) {
+      console.error("Supabase connection test failed:", error);
+      return false;
+    }
+    console.log("✅ Supabase connected successfully!");
+    return true;
+  } catch (error) {
+    console.error("Supabase connection error:", error);
+    return false;
+  }
 };
