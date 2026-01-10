@@ -1,20 +1,16 @@
-import { ReactNode } from "react";
-import { AppSidebar } from "./AppSidebar";
-import { TooltipProvider } from "@/components/ui/tooltip";
+import { Outlet } from "react-router-dom";
+import { Sidebar } from "./Sidebar";
 
-interface AppLayoutProps {
-  children: ReactNode;
-}
-
-export function AppLayout({ children }: AppLayoutProps) {
+export const AppLayout = () => {
   return (
-    <TooltipProvider>
-      <div className="flex min-h-screen w-full bg-background">
-        <AppSidebar />
-        <main className="flex-1 overflow-x-hidden">
-          {children}
-        </main>
-      </div>
-    </TooltipProvider>
+    <div className="min-h-screen bg-background flex">
+      {/* Sidebar */}
+      <Sidebar />
+      
+      {/* Main Content */}
+      <main className="flex-1 overflow-auto">
+        <Outlet />
+      </main>
+    </div>
   );
-}
+};
