@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { useState } from "react";
 import { toast } from "sonner";
-import { Search, UserPlus, Eye, Trash2 } from "lucide-react";
+import { Search, UserPlus, Eye, Trash2, Users } from "lucide-react";
 
 const Patients = () => {
   const { patients, loading, error, searchPatients, deletePatient, fetchPatients } = usePatients();
@@ -59,7 +59,6 @@ const Patients = () => {
 
   return (
     <div className="p-8 space-y-6">
-      {/* Header */}
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold">Pacientes</h1>
@@ -71,7 +70,6 @@ const Patients = () => {
         </Button>
       </div>
 
-      {/* Search Bar */}
       <Card>
         <CardContent className="p-4">
           <div className="flex gap-4">
@@ -92,7 +90,6 @@ const Patients = () => {
         </CardContent>
       </Card>
 
-      {/* Patient List */}
       <div className="space-y-3">
         {patients.length === 0 ? (
           <Card>
@@ -115,12 +112,10 @@ const Patients = () => {
               <CardContent className="p-6">
                 <div className="flex items-start justify-between">
                   <div className="flex items-start gap-4">
-                    {/* Avatar */}
                     <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white font-semibold text-lg">
                       {patient.full_name.charAt(0).toUpperCase()}
                     </div>
 
-                    {/* Info */}
                     <div>
                       <h3 className="font-semibold text-lg">
                         {patient.full_name}
@@ -128,12 +123,12 @@ const Patients = () => {
                       <div className="space-y-1 mt-1">
                         {patient.phone_main && (
                           <p className="text-sm text-gray-600">
-                            📱 {patient.phone_main}
+                            {patient.phone_main}
                           </p>
                         )}
                         {patient.email && (
                           <p className="text-sm text-gray-600">
-                            ✉️ {patient.email}
+                            {patient.email}
                           </p>
                         )}
                         {patient.document_cpf && (
@@ -145,7 +140,6 @@ const Patients = () => {
                     </div>
                   </div>
 
-                  {/* Actions */}
                   <div className="flex gap-2">
                     <Button variant="outline" size="sm" className="gap-2">
                       <Eye className="w-4 h-4" />
