@@ -1,11 +1,11 @@
 import { Outlet } from "react-router-dom";
-import { Sidebar } from "./Sidebar";
+import { AppSidebar } from "./AppSidebar";
 
 export const AppLayout = () => {
   return (
     <div className="min-h-screen bg-background flex">
       {/* Sidebar */}
-      <Sidebar />
+      <AppSidebar />
       
       {/* Main Content */}
       <main className="flex-1 overflow-auto">
