@@ -1,16 +1,16 @@
 import { Outlet } from "react-router-dom";
-import { AppSidebar } from "./AppSidebar";
 
 export const AppLayout = () => {
+  console.log("✅ AppLayout renderizando...");
+  
   return (
-    <div className="min-h-screen bg-background flex">
-      {/* Sidebar */}
-      <AppSidebar />
-      
-      {/* Main Content */}
-      <main className="flex-1 overflow-auto">
+    <div className="min-h-screen bg-gray-100">
+      <div className="p-4 bg-blue-500 text-white">
+        <h1>TESTE - AppLayout funcionando</h1>
+      </div>
+      <div className="p-8">
         <Outlet />
-      </main>
+      </div>
     </div>
   );
 };
