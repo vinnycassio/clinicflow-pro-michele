@@ -53,16 +53,16 @@ export const AppSidebar = () => {
   const location = useLocation();
 
   return (
-    <aside className="w-64 bg-[#2D5A7B] text-white flex flex-col">
+    <aside className="w-64 bg-[#2D5A7B] text-white flex flex-col shadow-xl">
       {/* Logo */}
       <div className="p-6 border-b border-white/10">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-[#A67C52] rounded-lg flex items-center justify-center">
+          <div className="w-10 h-10 bg-[#A67C52] rounded-lg flex items-center justify-center shadow-md">
             <span className="text-white font-bold text-xl">VC</span>
           </div>
           <div>
-            <h1 className="font-semibold text-lg">VLTRA</h1>
-            <p className="text-xs text-white/60">CLINIC</p>
+            <h1 className="font-semibold text-lg tracking-wide">VLTRA</h1>
+            <p className="text-xs text-white/60 uppercase tracking-wider">Clinic</p>
           </div>
         </div>
       </div>
@@ -78,19 +78,22 @@ export const AppSidebar = () => {
               key={item.href}
               to={item.href}
               className={cn(
-                "flex items-center gap-3 px-4 py-3 rounded-lg transition-colors relative",
+                "flex items-center gap-3 px-4 py-3 rounded-lg transition-all relative group",
                 isActive
-                  ? "bg-white/10 text-white"
+                  ? "bg-white/10 text-white shadow-sm"
                   : "text-white/70 hover:bg-white/5 hover:text-white"
               )}
             >
+              {/* Active indicator */}
               {isActive && (
-                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-[#A67C52] rounded-r" />
+                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-[#A67C52] rounded-r shadow-lg" />
               )}
-              <Icon className="w-5 h-5" />
-              <span className="flex-1">{item.title}</span>
+              
+              <Icon className="w-5 h-5 shrink-0" />
+              <span className="flex-1 font-medium">{item.title}</span>
+              
               {item.badge && (
-                <span className="bg-[#A67C52] text-white text-xs px-2 py-0.5 rounded-full">
+                <span className="bg-[#A67C52] text-white text-xs px-2 py-0.5 rounded-full font-semibold shadow-sm">
                   {item.badge}
                 </span>
               )}
@@ -101,8 +104,8 @@ export const AppSidebar = () => {
 
       {/* User Profile */}
       <div className="p-4 border-t border-white/10">
-        <div className="flex items-center gap-3 p-3 rounded-lg hover:bg-white/5 cursor-pointer">
-          <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
+        <div className="flex items-center gap-3 p-3 rounded-lg hover:bg-white/5 cursor-pointer transition-colors">
+          <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center shadow-md">
             <span className="text-sm font-semibold">RM</span>
           </div>
           <div className="flex-1 min-w-0">
