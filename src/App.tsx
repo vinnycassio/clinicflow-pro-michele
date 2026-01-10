@@ -8,6 +8,7 @@ import Dashboard from "./pages/Dashboard";
 import Patients from "./pages/Patients";
 import Professionals from "./pages/Professionals"; 
 import Appointments from "./pages/Appointments";
+import MedicalRecords from "./pages/MedicalRecords";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient({
@@ -39,6 +40,8 @@ const App = () => {
               <Route path="/professionals" element={<Professionals />} />
               <Route path="/agenda" element={<Appointments />} />
               <Route path="/appointments" element={<Appointments />} />
+              <Route path="/prontuarios" element={<MedicalRecords />} />
+              <Route path="/medical-records" element={<MedicalRecords />} />
               <Route path="*" element={<NotFound />} />
             </Route>
           </Routes>
