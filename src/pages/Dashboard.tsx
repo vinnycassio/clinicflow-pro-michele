@@ -1,138 +1,171 @@
-import { Users, Calendar, CheckCircle, Clock, TrendingUp } from "lucide-react";
-import { AppLayout } from "@/components/layout/AppLayout";
-import { PageHeader } from "@/components/layout/PageHeader";
-import { KPICard } from "@/components/dashboard/KPICard";
-import { NextAppointments } from "@/components/dashboard/NextAppointments";
-import { Reminders } from "@/components/dashboard/Reminders";
+import { useEffect, useState } from "react";
+import { supabase } from "@/lib/supabase";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Users, Calendar, CheckCircle2, Clock } from "lucide-react";
 
-function getGreeting() {
-  const hour = new Date().getHours();
-  if (hour < 12) return "Bom dia";
-  if (hour < 18) return "Boa tarde";
-  return "Boa noite";
-}
+const Dashboard = () => {
+  const [stats, setStats] = useState({
+    totalPatients: 0,
+    todayAppointments: 0,
+    completedToday: 0,
+    waiting: 0,
+  });
 
-function getFormattedDate() {
-  return new Intl.DateTimeFormat("pt-BR", {
-    weekday: "long",
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  }).format(new Date());
-}
+  const [loading, setLoading] = useState(true);
 
-export default function Dashboard() {
-  const greeting = getGreeting();
-  const formattedDate = getFormattedDate();
+  useEffect(() => {
+    loadStats();
+  }, []);
 
-  return (
-    <AppLayout>
-      <PageHeader
-        title={`${greeting}, Dr. Rafael! 👋`}
-        subtitle={formattedDate.charAt(0).toUpperCase() + formattedDate.slice(1)}
-      />
+  const loadStats = async () => {
+    try {
+      // Total de pacientes
+      const { count: patientsCount } = await supabase
+        .from("vl_clinic_core_patients")
+        .select("*", { count: "exact", head: true })
+        .eq("status", "active");
 
-      <div className="px-6 lg:px-8 py-6">
-        {/* KPI Cards */}
-        <section className="mb-8">
-          <h2 className="text-heading-4 text-foreground mb-4">Visão de Hoje</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <KPICard
-              title="Total de Pacientes"
-              value="127"
-              subtitle="+12% este mês"
-              icon={Users}
-              iconColor="primary"
-              trend={{ value: "12%", positive: true }}
-              delay={0}
-            />
-            <KPICard
-              title="Agendados Hoje"
-              value="18"
-              subtitle="+3 que ontem"
-              icon={Calendar}
-              iconColor="secondary"
-              trend={{ value: "3", positive: true }}
-              delay={100}
-            />
-            <KPICard
-              title="Atendidos Hoje"
-              value="8"
-              subtitle="80% da meta"
-              icon={CheckCircle}
-              iconColor="success"
-              delay={200}
-            />
-            <KPICard
-              title="Aguardando"
-              value="3"
-              subtitle="15min tempo médio"
-              icon={Clock}
-              iconColor="warning"
-              delay={300}
-            />
-          </div>
-        </section>
+      // Agendamentos de hoje
+      const today = new Date().toISOString().split("T")[0];
+      const { count: todayCount } = await supabase
+        .from("vl_clinic_core_appointments")
+        .select("*", { count: "exact", head: true })
+        .eq("appointment_date", today);
 
-        {/* Main Content Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Next Appointments - Takes 2 columns */}
-          <div className="lg:col-span-2">
-            <NextAppointments />
-          </div>
+      // Atendidos hoje
+      const { count: completedCount } = await supabase
+        .from("vl_clinic_core_appointments")
+        .select("*", { count: "exact", head: true })
+        .eq("appointment_date", today)
+        .eq("status", "completed");
 
-          {/* Reminders - Takes 1 column */}
-          <div>
-            <Reminders />
+      // Aguardando
+      const { count: waitingCount } = await supabase
+        .from("vl_clinic_core_appointments")
+        .select("*", { count: "exact", head: true })
+        .eq("appointment_date", today)
+        .in("status", ["scheduled", "confirmed"]);
+
+      setStats({
+        totalPatients: patientsCount || 0,
+        todayAppointments: todayCount || 0,
+        completedToday: completedCount || 0,
+        waiting: waitingCount || 0,
+      });
+    } catch (error) {
+      console.error("Erro ao carregar estatísticas:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const statCards = [
+    {
+      title: "Total de Pacientes",
+      value: stats.totalPatients,
+      icon: Users,
+      description: "+12% este mês",
+      trend: "+12%",
+    },
+    {
+      title: "Agendados Hoje",
+      value: stats.todayAppointments,
+      icon: Calendar,
+      description: "+3 que ontem",
+      trend: "+3",
+    },
+    {
+      title: "Atendidos Hoje",
+      value: stats.completedToday,
+      icon: CheckCircle2,
+      description: "80% da meta",
+      trend: "80%",
+    },
+    {
+      title: "Aguardando",
+      value: stats.waiting,
+      icon: Clock,
+      description: "15min tempo médio",
+      trend: "15min",
+    },
+  ];
+
+  if (loading) {
+    return (
+      <div className="p-8">
+        <div className="animate-pulse space-y-4">
+          <div className="h-8 bg-gray-200 rounded w-1/4"></div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {[1, 2, 3, 4].map((i) => (
+              <div key={i} className="h-32 bg-gray-200 rounded"></div>
+            ))}
           </div>
         </div>
-
-        {/* Revenue Preview */}
-        <section className="mt-8">
-          <div className="card-premium p-6">
-            <div className="flex items-center justify-between mb-6">
-              <div>
-                <h3 className="font-display text-display-2 text-foreground">
-                  Receita do Mês
-                </h3>
-                <p className="text-caption text-muted-foreground mt-1">
-                  Janeiro 2025
-                </p>
-              </div>
-              <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-success/10 text-success text-sm font-medium">
-                <TrendingUp className="w-4 h-4" />
-                +18% vs mês anterior
-              </div>
-            </div>
-
-            <div className="flex items-end gap-8">
-              <div>
-                <p className="text-sm text-muted-foreground">Receita Total</p>
-                <p className="text-4xl font-bold text-foreground mt-1">
-                  R$ 47.580
-                  <span className="text-lg font-normal text-muted-foreground">,00</span>
-                </p>
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Meta</p>
-                <p className="text-xl font-semibold text-foreground mt-1">
-                  R$ 60.000,00
-                </p>
-              </div>
-              <div className="flex-1 max-w-xs">
-                <p className="text-sm text-muted-foreground mb-2">Progresso</p>
-                <div className="h-3 bg-muted rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-gradient-to-r from-primary to-secondary rounded-full transition-all duration-1000"
-                    style={{ width: "79%" }}
-                  />
-                </div>
-                <p className="text-xs text-muted-foreground mt-1">79% da meta</p>
-              </div>
-            </div>
-          </div>
-        </section>
       </div>
-    </AppLayout>
+    );
+  }
+
+  return (
+    <div className="p-8 space-y-8">
+      {/* Header */}
+      <div>
+        <h1 className="text-3xl font-bold mb-2">
+          Bom dia, Dr. Rafael! 👋
+        </h1>
+        <p className="text-gray-500">
+          {new Date().toLocaleDateString("pt-BR", {
+            weekday: "long",
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+          })}
+        </p>
+      </div>
+
+      {/* Stats Cards */}
+      <div>
+        <h2 className="text-xl font-semibold mb-4">Visão de Hoje</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {statCards.map((stat, index) => {
+            const Icon = stat.icon;
+            return (
+              <Card key={index}>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium text-gray-600">
+                    {stat.title}
+                  </CardTitle>
+                  <Icon className="h-5 w-5 text-gray-400" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-3xl font-bold">{stat.value}</div>
+                  <p className="text-xs text-gray-500 mt-1">
+                    {stat.description}
+                  </p>
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Próximos Atendimentos */}
+      <div>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl font-semibold">Próximos Atendimentos</h2>
+          <a href="/agenda" className="text-sm text-blue-600 hover:underline">
+            Ver agenda →
+          </a>
+        </div>
+        <Card>
+          <CardContent className="p-6">
+            <p className="text-gray-500 text-center py-8">
+              Nenhum agendamento para hoje
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
   );
-}
+};
+
+export default Dashboard;
