@@ -18,7 +18,7 @@ const queryClient = new QueryClient({
 });
 
 const App = () => {
-  console.log("🚀 App iniciando...");
+  console.log("🚀 VLTRA Clinic iniciando...");
 
   return (
     <QueryClientProvider client={queryClient}>
