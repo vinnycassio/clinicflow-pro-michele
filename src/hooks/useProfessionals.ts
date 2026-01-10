@@ -17,17 +17,31 @@ export const useProfessionals = () => {
     try {
       setLoading(true);
       setError(null);
-
-      const { data, error: fetchError } = await supabase
+      
+      console.log("🔍 Buscando profissionais...");
+      
+      const { data, error: fetchError, count } = await supabase
         .from("vl_clinic_core_professionals")
-        .select("*")
+        .select("*", { count: "exact" })
         .eq("is_active", true)
         .order("full_name", { ascending: true });
 
-      if (fetchError) throw fetchError;
-      setProfessionals((data as Professional[]) || []);
+      console.log("📊 Resultado da busca:", {
+        total: count,
+        encontrados: data?.length,
+        dados: data,
+        erro: fetchError,
+      });
+
+      if (fetchError) {
+        console.error("❌ Erro ao buscar profissionais:", fetchError);
+        throw fetchError;
+      }
+
+      setProfessionals(data || []);
+      console.log("✅ Profissionais carregados:", data?.length || 0);
     } catch (err: any) {
-      console.error("Error fetching professionals:", err);
+      console.error("❌ Erro no fetchProfessionals:", err);
       setError(err.message);
     } finally {
       setLoading(false);
@@ -43,7 +57,7 @@ export const useProfessionals = () => {
         .single();
 
       if (fetchError) throw fetchError;
-      return (data as Professional) ?? null;
+      return data;
     } catch (err: any) {
       console.error("Error fetching professional:", err);
       setError(err.message);
@@ -55,13 +69,13 @@ export const useProfessionals = () => {
     try {
       const { data, error: insertError } = await supabase
         .from("vl_clinic_core_professionals")
-        .insert([professional]) // Envolver em array
+        .insert([professional])
         .select()
         .single();
 
       if (insertError) throw insertError;
       await fetchProfessionals();
-      return (data as Professional) ?? null;
+      return data;
     } catch (err: any) {
       console.error("Error creating professional:", err);
       setError(err.message);
@@ -80,7 +94,7 @@ export const useProfessionals = () => {
 
       if (updateError) throw updateError;
       await fetchProfessionals();
-      return (data as Professional) ?? null;
+      return data;
     } catch (err: any) {
       console.error("Error updating professional:", err);
       setError(err.message);
