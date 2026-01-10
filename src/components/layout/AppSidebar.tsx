@@ -1,199 +1,116 @@
-import { useState } from "react";
-import { NavLink, useLocation } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
+import { cn } from "@/lib/utils";
 import {
   LayoutDashboard,
   Users,
   Calendar,
   FileText,
-  Stethoscope,
+  Activity,
   UserCog,
   Settings,
-  ChevronLeft,
-  ChevronRight,
-  Bell,
-  LogOut,
-  Sparkles,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 
 const menuItems = [
-  { title: "Dashboard", url: "/", icon: LayoutDashboard },
-  { title: "Pacientes", url: "/pacientes", icon: Users, badge: "127" },
-  { title: "Agenda", url: "/agenda", icon: Calendar },
-  { title: "Prontuários", url: "/prontuarios", icon: FileText },
-  { title: "Tratamentos", url: "/tratamentos", icon: Stethoscope },
-  { title: "Profissionais", url: "/profissionais", icon: UserCog },
-  { title: "Configurações", url: "/configuracoes", icon: Settings },
+  {
+    title: "Dashboard",
+    href: "/",
+    icon: LayoutDashboard,
+  },
+  {
+    title: "Pacientes",
+    href: "/pacientes",
+    icon: Users,
+    badge: "127",
+  },
+  {
+    title: "Agenda",
+    href: "/agenda",
+    icon: Calendar,
+  },
+  {
+    title: "Prontuários",
+    href: "/prontuarios",
+    icon: FileText,
+  },
+  {
+    title: "Tratamentos",
+    href: "/tratamentos",
+    icon: Activity,
+  },
+  {
+    title: "Profissionais",
+    href: "/profissionais",
+    icon: UserCog,
+  },
+  {
+    title: "Configurações",
+    href: "/configuracoes",
+    icon: Settings,
+  },
 ];
 
-export function AppSidebar() {
-  const [collapsed, setCollapsed] = useState(false);
+export const Sidebar = () => {
   const location = useLocation();
 
   return (
-    <aside
-      className={cn(
-        "sidebar-gradient flex flex-col h-screen sticky top-0 transition-all duration-300 ease-out",
-        collapsed ? "w-[72px]" : "w-[260px]"
-      )}
-    >
+    <aside className="w-64 bg-[#2D5A7B] text-white flex flex-col">
       {/* Logo */}
-      <div className={cn(
-        "flex items-center gap-3 px-5 py-6 border-b border-sidebar-border/30",
-        collapsed && "justify-center px-3"
-      )}>
-        <div className="relative flex items-center justify-center w-10 h-10 rounded-xl bg-secondary/90 animate-pulse-glow">
-          <Sparkles className="w-5 h-5 text-secondary-foreground" />
-        </div>
-        {!collapsed && (
-          <div className="animate-fade-in">
-            <h1 className="font-display text-xl font-semibold text-sidebar-foreground tracking-tight">
-              VLTRA
-            </h1>
-            <p className="text-[10px] uppercase tracking-[0.2em] text-sidebar-foreground/60">
-              Clinic
-            </p>
+      <div className="p-6 border-b border-white/10">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 bg-[#A67C52] rounded-lg flex items-center justify-center">
+            <span className="text-white font-bold text-xl">VC</span>
           </div>
-        )}
+          <div>
+            <h1 className="font-semibold text-lg">VLTRA</h1>
+            <p className="text-xs text-white/60">CLINIC</p>
+          </div>
+        </div>
       </div>
 
-      {/* Navigation */}
-      <nav className="flex-1 py-4 px-3 overflow-y-auto">
-        <ul className="space-y-1">
-          {menuItems.map((item, index) => {
-            const isActive = location.pathname === item.url;
-            const Icon = item.icon;
+      {/* Menu Items */}
+      <nav className="flex-1 p-4 space-y-1">
+        {menuItems.map((item) => {
+          const Icon = item.icon;
+          const isActive = location.pathname === item.href;
 
-            const linkContent = (
-              <NavLink
-                to={item.url}
-                className={cn(
-                  "flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 group",
-                  isActive
-                    ? "sidebar-item-active bg-sidebar-accent/50 text-sidebar-foreground"
-                    : "text-sidebar-foreground/70 hover:bg-sidebar-accent/30 hover:text-sidebar-foreground",
-                  collapsed && "justify-center px-2"
-                )}
-                style={{ animationDelay: `${index * 50}ms` }}
-              >
-                <Icon
-                  className={cn(
-                    "w-5 h-5 shrink-0 transition-transform duration-200",
-                    !isActive && "group-hover:scale-110"
-                  )}
-                />
-                {!collapsed && (
-                  <>
-                    <span className="text-sm font-medium">{item.title}</span>
-                    {item.badge && (
-                      <span className="ml-auto px-2 py-0.5 text-[10px] font-semibold rounded-full bg-secondary/80 text-secondary-foreground">
-                        {item.badge}
-                      </span>
-                    )}
-                  </>
-                )}
-              </NavLink>
-            );
-
-            return (
-              <li key={item.title} className="animate-slide-in-left" style={{ animationDelay: `${index * 50}ms` }}>
-                {collapsed ? (
-                  <Tooltip delayDuration={0}>
-                    <TooltipTrigger asChild>{linkContent}</TooltipTrigger>
-                    <TooltipContent side="right" className="flex items-center gap-2">
-                      {item.title}
-                      {item.badge && (
-                        <span className="px-1.5 py-0.5 text-[10px] font-semibold rounded-full bg-secondary text-secondary-foreground">
-                          {item.badge}
-                        </span>
-                      )}
-                    </TooltipContent>
-                  </Tooltip>
-                ) : (
-                  linkContent
-                )}
-              </li>
-            );
-          })}
-        </ul>
+          return (
+            <Link
+              key={item.href}
+              to={item.href}
+              className={cn(
+                "flex items-center gap-3 px-4 py-3 rounded-lg transition-colors relative",
+                isActive
+                  ? "bg-white/10 text-white"
+                  : "text-white/70 hover:bg-white/5 hover:text-white"
+              )}
+            >
+              {isActive && (
+                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-[#A67C52] rounded-r" />
+              )}
+              <Icon className="w-5 h-5" />
+              <span className="flex-1">{item.title}</span>
+              {item.badge && (
+                <span className="bg-[#A67C52] text-white text-xs px-2 py-0.5 rounded-full">
+                  {item.badge}
+                </span>
+              )}
+            </Link>
+          );
+        })}
       </nav>
 
       {/* User Profile */}
-      <div className={cn(
-        "border-t border-sidebar-border/30 p-4",
-        collapsed && "px-3"
-      )}>
-        {!collapsed ? (
-          <div className="flex items-center gap-3 animate-fade-in">
-            <Avatar className="w-10 h-10 border-2 border-secondary/50">
-              <AvatarImage src="/placeholder.svg" alt="Dr. Rafael Martins" />
-              <AvatarFallback className="bg-secondary/80 text-secondary-foreground font-medium text-sm">
-                RM
-              </AvatarFallback>
-            </Avatar>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-sidebar-foreground truncate">
-                Dr. Rafael Martins
-              </p>
-              <p className="text-xs text-sidebar-foreground/60 truncate">
-                Dermatologia
-              </p>
-            </div>
-            <div className="flex gap-1">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="w-8 h-8 text-sidebar-foreground/60 hover:text-sidebar-foreground hover:bg-sidebar-accent/30"
-              >
-                <Bell className="w-4 h-4" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="w-8 h-8 text-sidebar-foreground/60 hover:text-sidebar-foreground hover:bg-sidebar-accent/30"
-              >
-                <LogOut className="w-4 h-4" />
-              </Button>
-            </div>
+      <div className="p-4 border-t border-white/10">
+        <div className="flex items-center gap-3 p-3 rounded-lg hover:bg-white/5 cursor-pointer">
+          <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
+            <span className="text-sm font-semibold">RM</span>
           </div>
-        ) : (
-          <Tooltip delayDuration={0}>
-            <TooltipTrigger asChild>
-              <Avatar className="w-10 h-10 mx-auto cursor-pointer border-2 border-secondary/50 transition-transform hover:scale-105">
-                <AvatarImage src="/placeholder.svg" alt="Dr. Rafael Martins" />
-                <AvatarFallback className="bg-secondary/80 text-secondary-foreground font-medium text-sm">
-                  RM
-                </AvatarFallback>
-              </Avatar>
-            </TooltipTrigger>
-            <TooltipContent side="right">
-              <p className="font-medium">Dr. Rafael Martins</p>
-              <p className="text-xs text-muted-foreground">Dermatologia</p>
-            </TooltipContent>
-          </Tooltip>
-        )}
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-medium truncate">Dr. Rafael Martins</p>
+            <p className="text-xs text-white/60">Dermatologia</p>
+          </div>
+        </div>
       </div>
-
-      {/* Collapse Toggle */}
-      <Button
-        variant="ghost"
-        size="icon"
-        onClick={() => setCollapsed(!collapsed)}
-        className="absolute -right-3 top-20 w-6 h-6 rounded-full bg-card border border-border shadow-premium-sm text-muted-foreground hover:text-foreground hover:bg-card"
-      >
-        {collapsed ? (
-          <ChevronRight className="w-3 h-3" />
-        ) : (
-          <ChevronLeft className="w-3 h-3" />
-        )}
-      </Button>
     </aside>
   );
-}
+};
