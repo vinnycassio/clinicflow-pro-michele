@@ -20,27 +20,23 @@ const Dashboard = () => {
 
   const loadStats = async () => {
     try {
-      // Total de pacientes
       const { count: patientsCount } = await supabase
         .from("vl_clinic_core_patients")
         .select("*", { count: "exact", head: true })
         .eq("status", "active");
 
-      // Agendamentos de hoje
       const today = new Date().toISOString().split("T")[0];
       const { count: todayCount } = await supabase
         .from("vl_clinic_core_appointments")
         .select("*", { count: "exact", head: true })
         .eq("appointment_date", today);
 
-      // Atendidos hoje
       const { count: completedCount } = await supabase
         .from("vl_clinic_core_appointments")
         .select("*", { count: "exact", head: true })
         .eq("appointment_date", today)
         .eq("status", "completed");
 
-      // Aguardando
       const { count: waitingCount } = await supabase
         .from("vl_clinic_core_appointments")
         .select("*", { count: "exact", head: true })
@@ -65,8 +61,8 @@ const Dashboard = () => {
       title: "Total de Pacientes",
       value: stats.totalPatients,
       icon: Users,
-      description: "+12% este mês",
-      trend: "12%",
+      description: "este mês",
+      trend: "+12%",
       color: "text-blue-600",
       bgColor: "bg-blue-50",
     },
@@ -74,7 +70,7 @@ const Dashboard = () => {
       title: "Agendados Hoje",
       value: stats.todayAppointments,
       icon: Calendar,
-      description: "+3 que ontem",
+      description: "que ontem",
       trend: "+3",
       color: "text-orange-600",
       bgColor: "bg-orange-50",
@@ -83,7 +79,7 @@ const Dashboard = () => {
       title: "Atendidos Hoje",
       value: stats.completedToday,
       icon: CheckCircle2,
-      description: "80% da meta",
+      description: "da meta",
       trend: "80%",
       color: "text-green-600",
       bgColor: "bg-green-50",
@@ -92,7 +88,7 @@ const Dashboard = () => {
       title: "Aguardando",
       value: stats.waiting,
       icon: Clock,
-      description: "15min tempo médio",
+      description: "tempo médio",
       trend: "15min",
       color: "text-amber-600",
       bgColor: "bg-amber-50",
@@ -116,10 +112,9 @@ const Dashboard = () => {
 
   return (
     <div className="p-8 space-y-8">
-      {/* Header */}
       <div>
         <h1 className="text-3xl font-bold text-gray-900 mb-2">
-          Bom dia, Dr. Rafael! 👋
+          Bom dia, Dr. Rafael!
         </h1>
         <p className="text-gray-500">
           {new Date().toLocaleDateString("pt-BR", {
@@ -131,7 +126,6 @@ const Dashboard = () => {
         </p>
       </div>
 
-      {/* Stats Section */}
       <div>
         <h2 className="text-xl font-semibold text-gray-900 mb-4">Visão de Hoje</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -155,7 +149,7 @@ const Dashboard = () => {
                     <span className={cn("font-semibold", stat.color)}>
                       {stat.trend}
                     </span>
-                    {stat.description}
+                    <span>{stat.description}</span>
                   </p>
                 </CardContent>
               </Card>
@@ -164,7 +158,6 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {/* Próximos Atendimentos */}
       <div>
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-semibold text-gray-900">
@@ -174,7 +167,7 @@ const Dashboard = () => {
             href="/agenda"
             className="text-sm text-blue-600 hover:text-blue-700 font-medium flex items-center gap-1"
           >
-            Ver agenda completa
+            <span>Ver agenda completa</span>
             <ArrowRight className="w-4 h-4" />
           </a>
         </div>
@@ -183,15 +176,6 @@ const Dashboard = () => {
             <div className="text-center text-gray-500">
               <Calendar className="w-12 h-12 text-gray-300 mx-auto mb-3" />
               <p className="font-medium">Nenhum agendamento para hoje</p>
-              <p className="text-sm mt-1">
-                Sua agenda está livre no momento
-              </p>
+              <p className="text-sm mt-1">Sua agenda está livre no momento</p>
             </div>
           </CardContent>
-        </Card>
-      </div>
-    </div>
-  );
-};
-
-export default Dashboard;
