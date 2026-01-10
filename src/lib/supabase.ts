@@ -1,37 +1,63 @@
-import { createClient } from "@supabase/supabase-js";
-import type { Database } from "@/types/database";
+import { createClient } from '@supabase/supabase-js';
+import type { Database } from '@/types/database';
+import { SUPABASE_CONFIG } from './supabase.config';
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || "";
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || "";
+// Tentar usar variáveis de ambiente primeiro, depois fallback para config
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || SUPABASE_CONFIG.url;
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || SUPABASE_CONFIG.anonKey;
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  console.warn("⚠️ Supabase credentials are missing!");
-}
+console.log('🔌 Inicializando cliente Supabase...');
+console.log('📍 URL:', supabaseUrl);
 
-// Criar cliente tipado corretamente
+// Criar cliente tipado
 export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
   auth: {
     persistSession: true,
     autoRefreshToken: true,
     detectSessionInUrl: true,
   },
+  db: {
+    schema: 'public',
+  },
 });
 
+// Verificar se está configurado
 export const isSupabaseConfigured = (): boolean => {
-  return Boolean(supabaseUrl && supabaseAnonKey && supabaseUrl !== "https://placeholder.supabase.co");
+  return Boolean(
+    supabaseUrl && 
+    supabaseAnonKey && 
+    supabaseUrl !== 'https://seu-projeto.supabase.co' &&
+    supabaseAnonKey !== 'sua-chave-publica-aqui'
+  );
 };
 
+// Testar conexão
 export const testSupabaseConnection = async (): Promise<boolean> => {
   try {
-    const { error } = await supabase.from("vl_clinic_core_patients").select("patient_id").limit(1);
+    console.log('🧪 Testando conexão com Supabase...');
+    
+    const { data, error } = await supabase
+      .from('vl_clinic_core_patients')
+      .select('patient_id')
+      .limit(1);
+    
     if (error) {
-      console.error("Supabase connection test failed:", error);
+      console.error('❌ Erro na conexão:', error.message);
+      console.error('Detalhes:', error);
       return false;
     }
-    console.log("✅ Supabase connected successfully!");
+    
+    console.log('✅ Conectado ao Supabase com sucesso!');
+    console.log('📊 Teste de query funcionou');
     return true;
-  } catch (error) {
-    console.error("Supabase connection error:", error);
+    
+  } catch (error: any) {
+    console.error('❌ Erro ao testar conexão:', error.message);
     return false;
   }
 };
+
+// Testar conexão ao inicializar (apenas em desenvolvimento)
+if (import.meta.env.DEV) {
+  testSupabaseConnection();
+}
