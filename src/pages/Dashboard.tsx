@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Users, Calendar, CheckCircle2, Clock } from "lucide-react";
+import { Users, Calendar, CheckCircle2, Clock, ArrowRight } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 const Dashboard = () => {
   const [stats, setStats] = useState({
@@ -65,7 +66,7 @@ const Dashboard = () => {
       value: stats.totalPatients,
       icon: Users,
       description: "+12% este mês",
-      trend: "↑ 12%",
+      trend: "12%",
       color: "text-blue-600",
       bgColor: "bg-blue-50",
     },
@@ -74,7 +75,7 @@ const Dashboard = () => {
       value: stats.todayAppointments,
       icon: Calendar,
       description: "+3 que ontem",
-      trend: "↑ 3",
+      trend: "+3",
       color: "text-orange-600",
       bgColor: "bg-orange-50",
     },
@@ -171,9 +172,10 @@ const Dashboard = () => {
           </h2>
           
             href="/agenda"
-            className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+            className="text-sm text-blue-600 hover:text-blue-700 font-medium flex items-center gap-1"
           >
-            Ver agenda completa →
+            Ver agenda completa
+            <ArrowRight className="w-4 h-4" />
           </a>
         </div>
         <Card>
