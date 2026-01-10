@@ -179,3 +179,10 @@ const Dashboard = () => {
               <p className="text-sm mt-1">Sua agenda está livre no momento</p>
             </div>
           </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+};
+
+export default Dashboard;
