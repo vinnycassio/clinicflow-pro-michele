@@ -6,7 +6,8 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AppLayout } from "./components/layout/AppLayout";
 import Dashboard from "./pages/Dashboard";
 import Patients from "./pages/Patients";
-import Professionals from "./pages/Professionals"; // ✅ Import sem chaves
+import Professionals from "./pages/Professionals"; 
+import Appointments from "./pages/Appointments";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient({
@@ -36,6 +37,8 @@ const App = () => {
               <Route path="/patients" element={<Patients />} />
               <Route path="/profissionais" element={<Professionals />} />
               <Route path="/professionals" element={<Professionals />} />
+              <Route path="/agenda" element={<Appointments />} />
+              <Route path="/appointments" element={<Appointments />} />
               <Route path="*" element={<NotFound />} />
             </Route>
           </Routes>
