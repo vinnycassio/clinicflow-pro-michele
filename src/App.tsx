@@ -8,37 +8,38 @@ import Dashboard from "./pages/Dashboard";
 import Patients from "./pages/Patients";
 import NotFound from "./pages/NotFound";
 
-// Importar outras páginas quando existirem
-// import Appointments from "./pages/Appointments";
-// import Professionals from "./pages/Professionals";
-// import PatientProfile from "./pages/PatientProfile";
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 1,
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
-const queryClient = new QueryClient();
+const App = () => {
+  console.log("🚀 App iniciando...");
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route element={<AppLayout />}>
-            <Route index element={<Dashboard />} />
-            <Route path="/" element={<Dashboard />} />
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/pacientes" element={<Patients />} />
-            <Route path="/patients" element={<Patients />} />
-            {/* Descomentar quando criar as páginas */}
-            {/* <Route path="/agenda" element={<Appointments />} /> */}
-            {/* <Route path="/profissionais" element={<Professionals />} /> */}
-            {/* <Route path="/professionals" element={<Professionals />} /> */}
-            {/* <Route path="/pacientes/:id" element={<PatientProfile />} /> */}
-            <Route path="*" element={<NotFound />} />
-          </Route>
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+  return (
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <Routes>
+            <Route element={<AppLayout />}>
+              <Route index element={<Dashboard />} />
+              <Route path="/" element={<Dashboard />} />
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/pacientes" element={<Patients />} />
+              <Route path="/patients" element={<Patients />} />
+              <Route path="*" element={<NotFound />} />
+            </Route>
+          </Routes>
+        </BrowserRouter>
+      </TooltipProvider>
+    </QueryClientProvider>
+  );
+};
 
 export default App;
