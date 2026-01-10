@@ -65,14 +65,18 @@ const Dashboard = () => {
       value: stats.totalPatients,
       icon: Users,
       description: "+12% este mês",
-      trend: "+12%",
+      trend: "↑ 12%",
+      color: "text-blue-600",
+      bgColor: "bg-blue-50",
     },
     {
       title: "Agendados Hoje",
       value: stats.todayAppointments,
       icon: Calendar,
       description: "+3 que ontem",
-      trend: "+3",
+      trend: "↑ 3",
+      color: "text-orange-600",
+      bgColor: "bg-orange-50",
     },
     {
       title: "Atendidos Hoje",
@@ -80,6 +84,8 @@ const Dashboard = () => {
       icon: CheckCircle2,
       description: "80% da meta",
       trend: "80%",
+      color: "text-green-600",
+      bgColor: "bg-green-50",
     },
     {
       title: "Aguardando",
@@ -87,6 +93,8 @@ const Dashboard = () => {
       icon: Clock,
       description: "15min tempo médio",
       trend: "15min",
+      color: "text-amber-600",
+      bgColor: "bg-amber-50",
     },
   ];
 
@@ -97,7 +105,7 @@ const Dashboard = () => {
           <div className="h-8 bg-gray-200 rounded w-1/4"></div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="h-32 bg-gray-200 rounded"></div>
+              <div key={i} className="h-32 bg-gray-200 rounded-lg"></div>
             ))}
           </div>
         </div>
@@ -109,36 +117,43 @@ const Dashboard = () => {
     <div className="p-8 space-y-8">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold mb-2">
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">
           Bom dia, Dr. Rafael! 👋
         </h1>
         <p className="text-gray-500">
           {new Date().toLocaleDateString("pt-BR", {
             weekday: "long",
-            year: "numeric",
-            month: "long",
             day: "numeric",
+            month: "long",
+            year: "numeric",
           })}
         </p>
       </div>
 
-      {/* Stats Cards */}
+      {/* Stats Section */}
       <div>
-        <h2 className="text-xl font-semibold mb-4">Visão de Hoje</h2>
+        <h2 className="text-xl font-semibold text-gray-900 mb-4">Visão de Hoje</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {statCards.map((stat, index) => {
             const Icon = stat.icon;
             return (
-              <Card key={index}>
+              <Card key={index} className="hover:shadow-lg transition-shadow">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium text-gray-600">
                     {stat.title}
                   </CardTitle>
-                  <Icon className="h-5 w-5 text-gray-400" />
+                  <div className={cn("p-2 rounded-lg", stat.bgColor)}>
+                    <Icon className={cn("h-5 w-5", stat.color)} />
+                  </div>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-3xl font-bold">{stat.value}</div>
-                  <p className="text-xs text-gray-500 mt-1">
+                  <div className="text-3xl font-bold text-gray-900">
+                    {stat.value}
+                  </div>
+                  <p className="text-xs text-gray-500 mt-2 flex items-center gap-2">
+                    <span className={cn("font-semibold", stat.color)}>
+                      {stat.trend}
+                    </span>
                     {stat.description}
                   </p>
                 </CardContent>
@@ -151,16 +166,25 @@ const Dashboard = () => {
       {/* Próximos Atendimentos */}
       <div>
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-semibold">Próximos Atendimentos</h2>
-          <a href="/agenda" className="text-sm text-blue-600 hover:underline">
-            Ver agenda →
+          <h2 className="text-xl font-semibold text-gray-900">
+            Próximos Atendimentos
+          </h2>
+          
+            href="/agenda"
+            className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+          >
+            Ver agenda completa →
           </a>
         </div>
         <Card>
-          <CardContent className="p-6">
-            <p className="text-gray-500 text-center py-8">
-              Nenhum agendamento para hoje
-            </p>
+          <CardContent className="p-12">
+            <div className="text-center text-gray-500">
+              <Calendar className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+              <p className="font-medium">Nenhum agendamento para hoje</p>
+              <p className="text-sm mt-1">
+                Sua agenda está livre no momento
+              </p>
+            </div>
           </CardContent>
         </Card>
       </div>
