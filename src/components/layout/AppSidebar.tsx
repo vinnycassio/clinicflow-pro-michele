@@ -49,7 +49,7 @@ const menuItems = [
   },
 ];
 
-export const Sidebar = () => {
+export const AppSidebar = () => {
   const location = useLocation();
 
   return (
