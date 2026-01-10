@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
-import { supabase } from "@/lib/supabase";
-import type { Appointment, AppointmentInsert, AppointmentUpdate, AppointmentWithDetails } from "@/types/database";
+import { useState, useEffect } from 'react';
+import { supabase } from '@/lib/supabase';
+import type { Appointment, AppointmentInsert, AppointmentUpdate, AppointmentWithDetails } from '@/types/database';
 
 export const useAppointments = (professionalId?: string, date?: string) => {
   const [appointments, setAppointments] = useState<AppointmentWithDetails[]>([]);
@@ -11,11 +11,10 @@ export const useAppointments = (professionalId?: string, date?: string) => {
     try {
       setLoading(true);
       setError(null);
-
+      
       let query = supabase
-        .from("vl_clinic_core_appointments")
-        .select(
-          `
+        .from('vl_clinic_core_appointments')
+        .select(`
           *,
           patient:vl_clinic_core_patients(
             patient_id,
@@ -29,25 +28,24 @@ export const useAppointments = (professionalId?: string, date?: string) => {
             short_name,
             specialty
           )
-        `,
-        )
-        .order("appointment_date", { ascending: true })
-        .order("appointment_start_time", { ascending: true });
+        `)
+        .order('appointment_date', { ascending: true })
+        .order('appointment_start_time', { ascending: true });
 
       if (professionalId) {
-        query = query.eq("professional_id", professionalId);
+        query = query.eq('professional_id', professionalId);
       }
 
       if (date) {
-        query = query.eq("appointment_date", date);
+        query = query.eq('appointment_date', date);
       }
 
-       const { data, error: fetchError } = await query;
+      const { data, error: fetchError } = await query;
 
       if (fetchError) throw fetchError;
-      setAppointments(((data as unknown) as AppointmentWithDetails[]) || []);
+      setAppointments(data as AppointmentWithDetails[] || []);
     } catch (err: any) {
-      console.error("Error fetching appointments:", err);
+      console.error('Erro ao carregar agendamentos:', err);
       setError(err.message);
     } finally {
       setLoading(false);
@@ -57,21 +55,19 @@ export const useAppointments = (professionalId?: string, date?: string) => {
   const getAppointmentById = async (id: string): Promise<AppointmentWithDetails | null> => {
     try {
       const { data, error: fetchError } = await supabase
-        .from("vl_clinic_core_appointments")
-        .select(
-          `
+        .from('vl_clinic_core_appointments')
+        .select(`
           *,
           patient:vl_clinic_core_patients(*),
           professional:vl_clinic_core_professionals(*)
-        `,
-        )
-        .eq("appointment_id", id)
+        `)
+        .eq('appointment_id', id)
         .single();
 
       if (fetchError) throw fetchError;
-      return ((data as unknown) as AppointmentWithDetails) ?? null;
+      return data as AppointmentWithDetails;
     } catch (err: any) {
-      console.error("Error fetching appointment:", err);
+      console.error('Erro ao buscar agendamento:', err);
       setError(err.message);
       return null;
     }
@@ -80,16 +76,16 @@ export const useAppointments = (professionalId?: string, date?: string) => {
   const createAppointment = async (appointment: AppointmentInsert): Promise<Appointment | null> => {
     try {
       const { data, error: insertError } = await supabase
-        .from("vl_clinic_core_appointments")
-        .insert([appointment]) // Envolver em array
+        .from('vl_clinic_core_appointments')
+        .insert([appointment])
         .select()
         .single();
 
       if (insertError) throw insertError;
       await fetchAppointments();
-      return (data as Appointment) ?? null;
+      return data;
     } catch (err: any) {
-      console.error("Error creating appointment:", err);
+      console.error('Erro ao criar agendamento:', err);
       setError(err.message);
       return null;
     }
@@ -98,17 +94,17 @@ export const useAppointments = (professionalId?: string, date?: string) => {
   const updateAppointment = async (id: string, updates: AppointmentUpdate): Promise<Appointment | null> => {
     try {
       const { data, error: updateError } = await supabase
-        .from("vl_clinic_core_appointments")
+        .from('vl_clinic_core_appointments')
         .update(updates)
-        .eq("appointment_id", id)
+        .eq('appointment_id', id)
         .select()
         .single();
 
       if (updateError) throw updateError;
       await fetchAppointments();
-      return (data as Appointment) ?? null;
+      return data;
     } catch (err: any) {
-      console.error("Error updating appointment:", err);
+      console.error('Erro ao atualizar agendamento:', err);
       setError(err.message);
       return null;
     }
@@ -117,20 +113,20 @@ export const useAppointments = (professionalId?: string, date?: string) => {
   const cancelAppointment = async (id: string, reason: string): Promise<Appointment | null> => {
     try {
       const { data, error: updateError } = await supabase
-        .from("vl_clinic_core_appointments")
+        .from('vl_clinic_core_appointments')
         .update({
-          status: "cancelled",
+          status: 'cancelled',
           notes: reason,
         })
-        .eq("appointment_id", id)
+        .eq('appointment_id', id)
         .select()
         .single();
 
       if (updateError) throw updateError;
       await fetchAppointments();
-      return (data as Appointment) ?? null;
+      return data;
     } catch (err: any) {
-      console.error("Error cancelling appointment:", err);
+      console.error('Erro ao cancelar agendamento:', err);
       setError(err.message);
       return null;
     }
@@ -139,15 +135,15 @@ export const useAppointments = (professionalId?: string, date?: string) => {
   const deleteAppointment = async (id: string): Promise<boolean> => {
     try {
       const { error: deleteError } = await supabase
-        .from("vl_clinic_core_appointments")
+        .from('vl_clinic_core_appointments')
         .delete()
-        .eq("appointment_id", id);
+        .eq('appointment_id', id);
 
       if (deleteError) throw deleteError;
       await fetchAppointments();
       return true;
     } catch (err: any) {
-      console.error("Error deleting appointment:", err);
+      console.error('Erro ao deletar agendamento:', err);
       setError(err.message);
       return false;
     }
