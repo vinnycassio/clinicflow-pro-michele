@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { NewBudgetModal } from "@/components/financial/NewBudgetModal";
 import {
   DollarSign,
   TrendingUp,
@@ -23,6 +24,7 @@ import { ptBR } from "date-fns/locale";
 import { toast } from "sonner";
 
 const Financial = () => {
+  const [showNewBudgetModal, setShowNewBudgetModal] = useState(false);
   const { budgets, sales, payments, loading, error, markPaymentAsPaid } = useFinancial();
   const [activeTab, setActiveTab] = useState("overview");
 
@@ -169,7 +171,11 @@ const Financial = () => {
           <p className="text-gray-500 mt-1">Gestão completa de orçamentos, vendas e pagamentos</p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" className="gap-2">
+          <Button 
+            variant="outline" 
+            className="gap-2"
+            onClick={() => setShowNewBudgetModal(true)}
+          >
             <FileText className="w-4 h-4" />
             Novo Orçamento
           </Button>
@@ -632,6 +638,10 @@ const Financial = () => {
                 </Card>
               ))}
             </div>
+            <NewBudgetModal
+              open={showNewBudgetModal}
+              onOpenChange={setShowNewBudgetModal}
+            />      
           )}
         </TabsContent>
       </Tabs>
