@@ -78,9 +78,13 @@ export const useAppointments = (professionalId?: string, date?: string) => {
       const { data, error: insertError } = await supabase
         .from('vl_clinic_core_appointments')
         .insert([appointment])
-        .select()
+        .select(`
+          *,
+          patient:vl_clinic_core_patients(patient_id, full_name, phone_main, email),
+          professional:vl_clinic_core_professionals(professional_id, full_name, specialty)
+        `)
         .single();
-
+  
       if (insertError) throw insertError;
       await fetchAppointments();
       return data;
