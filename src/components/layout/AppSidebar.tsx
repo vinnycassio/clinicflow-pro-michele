@@ -1,57 +1,56 @@
 import { Link, useLocation } from "react-router-dom";
-import { cn } from "@/lib/utils";
-import { DollarSign } from "lucide-react";
-import {
-  LayoutDashboard,
-  Users,
-  Calendar,
-  FileText,
-  Activity,
-  UserCog,
+import { 
+  LayoutDashboard, 
+  Users, 
+  Calendar, 
+  FileText, 
+  Activity, 
+  UserCog, 
   Settings,
+  DollarSign
 } from "lucide-react";
 
 const menuItems = [
   {
-    title: "Dashboard",
-    href: "/",
     icon: LayoutDashboard,
+    label: "Dashboard",
+    path: "/",
   },
   {
-    title: "Pacientes",
-    href: "/pacientes",
     icon: Users,
+    label: "Pacientes",
+    path: "/pacientes",
     badge: "127",
   },
   {
-    title: "Agenda",
-    href: "/agenda",
     icon: Calendar,
+    label: "Agenda",
+    path: "/agenda",
   },
   {
-    title: "Prontuários",
-    href: "/prontuarios",
     icon: FileText,
+    label: "Prontuários",
+    path: "/prontuarios",
   },
   {
-    title: "Tratamentos",
-    href: "/tratamentos",
     icon: Activity,
+    label: "Tratamentos",
+    path: "/tratamentos",
   },
   {
-    title: "Profissionais",
-    href: "/profissionais",
     icon: UserCog,
+    label: "Profissionais",
+    path: "/profissionais",
   },
   {
-  icon: DollarSign,
-  label: "Financeiro",
-  path: "/financeiro",
+    icon: DollarSign,
+    label: "Financeiro",
+    path: "/financeiro",
   },
   {
-    title: "Configurações",
-    href: "/configuracoes",
     icon: Settings,
+    label: "Configurações",
+    path: "/configuracoes",
   },
 ];
 
@@ -59,47 +58,43 @@ export const AppSidebar = () => {
   const location = useLocation();
 
   return (
-    <aside className="w-64 bg-[#2D5A7B] text-white flex flex-col shadow-xl">
+    <aside className="w-64 bg-[#2D5A7B] text-white flex flex-col h-screen">
       {/* Logo */}
-      <div className="p-6 border-b border-white/10">
+      <div className="p-6">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-[#A67C52] rounded-lg flex items-center justify-center shadow-md">
+          <div className="w-12 h-12 bg-[#A67C52] rounded-lg flex items-center justify-center">
             <span className="text-white font-bold text-xl">VC</span>
           </div>
           <div>
-            <h1 className="font-semibold text-lg tracking-wide">VLTRA</h1>
-            <p className="text-xs text-white/60 uppercase tracking-wider">Clinic</p>
+            <h1 className="text-xl font-bold">VLTRA</h1>
+            <p className="text-sm text-blue-200">CLINIC</p>
           </div>
         </div>
       </div>
 
-      {/* Menu Items */}
-      <nav className="flex-1 p-4 space-y-1">
+      {/* Menu */}
+      <nav className="flex-1 px-4 space-y-1">
         {menuItems.map((item) => {
           const Icon = item.icon;
-          const isActive = location.pathname === item.href;
+          const isActive = location.pathname === item.path;
 
           return (
             <Link
-              key={item.href}
-              to={item.href}
-              className={cn(
-                "flex items-center gap-3 px-4 py-3 rounded-lg transition-all relative group",
+              key={item.path}
+              to={item.path}
+              className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors relative ${
                 isActive
-                  ? "bg-white/10 text-white shadow-sm"
-                  : "text-white/70 hover:bg-white/5 hover:text-white"
-              )}
+                  ? "bg-[#234560] text-white"
+                  : "text-blue-100 hover:bg-[#234560]/50"
+              }`}
             >
-              {/* Active indicator */}
               {isActive && (
-                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-[#A67C52] rounded-r shadow-lg" />
+                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-[#A67C52] rounded-r" />
               )}
-              
-              <Icon className="w-5 h-5 shrink-0" />
-              <span className="flex-1 font-medium">{item.title}</span>
-              
+              <Icon className="w-5 h-5" />
+              <span className="font-medium">{item.label}</span>
               {item.badge && (
-                <span className="bg-[#A67C52] text-white text-xs px-2 py-0.5 rounded-full font-semibold shadow-sm">
+                <span className="ml-auto bg-[#A67C52] text-white text-xs font-bold px-2 py-1 rounded-full">
                   {item.badge}
                 </span>
               )}
@@ -109,14 +104,14 @@ export const AppSidebar = () => {
       </nav>
 
       {/* User Profile */}
-      <div className="p-4 border-t border-white/10">
-        <div className="flex items-center gap-3 p-3 rounded-lg hover:bg-white/5 cursor-pointer transition-colors">
-          <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center shadow-md">
-            <span className="text-sm font-semibold">RM</span>
+      <div className="p-4 border-t border-blue-700">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 bg-[#A67C52] rounded-full flex items-center justify-center">
+            <span className="text-white font-bold">RM</span>
           </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium truncate">Dr. Rafael Martins</p>
-            <p className="text-xs text-white/60">Dermatologia</p>
+          <div className="flex-1">
+            <p className="font-medium text-sm">Dr. Rafael Martins</p>
+            <p className="text-xs text-blue-200">Dermatologia</p>
           </div>
         </div>
       </div>
