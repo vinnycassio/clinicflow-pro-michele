@@ -641,8 +641,7 @@ const Financial = () => {
             <NewBudgetModal
               open={showNewBudgetModal}
               onOpenChange={setShowNewBudgetModal}
-            />
-           </>
+            />          
           )}
         </TabsContent>
       </Tabs>
