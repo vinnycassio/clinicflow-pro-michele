@@ -1,5 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
+import { DollarSign } from "lucide-react";
 import {
   LayoutDashboard,
   Users,
@@ -41,6 +42,11 @@ const menuItems = [
     title: "Profissionais",
     href: "/profissionais",
     icon: UserCog,
+  },
+  {
+  icon: DollarSign,
+  label: "Financeiro",
+  path: "/financeiro",
   },
   {
     title: "Configurações",
