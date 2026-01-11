@@ -582,66 +582,68 @@ const Financial = () => {
               </CardContent>
             </Card>
           ) : (
-            <div className="space-y-3">
-              {payments.map((payment) => (
-                <Card
-                  key={payment.payment_id}
-                  className="hover:shadow-md transition-shadow"
-                >
-                  <CardContent className="p-6">
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-3 mb-2">
-                          <h3 className="font-semibold">
-                            {payment.sale?.sale_number}
-                            {payment.installment_number && (
-                              <span className="text-sm text-gray-500 ml-2">
-                                ({payment.installment_number}/{payment.total_installments})
-                              </span>
-                            )}
-                          </h3>
-                          {getPaymentStatusBadge(payment.status)}
-                        </div>
-                        <div className="space-y-1">
-                          <p className="text-sm text-gray-600">
-                            {payment.sale?.patient?.full_name}
-                          </p>
-                          <p className="text-sm text-gray-600">
-                            Vencimento: {format(new Date(payment.due_date), "dd/MM/yyyy")}
-                          </p>
-                          <p className="text-sm text-gray-500">
-                            {getPaymentMethodLabel(payment.payment_method)}
-                          </p>
-                          {payment.paid_at && (
-                            <p className="text-xs text-green-600">
-                              Pago em: {format(new Date(payment.paid_at), "dd/MM/yyyy 'às' HH:mm")}
+            <>
+              <div className="space-y-3">
+                {payments.map((payment) => (
+                  <Card
+                    key={payment.payment_id}
+                    className="hover:shadow-md transition-shadow"
+                  >
+                    <CardContent className="p-6">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-3 mb-2">
+                            <h3 className="font-semibold">
+                              {payment.sale?.sale_number}
+                              {payment.installment_number && (
+                                <span className="text-sm text-gray-500 ml-2">
+                                  ({payment.installment_number}/{payment.total_installments})
+                                </span>
+                              )}
+                            </h3>
+                            {getPaymentStatusBadge(payment.status)}
+                          </div>
+                          <div className="space-y-1">
+                            <p className="text-sm text-gray-600">
+                              {payment.sale?.patient?.full_name}
                             </p>
+                            <p className="text-sm text-gray-600">
+                              Vencimento: {format(new Date(payment.due_date), "dd/MM/yyyy")}
+                            </p>
+                            <p className="text-sm text-gray-500">
+                              {getPaymentMethodLabel(payment.payment_method)}
+                            </p>
+                            {payment.paid_at && (
+                              <p className="text-xs text-green-600">
+                                Pago em: {format(new Date(payment.paid_at), "dd/MM/yyyy 'às' HH:mm")}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-2xl font-bold">
+                            {formatCurrency(Number(payment.amount))}
+                          </p>
+                          {(payment.status === "pending" || payment.status === "overdue") && (
+                            <Button
+                              size="sm"
+                              className="mt-3"
+                              onClick={() => handleMarkAsPaid(payment.payment_id)}
+                            >
+                              Marcar como Pago
+                            </Button>
                           )}
                         </div>
                       </div>
-                      <div className="text-right">
-                        <p className="text-2xl font-bold">
-                          {formatCurrency(Number(payment.amount))}
-                        </p>
-                        {(payment.status === "pending" || payment.status === "overdue") && (
-                          <Button
-                            size="sm"
-                            className="mt-3"
-                            onClick={() => handleMarkAsPaid(payment.payment_id)}
-                          >
-                            Marcar como Pago
-                          </Button>
-                        )}
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-            <NewBudgetModal
-              open={showNewBudgetModal}
-              onOpenChange={setShowNewBudgetModal}
-            />          
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+              <NewBudgetModal
+                open={showNewBudgetModal}
+                onOpenChange={setShowNewBudgetModal}
+              />          
+            </> 
           )}
         </TabsContent>
       </Tabs>
