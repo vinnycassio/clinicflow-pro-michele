@@ -1,4 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
+import { useState } from "react";
 import { 
   LayoutDashboard, 
   Users, 
@@ -7,8 +8,11 @@ import {
   Activity, 
   UserCog, 
   Settings,
-  DollarSign
+  DollarSign,
+  Menu,
+  X
 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 const menuItems = [
   {
@@ -56,65 +60,105 @@ const menuItems = [
 
 export const AppSidebar = () => {
   const location = useLocation();
+  const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <aside className="w-64 bg-[#2D5A7B] text-white flex flex-col h-screen">
-      {/* Logo */}
-      <div className="p-6">
+    <>
+      {/* Mobile Header */}
+      <div className="lg:hidden fixed top-0 left-0 right-0 bg-[#2D5A7B] text-white z-50 px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-12 h-12 bg-[#A67C52] rounded-lg flex items-center justify-center">
-            <span className="text-white font-bold text-xl">VC</span>
+          <div className="w-10 h-10 bg-[#A67C52] rounded-lg flex items-center justify-center">
+            <span className="text-white font-bold text-lg">VC</span>
           </div>
           <div>
-            <h1 className="text-xl font-bold">VLTRA</h1>
-            <p className="text-sm text-blue-200">CLINIC</p>
+            <h1 className="text-lg font-bold">VLTRA CLINIC</h1>
           </div>
         </div>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => setIsOpen(!isOpen)}
+          className="text-white hover:bg-[#234560]"
+        >
+          {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+        </Button>
       </div>
 
-      {/* Menu */}
-      <nav className="flex-1 px-4 space-y-1">
-        {menuItems.map((item) => {
-          const Icon = item.icon;
-          const isActive = location.pathname === item.path;
+      {/* Mobile Overlay */}
+      {isOpen && (
+        <div
+          className="lg:hidden fixed inset-0 bg-black/50 z-40"
+          onClick={() => setIsOpen(false)}
+        />
+      )}
 
-          return (
-            <Link
-              key={item.path}
-              to={item.path}
-              className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors relative ${
-                isActive
-                  ? "bg-[#234560] text-white"
-                  : "text-blue-100 hover:bg-[#234560]/50"
-              }`}
-            >
-              {isActive && (
-                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-[#A67C52] rounded-r" />
-              )}
-              <Icon className="w-5 h-5" />
-              <span className="font-medium">{item.label}</span>
-              {item.badge && (
-                <span className="ml-auto bg-[#A67C52] text-white text-xs font-bold px-2 py-1 rounded-full">
-                  {item.badge}
-                </span>
-              )}
-            </Link>
-          );
-        })}
-      </nav>
-
-      {/* User Profile */}
-      <div className="p-4 border-t border-blue-700">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-[#A67C52] rounded-full flex items-center justify-center">
-            <span className="text-white font-bold">RM</span>
-          </div>
-          <div className="flex-1">
-            <p className="font-medium text-sm">Dr. Rafael Martins</p>
-            <p className="text-xs text-blue-200">Dermatologia</p>
+      {/* Sidebar */}
+      <aside
+        className={`
+          fixed lg:static inset-y-0 left-0 z-50
+          w-64 bg-[#2D5A7B] text-white flex flex-col h-screen
+          transform transition-transform duration-300 ease-in-out
+          ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+        `}
+      >
+        {/* Logo - Desktop Only */}
+        <div className="hidden lg:block p-6">
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 bg-[#A67C52] rounded-lg flex items-center justify-center">
+              <span className="text-white font-bold text-xl">VC</span>
+            </div>
+            <div>
+              <h1 className="text-xl font-bold">VLTRA</h1>
+              <p className="text-sm text-blue-200">CLINIC</p>
+            </div>
           </div>
         </div>
-      </div>
-    </aside>
+
+        {/* Menu */}
+        <nav className="flex-1 px-4 space-y-1 overflow-y-auto mt-16 lg:mt-0">
+          {menuItems.map((item) => {
+            const Icon = item.icon;
+            const isActive = location.pathname === item.path;
+
+            return (
+              <Link
+                key={item.path}
+                to={item.path}
+                onClick={() => setIsOpen(false)}
+                className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors relative ${
+                  isActive
+                    ? "bg-[#234560] text-white"
+                    : "text-blue-100 hover:bg-[#234560]/50"
+                }`}
+              >
+                {isActive && (
+                  <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-[#A67C52] rounded-r" />
+                )}
+                <Icon className="w-5 h-5" />
+                <span className="font-medium">{item.label}</span>
+                {item.badge && (
+                  <span className="ml-auto bg-[#A67C52] text-white text-xs font-bold px-2 py-1 rounded-full">
+                    {item.badge}
+                  </span>
+                )}
+              </Link>
+            );
+          })}
+        </nav>
+
+        {/* User Profile */}
+        <div className="p-4 border-t border-blue-700">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-[#A67C52] rounded-full flex items-center justify-center">
+              <span className="text-white font-bold">RM</span>
+            </div>
+            <div className="flex-1">
+              <p className="font-medium text-sm">Dr. Rafael Martins</p>
+              <p className="text-xs text-blue-200">Dermatologia</p>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </>
   );
 };
