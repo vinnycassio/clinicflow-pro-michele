@@ -9,7 +9,9 @@ import Patients from "./pages/Patients";
 import Professionals from "./pages/Professionals"; 
 import Appointments from "./pages/Appointments";
 import MedicalRecords from "./pages/MedicalRecords";
+import Treatments from "./pages/Treatments";
 import NotFound from "./pages/NotFound";
+
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -42,6 +44,8 @@ const App = () => {
               <Route path="/appointments" element={<Appointments />} />
               <Route path="/prontuarios" element={<MedicalRecords />} />
               <Route path="/medical-records" element={<MedicalRecords />} />
+              <Route path="/tratamentos" element={<Treatments />} />
+              <Route path="/treatments" element={<Treatments />} />
               <Route path="*" element={<NotFound />} />
             </Route>
           </Routes>
