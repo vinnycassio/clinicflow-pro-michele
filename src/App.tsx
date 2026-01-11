@@ -10,6 +10,7 @@ import Professionals from "./pages/Professionals";
 import Appointments from "./pages/Appointments";
 import MedicalRecords from "./pages/MedicalRecords";
 import Treatments from "./pages/Treatments";
+import Financial from "./pages/Financial";
 import NotFound from "./pages/NotFound";
 
 
@@ -46,6 +47,8 @@ const App = () => {
               <Route path="/medical-records" element={<MedicalRecords />} />
               <Route path="/tratamentos" element={<Treatments />} />
               <Route path="/treatments" element={<Treatments />} />
+              <Route path="/financeiro" element={<Financial />} />
+              <Route path="/financial" element={<Financial />} />
               <Route path="*" element={<NotFound />} />
             </Route>
           </Routes>
