@@ -324,7 +324,7 @@ const Appointments = () => {
             </p>
           </div>
           <Button
-            className="gap-2"
+            <div className="flex gap-2 lg:gap-2">
             onClick={() => setShowNewAppointmentModal(true)}
           >
             <Plus className="w-4 h-4" />
