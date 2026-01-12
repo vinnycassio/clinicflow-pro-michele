@@ -129,12 +129,12 @@ const MedicalRecords = () => {
 
   if (loading) {
     return (
-      <div className="p-8">
+      <div className="p-4 lg:p-8">
         <div className="animate-pulse space-y-4">
           <div className="h-10 bg-gray-200 rounded w-1/3"></div>
           <div className="space-y-3">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="h-32 bg-gray-200 rounded"></div>
+              <div key={i} className="h-24 lg:h-32 bg-gray-200 rounded"></div>
             ))}
           </div>
         </div>
@@ -144,7 +144,7 @@ const MedicalRecords = () => {
 
   if (error) {
     return (
-      <div className="p-8">
+      <div className="p-4 lg:p-8">
         <Card className="border-red-200 bg-red-50">
           <CardContent className="p-6">
             <p className="text-red-600 font-medium">Erro ao carregar prontuários</p>
@@ -159,14 +159,17 @@ const MedicalRecords = () => {
     <>
       <div className="p-4 lg:p-8 space-y-4 lg:space-y-6">
         {/* Header */}
-        <div className="flex justify-between items-center">
+        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
           <div>
-            <h1 className="text-3xl font-bold">Prontuários</h1>
-            <p className="text-gray-500 mt-1">
+            <h1 className="text-2xl lg:text-3xl font-bold">Prontuários</h1>
+            <p className="text-sm lg:text-base text-gray-500 mt-1">
               {records.length} prontuários cadastrados
             </p>
           </div>
-          <Button className="gap-2" onClick={() => setShowNewRecordModal(true)}>
+          <Button 
+            className="w-full lg:w-auto gap-2" 
+            onClick={() => setShowNewRecordModal(true)}
+          >
             <Plus className="w-4 h-4" />
             Novo Prontuário
           </Button>
@@ -174,14 +177,14 @@ const MedicalRecords = () => {
 
         {/* Search */}
         <Card>
-          <CardContent className="p-4">
+          <CardContent className="p-3 lg:p-4">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 lg:w-5 lg:h-5 text-gray-400" />
               <Input
                 placeholder="Buscar por paciente, profissional ou queixa..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
+                className="pl-9 lg:pl-10 text-sm"
               />
             </div>
           </CardContent>
@@ -191,12 +194,12 @@ const MedicalRecords = () => {
         <div className="space-y-3">
           {filteredRecords.length === 0 ? (
             <Card>
-              <CardContent className="p-12 text-center">
-                <FileText className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-                <p className="text-gray-500 font-medium">
+              <CardContent className="p-8 lg:p-12 text-center">
+                <FileText className="w-10 h-10 lg:w-12 lg:h-12 text-gray-300 mx-auto mb-3" />
+                <p className="text-gray-500 font-medium text-sm lg:text-base">
                   Nenhum prontuário encontrado
                 </p>
-                <p className="text-sm text-gray-400 mt-1">
+                <p className="text-xs lg:text-sm text-gray-400 mt-1">
                   {searchTerm
                     ? "Tente buscar com outros termos"
                     : "Comece criando o primeiro prontuário"}
@@ -209,19 +212,19 @@ const MedicalRecords = () => {
                 key={record.record_id}
                 className="hover:shadow-md transition-shadow"
               >
-                <CardContent className="p-6">
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-3">
-                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center text-white font-semibold">
+                <CardContent className="p-4 lg:p-6">
+                  <div className="flex flex-col lg:flex-row items-start gap-4">
+                    <div className="flex-1 w-full">
+                      <div className="flex items-start gap-3 mb-3">
+                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center text-white font-semibold flex-shrink-0">
                           {record.patient?.full_name.charAt(0).toUpperCase()}
                         </div>
-                        <div>
-                          <h3 className="font-semibold text-lg">
+                        <div className="flex-1 min-w-0">
+                          <h3 className="font-semibold text-base lg:text-lg truncate">
                             {record.patient?.full_name || "Paciente não identificado"}
                           </h3>
-                          <div className="flex items-center gap-2 text-sm text-gray-500">
-                            <Calendar className="w-4 h-4" />
+                          <div className="flex items-center gap-2 text-xs lg:text-sm text-gray-500 flex-wrap">
+                            <Calendar className="w-3 h-3 lg:w-4 lg:h-4" />
                             <span>
                               {format(
                                 new Date(record.record_date),
@@ -238,23 +241,23 @@ const MedicalRecords = () => {
                       <div className="space-y-2">
                         {record.chief_complaint && (
                           <div>
-                            <span className="text-sm font-medium text-gray-700">
+                            <span className="text-xs lg:text-sm font-medium text-gray-700">
                               Queixa Principal:
                             </span>
-                            <p className="text-sm text-gray-600">
+                            <p className="text-xs lg:text-sm text-gray-600 line-clamp-2">
                               {record.chief_complaint}
                             </p>
                           </div>
                         )}
 
                         {record.professional && (
-                          <p className="text-sm text-gray-600 flex items-center gap-2">
-                            <User className="w-4 h-4" />
-                            <span className="font-medium">
+                          <p className="text-xs lg:text-sm text-gray-600 flex items-center gap-2">
+                            <User className="w-3 h-3 lg:w-4 lg:h-4 flex-shrink-0" />
+                            <span className="font-medium truncate">
                               {record.professional.full_name}
                             </span>
                             {record.professional.specialty && (
-                              <span className="text-gray-400">
+                              <span className="text-gray-400 hidden sm:inline">
                                 • {record.professional.specialty}
                               </span>
                             )}
@@ -263,25 +266,27 @@ const MedicalRecords = () => {
                       </div>
                     </div>
 
-                    <div className="flex gap-2 ml-4">
+                    <div className="flex gap-2 w-full lg:w-auto lg:ml-4">
                       <Button
                         variant="outline"
                         size="sm"
-                        className="gap-2"
+                        className="flex-1 lg:flex-none gap-1 lg:gap-2 text-xs"
                         onClick={() => {
                           setSelectedRecord(record);
                           setShowViewModal(true);
                         }}
                       >
-                        <Eye className="w-4 h-4" />
-                        Ver Completo
+                        <Eye className="w-3 h-3 lg:w-4 lg:h-4" />
+                        <span className="hidden sm:inline">Ver Completo</span>
+                        <span className="sm:hidden">Ver</span>
                       </Button>
                       <Button
                         variant="destructive"
                         size="sm"
+                        className="text-xs"
                         onClick={() => handleDelete(record.record_id)}
                       >
-                        <Trash2 className="w-4 h-4" />
+                        <Trash2 className="w-3 h-3 lg:w-4 lg:h-4" />
                       </Button>
                     </div>
                   </div>
@@ -305,7 +310,7 @@ const MedicalRecords = () => {
           <form onSubmit={handleSubmit}>
             <div className="grid gap-4 py-4">
               {/* Paciente e Profissional */}
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="patient_id">
                     Paciente <span className="text-red-500">*</span>
@@ -360,7 +365,7 @@ const MedicalRecords = () => {
               </div>
 
               {/* Data e Tipo */}
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="record_date">Data do Atendimento</Label>
                   <Input
@@ -480,15 +485,18 @@ const MedicalRecords = () => {
               </div>
             </div>
 
-            <DialogFooter>
+            <DialogFooter className="flex-col sm:flex-row gap-2">
               <Button
                 type="button"
                 variant="outline"
                 onClick={() => setShowNewRecordModal(false)}
+                className="w-full sm:w-auto"
               >
                 Cancelar
               </Button>
-              <Button type="submit">Salvar Prontuário</Button>
+              <Button type="submit" className="w-full sm:w-auto">
+                Salvar Prontuário
+              </Button>
             </DialogFooter>
           </form>
         </DialogContent>
@@ -498,8 +506,8 @@ const MedicalRecords = () => {
       <Dialog open={showViewModal} onOpenChange={setShowViewModal}>
         <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Prontuário Completo</DialogTitle>
-            <DialogDescription>
+            <DialogTitle className="text-base lg:text-lg">Prontuário Completo</DialogTitle>
+            <DialogDescription className="text-xs lg:text-sm">
               {selectedRecord?.patient?.full_name} •{" "}
               {selectedRecord &&
                 format(new Date(selectedRecord.record_date), "dd/MM/yyyy", {
@@ -511,56 +519,56 @@ const MedicalRecords = () => {
           {selectedRecord && (
             <div className="space-y-4 py-4">
               <div>
-                <h3 className="font-semibold text-sm text-gray-700 mb-1">
+                <h3 className="font-semibold text-xs lg:text-sm text-gray-700 mb-1">
                   Queixa Principal
                 </h3>
-                <p className="text-sm text-gray-600">
+                <p className="text-xs lg:text-sm text-gray-600">
                   {selectedRecord.chief_complaint || "Não informado"}
                 </p>
               </div>
 
               <div>
-                <h3 className="font-semibold text-sm text-gray-700 mb-1">
+                <h3 className="font-semibold text-xs lg:text-sm text-gray-700 mb-1">
                   Subjetivo (S)
                 </h3>
-                <p className="text-sm text-gray-600 whitespace-pre-wrap">
+                <p className="text-xs lg:text-sm text-gray-600 whitespace-pre-wrap">
                   {selectedRecord.subjective_soap || "Não informado"}
                 </p>
               </div>
 
               <div>
-                <h3 className="font-semibold text-sm text-gray-700 mb-1">
+                <h3 className="font-semibold text-xs lg:text-sm text-gray-700 mb-1">
                   Objetivo (O)
                 </h3>
-                <p className="text-sm text-gray-600 whitespace-pre-wrap">
+                <p className="text-xs lg:text-sm text-gray-600 whitespace-pre-wrap">
                   {selectedRecord.objective_soap || "Não informado"}
                 </p>
               </div>
 
               <div>
-                <h3 className="font-semibold text-sm text-gray-700 mb-1">
+                <h3 className="font-semibold text-xs lg:text-sm text-gray-700 mb-1">
                   Avaliação (A)
                 </h3>
-                <p className="text-sm text-gray-600 whitespace-pre-wrap">
+                <p className="text-xs lg:text-sm text-gray-600 whitespace-pre-wrap">
                   {selectedRecord.assessment_soap || "Não informado"}
                 </p>
               </div>
 
               <div>
-                <h3 className="font-semibold text-sm text-gray-700 mb-1">
+                <h3 className="font-semibold text-xs lg:text-sm text-gray-700 mb-1">
                   Plano (P)
                 </h3>
-                <p className="text-sm text-gray-600 whitespace-pre-wrap">
+                <p className="text-xs lg:text-sm text-gray-600 whitespace-pre-wrap">
                   {selectedRecord.plan_soap || "Não informado"}
                 </p>
               </div>
 
               {selectedRecord.recommendations && (
                 <div>
-                  <h3 className="font-semibold text-sm text-gray-700 mb-1">
+                  <h3 className="font-semibold text-xs lg:text-sm text-gray-700 mb-1">
                     Recomendações
                   </h3>
-                  <p className="text-sm text-gray-600 whitespace-pre-wrap">
+                  <p className="text-xs lg:text-sm text-gray-600 whitespace-pre-wrap">
                     {selectedRecord.recommendations}
                   </p>
                 </div>
@@ -581,7 +589,11 @@ const MedicalRecords = () => {
           )}
 
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowViewModal(false)}>
+            <Button 
+              variant="outline" 
+              onClick={() => setShowViewModal(false)}
+              className="w-full sm:w-auto"
+            >
               Fechar
             </Button>
           </DialogFooter>
