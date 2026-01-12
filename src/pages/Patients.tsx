@@ -1,14 +1,36 @@
 import { usePatients } from "@/hooks/usePatients";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
-import { useState } from "react";
+import { Badge } from "@/components/ui/badge";
+import { NewPatientModal } from "@/components/patients/NewPatientModal";
 import { toast } from "sonner";
-import { Search, UserPlus, Eye, Trash2, Users } from "lucide-react";
+import { 
+  Search, 
+  UserPlus, 
+  Eye, 
+  Trash2, 
+  Users, 
+  Phone, 
+  Mail,
+  Calendar,
+  FileText
+} from "lucide-react";
+import { format } from "date-fns";
 
 const Patients = () => {
-  const { patients, loading, error, searchPatients, deletePatient, fetchPatients } = usePatients();
+  const { 
+    patients, 
+    loading, 
+    error, 
+    searchPatients, 
+    deletePatient, 
+    fetchPatients 
+  } = usePatients();
+  
   const [searchTerm, setSearchTerm] = useState("");
+  const [showNewPatientModal, setShowNewPatientModal] = useState(false);
 
   const handleSearch = () => {
     if (searchTerm.trim()) {
@@ -29,14 +51,25 @@ const Patients = () => {
     }
   };
 
+  const calculateAge = (birthDate: string) => {
+    const today = new Date();
+    const birth = new Date(birthDate);
+    let age = today.getFullYear() - birth.getFullYear();
+    const monthDiff = today.getMonth() - birth.getMonth();
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+      age--;
+    }
+    return age;
+  };
+
   if (loading) {
     return (
-      <div className="p-4 lg:p-8">
+      <div className="p-4 md:p-8">
         <div className="animate-pulse space-y-4">
           <div className="h-10 bg-gray-200 rounded w-1/3"></div>
-          <div className="space-y-3">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="h-20 lg:h-24 bg-gray-200 rounded"></div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {[1, 2, 3, 4, 5, 6].map((i) => (
+              <div key={i} className="h-48 bg-gray-200 rounded"></div>
             ))}
           </div>
         </div>
@@ -46,7 +79,7 @@ const Patients = () => {
 
   if (error) {
     return (
-      <div className="p-4 lg:p-8">
+      <div className="p-4 md:p-8">
         <Card className="border-red-200 bg-red-50">
           <CardContent className="p-6">
             <p className="text-red-600 font-medium">Erro ao carregar pacientes</p>
@@ -58,128 +91,148 @@ const Patients = () => {
   }
 
   return (
-    <div className="p-4 lg:p-8 space-y-4 lg:space-y-6">
+    <div className="p-4 md:p-8 space-y-6">
       {/* Header */}
-      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-2xl lg:text-3xl font-bold">Pacientes</h1>
-          <p className="text-sm lg:text-base text-gray-500 mt-1">
-            {patients.length} pacientes cadastrados
+          <h1 className="text-2xl md:text-3xl font-bold flex items-center gap-2">
+            <Users className="w-7 h-7" />
+            Pacientes
+          </h1>
+          <p className="text-sm md:text-base text-gray-500 mt-1">
+            {patients.length} paciente(s) cadastrado(s)
           </p>
         </div>
-        <Button className="w-full lg:w-auto gap-2">
+        <Button 
+          onClick={() => setShowNewPatientModal(true)}
+          className="gap-2 w-full sm:w-auto"
+        >
           <UserPlus className="w-4 h-4" />
           Novo Paciente
         </Button>
       </div>
 
-      {/* Search */}
-      <Card>
-        <CardContent className="p-3 lg:p-4">
-          <div className="flex flex-col sm:flex-row gap-3 lg:gap-4">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 lg:w-5 lg:h-5 text-gray-400" />
-              <Input
-                placeholder="Buscar por nome, telefone, CPF ou email..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                onKeyPress={(e) => e.key === "Enter" && handleSearch()}
-                className="pl-9 lg:pl-10 text-sm"
-              />
-            </div>
-            <Button 
-              onClick={handleSearch} 
-              variant="secondary"
-              className="w-full sm:w-auto"
-            >
-              Buscar
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+      {/* Search Bar */}
+      <div className="flex gap-2">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+          <Input
+            placeholder="Buscar por nome, telefone, email ou CPF..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            onKeyPress={(e) => e.key === "Enter" && handleSearch()}
+            className="pl-10"
+          />
+        </div>
+        <Button onClick={handleSearch} variant="secondary">
+          <Search className="w-4 h-4 sm:mr-2" />
+          <span className="hidden sm:inline">Buscar</span>
+        </Button>
+      </div>
 
-      {/* Patients List */}
-      <div className="space-y-3">
+      {/* Patients Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {patients.length === 0 ? (
-          <Card>
-            <CardContent className="p-8 lg:p-12 text-center">
-              <Users className="w-10 h-10 lg:w-12 lg:h-12 text-gray-300 mx-auto mb-3" />
-              <p className="text-gray-500 font-medium text-sm lg:text-base">
-                Nenhum paciente encontrado
-              </p>
-              <p className="text-xs lg:text-sm text-gray-400 mt-1">
-                {searchTerm
-                  ? "Tente buscar com outros termos"
-                  : "Comece adicionando seu primeiro paciente"}
+          <Card className="col-span-full">
+            <CardContent className="p-12 text-center">
+              <Users className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+              <p className="text-gray-500 font-medium">Nenhum paciente encontrado</p>
+              <p className="text-sm text-gray-400 mt-1">
+                {searchTerm 
+                  ? "Tente buscar com outros termos" 
+                  : "Cadastre o primeiro paciente"}
               </p>
             </CardContent>
           </Card>
         ) : (
           patients.map((patient) => (
-            <Card
-              key={patient.patient_id}
-              className="hover:shadow-md transition-shadow"
-            >
-              <CardContent className="p-4 lg:p-6">
-                <div className="flex flex-col lg:flex-row items-start gap-4">
-                  {/* Avatar e Info */}
-                  <div className="flex items-start gap-3 lg:gap-4 flex-1 w-full">
-                    <div className="w-10 h-10 lg:w-12 lg:h-12 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white font-semibold text-base lg:text-lg flex-shrink-0">
-                      {patient.full_name.charAt(0).toUpperCase()}
-                    </div>
-
-                    <div className="flex-1 min-w-0">
-                      <h3 className="font-semibold text-base lg:text-lg truncate">
-                        {patient.full_name}
-                      </h3>
-                      <div className="space-y-1 mt-1">
-                        {patient.phone_main && (
-                          <p className="text-xs lg:text-sm text-gray-600 truncate">
-                            {patient.phone_main}
-                          </p>
-                        )}
-                        {patient.email && (
-                          <p className="text-xs lg:text-sm text-gray-600 truncate">
-                            {patient.email}
-                          </p>
-                        )}
-                        {patient.document_cpf && (
-                          <p className="text-xs lg:text-sm text-gray-500">
-                            CPF: {patient.document_cpf}
-                          </p>
-                        )}
-                      </div>
-                    </div>
+            <Card key={patient.patient_id} className="hover:shadow-md transition-shadow">
+              <CardContent className="p-4 space-y-3">
+                {/* Header do Card */}
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-lg truncate">
+                      {patient.full_name}
+                    </h3>
+                    {patient.birth_date && (
+                      <p className="text-sm text-gray-500">
+                        {calculateAge(patient.birth_date)} anos
+                      </p>
+                    )}
                   </div>
+                  <Badge variant={patient.status === "active" ? "outline" : "secondary"}>
+                    {patient.status === "active" ? "Ativo" : "Inativo"}
+                  </Badge>
+                </div>
 
-                  {/* Botões */}
-                  <div className="flex gap-2 w-full lg:w-auto">
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      className="flex-1 lg:flex-none gap-1 lg:gap-2 text-xs"
-                    >
-                      <Eye className="w-3 h-3 lg:w-4 lg:h-4" />
-                      <span className="hidden sm:inline">Ver Detalhes</span>
-                      <span className="sm:hidden">Ver</span>
-                    </Button>
-                    <Button
-                      variant="destructive"
-                      size="sm"
-                      className="text-xs"
-                      onClick={() =>
-                        handleDelete(patient.patient_id, patient.full_name)
-                      }
-                    >
-                      <Trash2 className="w-3 h-3 lg:w-4 lg:h-4" />
-                    </Button>
-                  </div>
+                {/* Informações de Contato */}
+                <div className="space-y-2 pt-2 border-t">
+                  {patient.phone_main && (
+                    <div className="flex items-center gap-2 text-sm">
+                      <Phone className="w-4 h-4 text-gray-400" />
+                      <span className="text-gray-600">{patient.phone_main}</span>
+                    </div>
+                  )}
+                  
+                  {patient.email && (
+                    <div className="flex items-center gap-2 text-sm">
+                      <Mail className="w-4 h-4 text-gray-400" />
+                      <span className="text-gray-600 truncate">{patient.email}</span>
+                    </div>
+                  )}
+
+                  {patient.birth_date && (
+                    <div className="flex items-center gap-2 text-sm">
+                      <Calendar className="w-4 h-4 text-gray-400" />
+                      <span className="text-gray-600">
+                        {format(new Date(patient.birth_date), "dd/MM/yyyy")}
+                      </span>
+                    </div>
+                  )}
+
+                  {patient.document_cpf && (
+                    <div className="flex items-center gap-2 text-sm">
+                      <FileText className="w-4 h-4 text-gray-400" />
+                      <span className="text-gray-600">
+                        CPF: {patient.document_cpf.replace(
+                          /(\d{3})(\d{3})(\d{3})(\d{2})/,
+                          "$1.$2.$3-$4"
+                        )}
+                      </span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Actions */}
+                <div className="flex gap-2 pt-3 border-t">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="flex-1 gap-2"
+                    onClick={() => toast.info("Visualização em breve")}
+                  >
+                    <Eye className="w-4 h-4" />
+                    Ver Detalhes
+                  </Button>
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={() => handleDelete(patient.patient_id, patient.full_name)}
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
                 </div>
               </CardContent>
             </Card>
           ))
         )}
       </div>
+
+      {/* Modal de Novo Paciente */}
+      <NewPatientModal
+        open={showNewPatientModal}
+        onOpenChange={setShowNewPatientModal}
+      />
     </div>
   );
 };
