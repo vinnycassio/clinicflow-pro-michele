@@ -12,8 +12,6 @@ import {
   FileText,
   ShoppingCart,
   CreditCard,
-  Calendar,
-  User,
   Plus,
 } from "lucide-react";
 import { format } from "date-fns";
@@ -127,10 +125,10 @@ const Financial = () => {
 
   if (loading) {
     return (
-      <div className="p-8">
+      <div className="p-4 md:p-8">
         <div className="animate-pulse space-y-4">
           <div className="h-10 bg-gray-200 rounded w-1/3"></div>
-          <div className="grid grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {[1, 2, 3, 4].map((i) => (
               <div key={i} className="h-32 bg-gray-200 rounded"></div>
             ))}
@@ -142,7 +140,7 @@ const Financial = () => {
 
   if (error) {
     return (
-      <div className="p-8">
+      <div className="p-4 md:p-8">
         <Card className="border-red-200 bg-red-50">
           <CardContent className="p-6">
             <p className="text-red-600 font-medium">Erro ao carregar dados financeiros</p>
@@ -154,26 +152,26 @@ const Financial = () => {
   }
 
   return (
-    <div className="p-8 space-y-6">
+    <div className="p-4 md:p-8 space-y-4 md:space-y-6">
       {/* Header */}
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold">Financeiro</h1>
-          <p className="text-gray-500 mt-1">
+          <h1 className="text-2xl md:text-3xl font-bold">Financeiro</h1>
+          <p className="text-sm md:text-base text-gray-500 mt-1">
             Gestão completa de orçamentos, vendas e pagamentos
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-col sm:flex-row gap-2">
           <Button 
             variant="outline" 
-            className="gap-2"
+            className="gap-2 w-full sm:w-auto"
             onClick={() => toast.info("Modal de orçamento em breve")}
           >
             <FileText className="w-4 h-4" />
             Novo Orçamento
           </Button>
           <Button 
-            className="gap-2"
+            className="gap-2 w-full sm:w-auto"
             onClick={() => toast.info("Modal de venda em breve")}
           >
             <Plus className="w-4 h-4" />
@@ -183,7 +181,7 @@ const Financial = () => {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-gray-600 flex items-center gap-2">
@@ -192,7 +190,7 @@ const Financial = () => {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-600">
+            <div className="text-xl md:text-2xl font-bold text-green-600">
               {formatCurrency(stats.totalRevenue)}
             </div>
             <p className="text-xs text-gray-500 mt-1">
@@ -209,7 +207,7 @@ const Financial = () => {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-blue-600">
+            <div className="text-xl md:text-2xl font-bold text-blue-600">
               {formatCurrency(stats.totalReceived)}
             </div>
             <p className="text-xs text-gray-500 mt-1">
@@ -226,7 +224,7 @@ const Financial = () => {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-orange-600">
+            <div className="text-xl md:text-2xl font-bold text-orange-600">
               {formatCurrency(stats.totalPending)}
             </div>
             <p className="text-xs text-gray-500 mt-1">
@@ -243,7 +241,7 @@ const Financial = () => {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-red-600">
+            <div className="text-xl md:text-2xl font-bold text-red-600">
               {formatCurrency(stats.totalOverdue)}
             </div>
             <p className="text-xs text-gray-500 mt-1">
@@ -255,51 +253,57 @@ const Financial = () => {
 
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList>
-          <TabsTrigger value="overview">Visão Geral</TabsTrigger>
-          <TabsTrigger value="budgets">
+        <TabsList className="w-full grid grid-cols-2 lg:grid-cols-4 h-auto">
+          <TabsTrigger value="overview" className="text-xs md:text-sm">
+            Visão Geral
+          </TabsTrigger>
+          <TabsTrigger value="budgets" className="text-xs md:text-sm">
             Orçamentos ({stats.budgetStats.total})
           </TabsTrigger>
-          <TabsTrigger value="sales">Vendas ({stats.salesStats.total})</TabsTrigger>
-          <TabsTrigger value="payments">
+          <TabsTrigger value="sales" className="text-xs md:text-sm">
+            Vendas ({stats.salesStats.total})
+          </TabsTrigger>
+          <TabsTrigger value="payments" className="text-xs md:text-sm">
             Pagamentos ({safePayments.length})
           </TabsTrigger>
         </TabsList>
 
         {/* Overview Tab */}
         <TabsContent value="overview" className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             {/* Últimas Vendas */}
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
+                <CardTitle className="flex items-center gap-2 text-base md:text-lg">
                   <ShoppingCart className="w-5 h-5" />
                   Últimas Vendas
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 {safeSales.length === 0 ? (
-                  <p className="text-center text-gray-500 py-8">Nenhuma venda ainda</p>
+                  <p className="text-center text-gray-500 py-8 text-sm">
+                    Nenhuma venda ainda
+                  </p>
                 ) : (
                   <div className="space-y-3">
                     {safeSales.slice(0, 5).map((sale) => (
                       <div
                         key={sale.sale_id}
-                        className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+                        className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-3 bg-gray-50 rounded-lg"
                       >
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2">
-                            <span className="font-medium">{sale.sale_number}</span>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className="font-medium text-sm">{sale.sale_number}</span>
                             {getSaleStatusBadge(sale.payment_status)}
                           </div>
-                          <p className="text-sm text-gray-600 mt-1">
+                          <p className="text-sm text-gray-600 mt-1 truncate">
                             {sale.patient?.full_name}
                           </p>
                           <p className="text-xs text-gray-500">
                             {format(new Date(sale.sale_date), "dd/MM/yyyy")}
                           </p>
                         </div>
-                        <div className="text-right">
+                        <div className="text-left sm:text-right">
                           <p className="font-bold text-green-600">
                             {formatCurrency(Number(sale.total_amount))}
                           </p>
@@ -317,7 +321,7 @@ const Financial = () => {
             {/* Pagamentos Pendentes */}
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
+                <CardTitle className="flex items-center gap-2 text-base md:text-lg">
                   <CreditCard className="w-5 h-5" />
                   Pagamentos Pendentes
                 </CardTitle>
@@ -325,7 +329,7 @@ const Financial = () => {
               <CardContent>
                 {safePayments.filter((p) => p.status === "pending" || p.status === "overdue")
                   .length === 0 ? (
-                  <p className="text-center text-gray-500 py-8">
+                  <p className="text-center text-gray-500 py-8 text-sm">
                     Nenhum pagamento pendente
                   </p>
                 ) : (
@@ -336,38 +340,39 @@ const Financial = () => {
                       .map((payment) => (
                         <div
                           key={payment.payment_id}
-                          className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+                          className="flex flex-col gap-3 p-3 bg-gray-50 rounded-lg"
                         >
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2">
-                              <span className="font-medium">
-                                {payment.sale?.sale_number}
-                              </span>
-                              {getPaymentStatusBadge(payment.status)}
+                          <div className="flex items-start justify-between gap-2">
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <span className="font-medium text-sm">
+                                  {payment.sale?.sale_number}
+                                </span>
+                                {getPaymentStatusBadge(payment.status)}
+                              </div>
+                              <p className="text-sm text-gray-600 mt-1 truncate">
+                                {payment.sale?.patient?.full_name}
+                              </p>
+                              <p className="text-xs text-gray-500">
+                                Venc: {format(new Date(payment.due_date), "dd/MM/yyyy")}
+                              </p>
                             </div>
-                            <p className="text-sm text-gray-600 mt-1">
-                              {payment.sale?.patient?.full_name}
-                            </p>
-                            <p className="text-xs text-gray-500">
-                              Venc: {format(new Date(payment.due_date), "dd/MM/yyyy")}
-                            </p>
-                          </div>
-                          <div className="flex items-center gap-2">
                             <div className="text-right">
-                              <p className="font-bold">
+                              <p className="font-bold whitespace-nowrap">
                                 {formatCurrency(Number(payment.amount))}
                               </p>
                               <p className="text-xs text-gray-500">
                                 {getPaymentMethodLabel(payment.payment_method)}
                               </p>
                             </div>
-                            <Button
-                              size="sm"
-                              onClick={() => handleMarkAsPaid(payment.payment_id)}
-                            >
-                              Pagar
-                            </Button>
                           </div>
+                          <Button
+                            size="sm"
+                            className="w-full"
+                            onClick={() => handleMarkAsPaid(payment.payment_id)}
+                          >
+                            Marcar como Pago
+                          </Button>
                         </div>
                       ))}
                   </div>
@@ -380,9 +385,9 @@ const Financial = () => {
         {/* Budgets Tab */}
         <TabsContent value="budgets" className="space-y-4">
           <Card>
-            <CardContent className="p-12 text-center">
-              <FileText className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-              <p className="text-gray-500 font-medium">
+            <CardContent className="p-8 md:p-12 text-center">
+              <FileText className="w-10 h-10 md:w-12 md:h-12 text-gray-300 mx-auto mb-3" />
+              <p className="text-sm md:text-base text-gray-500 font-medium">
                 {safeBudgets.length} orçamentos cadastrados
               </p>
             </CardContent>
@@ -392,9 +397,9 @@ const Financial = () => {
         {/* Sales Tab */}
         <TabsContent value="sales" className="space-y-4">
           <Card>
-            <CardContent className="p-12 text-center">
-              <ShoppingCart className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-              <p className="text-gray-500 font-medium">
+            <CardContent className="p-8 md:p-12 text-center">
+              <ShoppingCart className="w-10 h-10 md:w-12 md:h-12 text-gray-300 mx-auto mb-3" />
+              <p className="text-sm md:text-base text-gray-500 font-medium">
                 {safeSales.length} vendas registradas
               </p>
             </CardContent>
@@ -404,9 +409,9 @@ const Financial = () => {
         {/* Payments Tab */}
         <TabsContent value="payments" className="space-y-4">
           <Card>
-            <CardContent className="p-12 text-center">
-              <CreditCard className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-              <p className="text-gray-500 font-medium">
+            <CardContent className="p-8 md:p-12 text-center">
+              <CreditCard className="w-10 h-10 md:w-12 md:h-12 text-gray-300 mx-auto mb-3" />
+              <p className="text-sm md:text-base text-gray-500 font-medium">
                 {safePayments.length} pagamentos registrados
               </p>
             </CardContent>
