@@ -16,8 +16,8 @@ import {
 } from "lucide-react";
 import { format } from "date-fns";
 import { toast } from "sonner";
-//import { NewBudgetModal } from "@/components/financial/NewBudgetModal";
-//import { NewSaleModal } from "@/components/financial/NewSaleModal";
+import { NewBudgetModal } from "@/components/financial/NewBudgetModal";
+import { NewSaleModal } from "@/components/financial/NewSaleModal";
 
 const Financial = () => {
   const { budgets, sales, payments, loading, error, markPaymentAsPaid } = useFinancial();
@@ -166,32 +166,15 @@ const Financial = () => {
           </p>
         </div>
         <div className="flex flex-col sm:flex-row gap-2">
-//          <Button 
-//            variant="outline" 
-//            className="gap-2 w-full sm:w-auto"
-//            onClick={() => setShowNewBudgetModal(true)}
-//         >
-//            <FileText className="w-4 h-4" />
-//            Novo Orçamento
-//          </Button>
-//          <Button
-            <Button 
-              variant="outline" 
-              className="gap-2 w-full sm:w-auto"
-              onClick={() => toast.info("Criando modal...")}  // ← Mude para isso
-            >
-              <FileText className="w-4 h-4" />
-              Novo Orçamento
-            </Button>
-            
-            <Button 
-              className="gap-2 w-full sm:w-auto"
-              onClick={() => toast.info("Criando modal...")}  // ← Mude para isso
-            >
-              <Plus className="w-4 h-4" />
-              Nova Venda
-            </Button>
-              
+          <Button 
+            variant="outline" 
+            className="gap-2 w-full sm:w-auto"
+            onClick={() => setShowNewBudgetModal(true)}
+          >
+            <FileText className="w-4 h-4" />
+            Novo Orçamento
+          </Button>
+          <Button 
             className="gap-2 w-full sm:w-auto"
             onClick={() => setShowNewSaleModal(true)}
           >
@@ -440,16 +423,16 @@ const Financial = () => {
         </TabsContent>
       </Tabs>
 
-    //  {/* Modais */}
-   //   <NewBudgetModal
-    //    open={showNewBudgetModal}
-     //   onOpenChange={setShowNewBudgetModal}
-   //   />
+      {/* Modais */}
+      <NewBudgetModal
+        open={showNewBudgetModal}
+        onOpenChange={setShowNewBudgetModal}
+      />
 
-   //   <NewSaleModal
-  //      open={showNewSaleModal}
-  //      onOpenChange={setShowNewSaleModal}
- //     />
+      <NewSaleModal
+        open={showNewSaleModal}
+        onOpenChange={setShowNewSaleModal}
+      />
     </div>
   );
 };
