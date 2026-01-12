@@ -158,12 +158,21 @@ export const NewBudgetModal = ({ open, onOpenChange }: NewBudgetModalProps) => {
     setIsSubmitting(true);
 
     try {
-      const budgetData = {
-        ...formData,
-        items: items.filter((item) => item.description.trim()),
+      // Filtrar itens vazios
+      const validItems = items.filter((item) => item.description.trim());
+
+      const budgetData: any = {
+        patient_id: formData.patient_id,
+        professional_id: formData.professional_id,
+        issue_date: formData.issue_date,
+        validity_date: formData.validity_date,
+        status: formData.status,
+        items: validItems,
         subtotal,
         discount_total: discountTotal,
         total_amount: total,
+        notes: formData.notes || null,
+        terms_conditions: formData.terms_conditions || null,
       };
 
       const newBudget = await createBudget(budgetData);
