@@ -16,10 +16,14 @@ import {
 } from "lucide-react";
 import { format } from "date-fns";
 import { toast } from "sonner";
+import { NewBudgetModal } from "@/components/financial/NewBudgetModal";
+import { NewSaleModal } from "@/components/financial/NewSaleModal";
 
 const Financial = () => {
   const { budgets, sales, payments, loading, error, markPaymentAsPaid } = useFinancial();
   const [activeTab, setActiveTab] = useState("overview");
+  const [showNewBudgetModal, setShowNewBudgetModal] = useState(false);
+  const [showNewSaleModal, setShowNewSaleModal] = useState(false);
 
   // Proteção contra undefined
   const safeBudgets = budgets || [];
@@ -165,14 +169,14 @@ const Financial = () => {
           <Button 
             variant="outline" 
             className="gap-2 w-full sm:w-auto"
-            onClick={() => toast.info("Modal de orçamento em breve")}
+            onClick={() => setShowNewBudgetModal(true)}
           >
             <FileText className="w-4 h-4" />
             Novo Orçamento
           </Button>
           <Button 
             className="gap-2 w-full sm:w-auto"
-            onClick={() => toast.info("Modal de venda em breve")}
+            onClick={() => setShowNewSaleModal(true)}
           >
             <Plus className="w-4 h-4" />
             Nova Venda
@@ -418,6 +422,17 @@ const Financial = () => {
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* Modais */}
+      <NewBudgetModal
+        open={showNewBudgetModal}
+        onOpenChange={setShowNewBudgetModal}
+      />
+
+      <NewSaleModal
+        open={showNewSaleModal}
+        onOpenChange={setShowNewSaleModal}
+      />
     </div>
   );
 };
