@@ -21,6 +21,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { useFinancial } from "@/hooks/useFinancial";
 import { usePatients } from "@/hooks/usePatients";
+import { useProfessionals } from "@/hooks/useProfessionals";
 import { Loader2, ShoppingCart, DollarSign, CreditCard } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -36,12 +37,14 @@ export const NewSaleModal = ({
   onOpenChange,
   preSelectedBudgetId,
 }: NewSaleModalProps) => {
-  const { createSale, budgets } = useFinancial();
+  const { createSale, createPayment, budgets } = useFinancial();
   const { patients } = usePatients();
+  const { professionals } = useProfessionals();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [formData, setFormData] = useState({
     patient_id: "",
+    professional_id: "",
     budget_id: preSelectedBudgetId || "",
     sale_date: new Date().toISOString().split("T")[0],
     total_amount: 0,
@@ -64,6 +67,7 @@ export const NewSaleModal = ({
           ...prev,
           budget_id: budget.budget_id,
           patient_id: budget.patient_id,
+          professional_id: budget.professional_id,
           total_amount: budget.total_amount,
           final_amount: budget.total_amount,
         }));
@@ -79,6 +83,7 @@ export const NewSaleModal = ({
         ...formData,
         budget_id: budgetId,
         patient_id: budget.patient_id,
+        professional_id: budget.professional_id,
         total_amount: budget.total_amount,
         final_amount: budget.total_amount - formData.discount_amount,
       });
@@ -107,6 +112,11 @@ export const NewSaleModal = ({
       return;
     }
 
+    if (!formData.professional_id) {
+      toast.error("Selecione um profissional");
+      return;
+    }
+
     if (formData.final_amount <= 0) {
       toast.error("O valor final deve ser maior que zero");
       return;
@@ -120,8 +130,46 @@ export const NewSaleModal = ({
     setIsSubmitting(true);
 
     try {
-      // Gerar parcelas
-      const payments = [];
+      // 1. Pegar os itens do orçamento ou criar item genérico
+      let items: any[] = [];
+
+      if (selectedBudget) {
+        items = selectedBudget.items || [];
+      } else {
+        // Se não houver orçamento, criar um item genérico
+        items = [
+          {
+            item_id: crypto.randomUUID(),
+            description: "Serviço",
+            quantity: 1,
+            unit_price: formData.total_amount,
+            discount_percent: 0,
+            discount_amount: formData.discount_amount,
+            total: formData.final_amount,
+          },
+        ];
+      }
+
+      // 2. Criar a venda
+      const saleData: any = {
+        patient_id: formData.patient_id,
+        professional_id: formData.professional_id,
+        budget_id: formData.budget_id || null,
+        sale_date: formData.sale_date,
+        items: items,
+        subtotal: formData.total_amount,
+        discount_total: formData.discount_amount,
+        total_amount: formData.final_amount,
+        notes: formData.notes || null,
+      };
+
+      const newSale = await createSale(saleData);
+
+      if (!newSale) {
+        throw new Error("Erro ao criar venda");
+      }
+
+      // 3. Criar as parcelas
       const installmentAmount = calculateInstallmentAmount();
       const firstPaymentDate = new Date(formData.first_payment_date);
 
@@ -129,37 +177,28 @@ export const NewSaleModal = ({
         const dueDate = new Date(firstPaymentDate);
         dueDate.setMonth(dueDate.getMonth() + i);
 
-        payments.push({
+        const paymentData: any = {
+          sale_id: newSale.sale_id,
           installment_number: i + 1,
+          total_installments: formData.installments,
+          payment_date: formData.sale_date,
           due_date: dueDate.toISOString().split("T")[0],
           amount: installmentAmount,
           payment_method: formData.payment_method,
-          status: "pending" as const,
-        });
+          status: "pending",
+          notes: `Parcela ${i + 1}/${formData.installments}`,
+        };
+
+        await createPayment(paymentData);
       }
 
-      const saleData = {
-        patient_id: formData.patient_id,
-        budget_id: formData.budget_id || null,
-        sale_date: formData.sale_date,
-        total_amount: formData.total_amount,
-        discount_amount: formData.discount_amount,
-        final_amount: formData.final_amount,
-        amount_paid: 0,
-        payment_status: "pending" as const,
-        notes: formData.notes,
-        payments,
-      };
-
-      const newSale = await createSale(saleData);
-
-      if (newSale) {
-        toast.success("Venda criada com sucesso!");
+      toast.success(`Venda criada com sucesso! ${formData.installments} parcela(s) gerada(s).`);
         onOpenChange(false);
         
         // Reset form
         setFormData({
           patient_id: "",
+          professional_id: "",
           budget_id: "",
           sale_date: new Date().toISOString().split("T")[0],
           total_amount: 0,
@@ -238,28 +277,54 @@ export const NewSaleModal = ({
             </div>
 
             {/* Paciente */}
-            <div className="space-y-2">
-              <Label htmlFor="patient_id">
-                Paciente <span className="text-red-500">*</span>
-              </Label>
-              <Select
-                value={formData.patient_id}
-                onValueChange={(value) =>
-                  setFormData({ ...formData, patient_id: value })
-                }
-                disabled={!!selectedBudget}
-              >
-                <SelectTrigger id="patient_id">
-                  <SelectValue placeholder="Selecione o paciente" />
-                </SelectTrigger>
-                <SelectContent>
-                  {patients.map((patient) => (
-                    <SelectItem key={patient.patient_id} value={patient.patient_id}>
-                      {patient.full_name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="patient_id">
+                  Paciente <span className="text-red-500">*</span>
+                </Label>
+                <Select
+                  value={formData.patient_id}
+                  onValueChange={(value) =>
+                    setFormData({ ...formData, patient_id: value })
+                  }
+                  disabled={!!selectedBudget}
+                >
+                  <SelectTrigger id="patient_id">
+                    <SelectValue placeholder="Selecione o paciente" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {patients.map((patient) => (
+                      <SelectItem key={patient.patient_id} value={patient.patient_id}>
+                        {patient.full_name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="professional_id">
+                  Profissional <span className="text-red-500">*</span>
+                </Label>
+                <Select
+                  value={formData.professional_id}
+                  onValueChange={(value) =>
+                    setFormData({ ...formData, professional_id: value })
+                  }
+                  disabled={!!selectedBudget}
+                >
+                  <SelectTrigger id="professional_id">
+                    <SelectValue placeholder="Selecione o profissional" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {professionals.map((prof) => (
+                      <SelectItem key={prof.professional_id} value={prof.professional_id}>
+                        {prof.full_name} - {prof.specialty}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
 
             {/* Informações do Orçamento Selecionado */}
