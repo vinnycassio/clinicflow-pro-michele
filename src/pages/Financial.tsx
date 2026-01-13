@@ -120,7 +120,7 @@ const Financial = () => {
       <div className="p-4 md:p-8">
         <div className="animate-pulse space-y-4">
           <div className="h-10 bg-gray-200 rounded w-1/3"></div>
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {[1, 2, 3, 4].map((i) => (
               <div key={i} className="h-32 bg-gray-200 rounded"></div>
             ))}
@@ -182,7 +182,7 @@ const Financial = () => {
             </CardTitle>
           </CardHeader>
           <CardContent className="px-3 pb-3 md:px-6 md:pb-6">
-            <div className="text-sm md:text-xl lg:text-2xl font-bold text-green-600 break-words">
+            <div className="text-base md:text-xl lg:text-2xl font-bold text-green-600 truncate">
               {formatCurrency(stats.totalRevenue)}
             </div>
             <p className="text-xs text-gray-500 mt-1">
@@ -199,7 +199,7 @@ const Financial = () => {
             </CardTitle>
           </CardHeader>
           <CardContent className="px-3 pb-3 md:px-6 md:pb-6">
-            <div className="text-sm md:text-xl lg:text-2xl font-bold text-blue-600 break-words">
+            <div className="text-base md:text-xl lg:text-2xl font-bold text-blue-600 truncate">
               {formatCurrency(stats.totalReceived)}
             </div>
             <p className="text-xs text-gray-500 mt-1">
@@ -216,7 +216,7 @@ const Financial = () => {
             </CardTitle>
           </CardHeader>
           <CardContent className="px-3 pb-3 md:px-6 md:pb-6">
-            <div className="text-sm md:text-xl lg:text-2xl font-bold text-orange-600 break-words">
+            <div className="text-base md:text-xl lg:text-2xl font-bold text-orange-600 truncate">
               {formatCurrency(stats.totalPending)}
             </div>
             <p className="text-xs text-gray-500 mt-1">
@@ -233,7 +233,7 @@ const Financial = () => {
             </CardTitle>
           </CardHeader>
           <CardContent className="px-3 pb-3 md:px-6 md:pb-6">
-            <div className="text-sm md:text-xl lg:text-2xl font-bold text-red-600 break-words">
+            <div className="text-base md:text-xl lg:text-2xl font-bold text-red-600 truncate">
               {formatCurrency(stats.totalOverdue)}
             </div>
             <p className="text-xs text-gray-500 mt-1">
