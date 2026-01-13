@@ -162,7 +162,7 @@ const Financial = () => {
           </Button>
           <Button 
             className="gap-2 w-full sm:w-auto"
-            onClick={() => toast.info("Modal de venda em desenvolvimento")}
+            onClick={() => setShowNewSaleModal(true)}
           >
             <Plus className="w-4 h-4" />
             Nova Venda
