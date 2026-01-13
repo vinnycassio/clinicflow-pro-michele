@@ -34,7 +34,6 @@ import {
   CheckCircle2,
   XCircle,
   Clock,
-  TrendingUp,
   Trash2,
 } from "lucide-react";
 import { format } from "date-fns";
@@ -158,31 +157,11 @@ const Treatments = () => {
   };
 
   const getStatusBadge = (status: string) => {
-    const variants: Record<string, { variant: any; icon: any; label: string; color: string }> = {
-      active: {
-        variant: "default",
-        icon: Activity,
-        label: "Em Andamento",
-        color: "text-blue-600",
-      },
-      completed: {
-        variant: "outline",
-        icon: CheckCircle2,
-        label: "Concluído",
-        color: "text-green-600",
-      },
-      paused: {
-        variant: "secondary",
-        icon: Clock,
-        label: "Pausado",
-        color: "text-orange-600",
-      },
-      cancelled: {
-        variant: "destructive",
-        icon: XCircle,
-        label: "Cancelado",
-        color: "text-red-600",
-      },
+    const variants: Record<string, { variant: any; icon: any; label: string }> = {
+      active: { variant: "default", icon: Activity, label: "Em Andamento" },
+      completed: { variant: "outline", icon: CheckCircle2, label: "Concluído" },
+      paused: { variant: "secondary", icon: Clock, label: "Pausado" },
+      cancelled: { variant: "destructive", icon: XCircle, label: "Cancelado" },
     };
 
     const config = variants[status] || variants.active;
@@ -203,12 +182,12 @@ const Treatments = () => {
 
   if (loading) {
     return (
-      <div className="p-8">
+      <div className="p-4 lg:p-8">
         <div className="animate-pulse space-y-4">
           <div className="h-10 bg-gray-200 rounded w-1/3"></div>
-          <div className="grid grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
             {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="h-24 bg-gray-200 rounded"></div>
+              <div key={i} className="h-20 lg:h-24 bg-gray-200 rounded"></div>
             ))}
           </div>
         </div>
@@ -218,7 +197,7 @@ const Treatments = () => {
 
   if (error) {
     return (
-      <div className="p-8">
+      <div className="p-4 lg:p-8">
         <Card className="border-red-200 bg-red-50">
           <CardContent className="p-6">
             <p className="text-red-600 font-medium">Erro ao carregar tratamentos</p>
@@ -231,42 +210,45 @@ const Treatments = () => {
 
   return (
     <>
-      <div className="p-8 space-y-6">
+      <div className="p-4 lg:p-8 space-y-4 lg:space-y-6">
         {/* Header */}
-        <div className="flex justify-between items-center">
+        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
           <div>
-            <h1 className="text-3xl font-bold">Tratamentos</h1>
-            <p className="text-gray-500 mt-1">
+            <h1 className="text-2xl lg:text-3xl font-bold">Tratamentos</h1>
+            <p className="text-sm lg:text-base text-gray-500 mt-1">
               {treatments.length} tratamentos cadastrados
             </p>
           </div>
-          <Button className="gap-2" onClick={() => setShowNewTreatmentModal(true)}>
+          <Button 
+            className="w-full lg:w-auto gap-2" 
+            onClick={() => setShowNewTreatmentModal(true)}
+          >
             <Plus className="w-4 h-4" />
             Novo Tratamento
           </Button>
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600">
+              <CardTitle className="text-xs lg:text-sm font-medium text-gray-600">
                 Total
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold">{stats.total}</div>
+              <div className="text-2xl lg:text-3xl font-bold">{stats.total}</div>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600">
+              <CardTitle className="text-xs lg:text-sm font-medium text-gray-600">
                 Em Andamento
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-blue-600">
+              <div className="text-2xl lg:text-3xl font-bold text-blue-600">
                 {stats.active}
               </div>
             </CardContent>
@@ -274,12 +256,12 @@ const Treatments = () => {
 
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600">
+              <CardTitle className="text-xs lg:text-sm font-medium text-gray-600">
                 Concluídos
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-green-600">
+              <div className="text-2xl lg:text-3xl font-bold text-green-600">
                 {stats.completed}
               </div>
             </CardContent>
@@ -287,12 +269,12 @@ const Treatments = () => {
 
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600">
+              <CardTitle className="text-xs lg:text-sm font-medium text-gray-600">
                 Pausados
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-orange-600">
+              <div className="text-2xl lg:text-3xl font-bold text-orange-600">
                 {stats.paused}
               </div>
             </CardContent>
@@ -301,19 +283,19 @@ const Treatments = () => {
 
         {/* Filters */}
         <Card>
-          <CardContent className="p-4">
-            <div className="flex gap-4">
+          <CardContent className="p-3 lg:p-4">
+            <div className="flex flex-col sm:flex-row gap-3 lg:gap-4">
               <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 lg:w-5 lg:h-5 text-gray-400" />
                 <Input
-                  placeholder="Buscar por paciente, tratamento ou profissional..."
+                  placeholder="Buscar por paciente, tratamento..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10"
+                  className="pl-9 lg:pl-10 text-sm"
                 />
               </div>
               <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-48">
+                <SelectTrigger className="w-full sm:w-48">
                   <SelectValue placeholder="Todos os status" />
                 </SelectTrigger>
                 <SelectContent>
@@ -332,12 +314,12 @@ const Treatments = () => {
         <div className="space-y-3">
           {filteredTreatments.length === 0 ? (
             <Card>
-              <CardContent className="p-12 text-center">
-                <Activity className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-                <p className="text-gray-500 font-medium">
+              <CardContent className="p-8 lg:p-12 text-center">
+                <Activity className="w-10 h-10 lg:w-12 lg:h-12 text-gray-300 mx-auto mb-3" />
+                <p className="text-gray-500 font-medium text-sm lg:text-base">
                   Nenhum tratamento encontrado
                 </p>
-                <p className="text-sm text-gray-400 mt-1">
+                <p className="text-xs lg:text-sm text-gray-400 mt-1">
                   {searchTerm || statusFilter !== "all"
                     ? "Tente ajustar os filtros"
                     : "Comece criando o primeiro tratamento"}
@@ -356,20 +338,21 @@ const Treatments = () => {
                   key={treatment.treatment_id}
                   className="hover:shadow-md transition-shadow"
                 >
-                  <CardContent className="p-6">
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-3 mb-3">
-                          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-400 to-indigo-600 flex items-center justify-center text-white font-semibold">
+                  <CardContent className="p-4 lg:p-6">
+                    <div className="flex flex-col lg:flex-row items-start gap-4">
+                      {/* Conteúdo Principal */}
+                      <div className="flex-1 w-full">
+                        <div className="flex items-start gap-3 mb-3">
+                          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-400 to-indigo-600 flex items-center justify-center text-white font-semibold flex-shrink-0">
                             {treatment.patient?.full_name.charAt(0).toUpperCase()}
                           </div>
-                          <div>
-                            <h3 className="font-semibold text-lg">
+                          <div className="flex-1 min-w-0">
+                            <h3 className="font-semibold text-base lg:text-lg truncate">
                               {treatment.treatment_name}
                             </h3>
-                            <div className="flex items-center gap-2 text-sm text-gray-500">
-                              <User className="w-4 h-4" />
-                              <span>{treatment.patient?.full_name}</span>
+                            <div className="flex flex-wrap items-center gap-2 text-xs lg:text-sm text-gray-500">
+                              <User className="w-3 h-3 lg:w-4 lg:h-4" />
+                              <span className="truncate">{treatment.patient?.full_name}</span>
                               <span>•</span>
                               {getStatusBadge(treatment.status)}
                             </div>
@@ -378,14 +361,14 @@ const Treatments = () => {
 
                         <div className="space-y-2">
                           {treatment.description && (
-                            <p className="text-sm text-gray-600">
+                            <p className="text-xs lg:text-sm text-gray-600 line-clamp-2">
                               {treatment.description}
                             </p>
                           )}
 
                           {treatment.protocol && (
-                            <div className="flex items-center gap-2">
-                              <Badge variant="outline">
+                            <div className="flex flex-wrap items-center gap-2">
+                              <Badge variant="outline" className="text-xs">
                                 {treatment.protocol.protocol_name}
                               </Badge>
                               {treatment.protocol.category && (
@@ -396,27 +379,28 @@ const Treatments = () => {
                             </div>
                           )}
 
-                          <div className="flex items-center gap-4 text-sm text-gray-600">
+                          <div className="flex flex-wrap items-center gap-3 lg:gap-4 text-xs lg:text-sm text-gray-600">
                             <span className="flex items-center gap-1">
-                              <Calendar className="w-4 h-4" />
-                              Início: {format(new Date(treatment.start_date), "dd/MM/yyyy", { locale: ptBR })}
+                              <Calendar className="w-3 h-3 lg:w-4 lg:h-4" />
+                              {format(new Date(treatment.start_date), "dd/MM/yy")}
                             </span>
                             {treatment.end_date && (
                               <span className="flex items-center gap-1">
-                                <Calendar className="w-4 h-4" />
-                                Fim: {format(new Date(treatment.end_date), "dd/MM/yyyy", { locale: ptBR })}
+                                Fim: {format(new Date(treatment.end_date), "dd/MM/yy")}
                               </span>
                             )}
                             {treatment.professional && (
-                              <span>{treatment.professional.full_name}</span>
+                              <span className="hidden sm:inline truncate">
+                                {treatment.professional.full_name}
+                              </span>
                             )}
                           </div>
 
                           {treatment.total_sessions && (
                             <div className="space-y-2">
-                              <div className="flex justify-between text-sm">
+                              <div className="flex justify-between text-xs lg:text-sm">
                                 <span className="text-gray-600">
-                                  Sessões: {treatment.completed_sessions || 0} de {treatment.total_sessions}
+                                  Sessões: {treatment.completed_sessions || 0}/{treatment.total_sessions}
                                 </span>
                                 <span className="font-medium text-gray-900">
                                   {progress}%
@@ -428,43 +412,47 @@ const Treatments = () => {
                         </div>
                       </div>
 
-                      <div className="flex gap-2 ml-4">
+                      {/* Botões */}
+                      <div className="flex flex-wrap gap-2 w-full lg:w-auto">
                         <Button
                           variant="outline"
                           size="sm"
-                          className="gap-2"
+                          className="flex-1 lg:flex-none gap-1 text-xs"
                           onClick={() => {
                             setSelectedTreatment(treatment);
                             setShowViewModal(true);
                           }}
                         >
-                          <Eye className="w-4 h-4" />
-                          Ver
+                          <Eye className="w-3 h-3 lg:w-4 lg:h-4" />
+                          <span className="hidden sm:inline">Ver</span>
                         </Button>
                         {treatment.status === "active" && (
                           <>
                             <Button
                               size="sm"
                               variant="outline"
+                              className="text-xs"
                               onClick={() => handleComplete(treatment.treatment_id)}
                             >
-                              <CheckCircle2 className="w-4 h-4" />
+                              <CheckCircle2 className="w-3 h-3 lg:w-4 lg:h-4" />
                             </Button>
                             <Button
                               size="sm"
                               variant="outline"
+                              className="text-xs"
                               onClick={() => handleCancel(treatment.treatment_id)}
                             >
-                              <XCircle className="w-4 h-4" />
+                              <XCircle className="w-3 h-3 lg:w-4 lg:h-4" />
                             </Button>
                           </>
                         )}
                         <Button
                           variant="destructive"
                           size="sm"
+                          className="text-xs"
                           onClick={() => handleDelete(treatment.treatment_id)}
                         >
-                          <Trash2 className="w-4 h-4" />
+                          <Trash2 className="w-3 h-3 lg:w-4 lg:h-4" />
                         </Button>
                       </div>
                     </div>
@@ -477,7 +465,7 @@ const Treatments = () => {
       </div>
 
       {/* New Treatment Modal */}
-      <Dialog open={showNewTreatmentModal} onValueChange={setShowNewTreatmentModal}>
+      <Dialog open={showNewTreatmentModal} onOpenChange={setShowNewTreatmentModal}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Novo Tratamento</DialogTitle>
@@ -489,7 +477,7 @@ const Treatments = () => {
           <form onSubmit={handleSubmit}>
             <div className="grid gap-4 py-4">
               {/* Paciente e Profissional */}
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label>
                     Paciente <span className="text-red-500">*</span>
@@ -597,7 +585,7 @@ const Treatments = () => {
               </div>
 
               {/* Data de Início, Sessões e Intervalo */}
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div className="space-y-2">
                   <Label>Data de Início</Label>
                   <Input
@@ -653,15 +641,18 @@ const Treatments = () => {
               </div>
             </div>
 
-            <DialogFooter>
+            <DialogFooter className="flex-col sm:flex-row gap-2">
               <Button
                 type="button"
                 variant="outline"
                 onClick={() => setShowNewTreatmentModal(false)}
+                className="w-full sm:w-auto"
               >
                 Cancelar
               </Button>
-              <Button type="submit">Criar Tratamento</Button>
+              <Button type="submit" className="w-full sm:w-auto">
+                Criar Tratamento
+              </Button>
             </DialogFooter>
           </form>
         </DialogContent>
@@ -669,28 +660,28 @@ const Treatments = () => {
 
       {/* View Treatment Modal */}
       <Dialog open={showViewModal} onOpenChange={setShowViewModal}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Detalhes do Tratamento</DialogTitle>
+            <DialogTitle className="text-base lg:text-lg">Detalhes do Tratamento</DialogTitle>
           </DialogHeader>
 
           {selectedTreatment && (
             <div className="space-y-4 py-4">
               <div>
-                <h3 className="font-semibold text-lg mb-2">
+                <h3 className="font-semibold text-base lg:text-lg mb-2">
                   {selectedTreatment.treatment_name}
                 </h3>
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2">
                   {getStatusBadge(selectedTreatment.status)}
                   {selectedTreatment.protocol && (
-                    <Badge variant="outline">
+                    <Badge variant="outline" className="text-xs">
                       {selectedTreatment.protocol.protocol_name}
                     </Badge>
                   )}
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4 text-sm">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs lg:text-sm">
                 <div>
                   <span className="text-gray-600">Paciente:</span>
                   <p className="font-medium">{selectedTreatment.patient?.full_name}</p>
@@ -717,16 +708,16 @@ const Treatments = () => {
 
               {selectedTreatment.description && (
                 <div>
-                  <span className="text-sm text-gray-600">Descrição:</span>
-                  <p className="text-sm mt-1">{selectedTreatment.description}</p>
+                  <span className="text-xs lg:text-sm text-gray-600">Descrição:</span>
+                  <p className="text-xs lg:text-sm mt-1">{selectedTreatment.description}</p>
                 </div>
               )}
 
               {selectedTreatment.total_sessions && (
                 <div>
-                  <span className="text-sm text-gray-600">Progresso das Sessões:</span>
+                  <span className="text-xs lg:text-sm text-gray-600">Progresso das Sessões:</span>
                   <div className="mt-2">
-                    <div className="flex justify-between text-sm mb-1">
+                    <div className="flex justify-between text-xs lg:text-sm mb-1">
                       <span>
                         {selectedTreatment.completed_sessions || 0} de {selectedTreatment.total_sessions} sessões
                       </span>
@@ -749,8 +740,8 @@ const Treatments = () => {
 
               {selectedTreatment.notes && (
                 <div>
-                  <span className="text-sm text-gray-600">Observações:</span>
-                  <p className="text-sm mt-1 whitespace-pre-wrap">
+                  <span className="text-xs lg:text-sm text-gray-600">Observações:</span>
+                  <p className="text-xs lg:text-sm mt-1 whitespace-pre-wrap">
                     {selectedTreatment.notes}
                   </p>
                 </div>
@@ -759,7 +750,11 @@ const Treatments = () => {
           )}
 
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowViewModal(false)}>
+            <Button 
+              variant="outline" 
+              onClick={() => setShowViewModal(false)}
+              className="w-full sm:w-auto"
+            >
               Fechar
             </Button>
           </DialogFooter>
