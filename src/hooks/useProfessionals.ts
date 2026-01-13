@@ -1,9 +1,41 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
-import type { Professional } from "@/types/database";
 
-type ProfessionalInsert = Omit<Professional, "professional_id" | "created_at" | "updated_at"> & {
-  professional_id?: string;
+export interface Professional {
+  professional_id: string;
+  full_name: string;
+  short_name: string | null;
+  document_cpf: string | null;
+  photo_url: string | null;
+  email: string | null;
+  phone: string | null;
+  specialty: string;
+  professional_role: string | null;
+  registry_number: string | null;
+  bio: string | null;
+  persona_description: string | null;
+  tone_of_voice: string | null;
+  keywords: string | null;
+  secretary_name: string | null;
+  crm_agent_name: string | null;
+  scheduler_agent_name: string | null;
+  commission_model: string | null;
+  commission_percentage: number | null;
+  commission_fixed_value: number | null;
+  user_id: string | null;
+  system_role: string | null;
+  default_appointment_duration: number | null;
+  working_hours: any | null;
+  google_calendar_id: string | null;
+  is_active: boolean | null;
+  accept_new_patients: boolean | null;
+  created_at: string | null;
+  updated_at: string | null;
+}
+
+type ProfessionalInsert = Partial<Professional> & {
+  full_name: string;
+  specialty: string;
 };
 
 type ProfessionalUpdate = Partial<Omit<Professional, "professional_id" | "created_at">>;
@@ -38,7 +70,7 @@ export const useProfessionals = () => {
         throw fetchError;
       }
 
-      setProfessionals(data || []);
+      setProfessionals((data || []) as Professional[]);
       console.log("✅ Profissionais carregados:", data?.length || 0);
     } catch (err: any) {
       console.error("❌ Erro no fetchProfessionals:", err);
@@ -57,7 +89,7 @@ export const useProfessionals = () => {
         .single();
 
       if (fetchError) throw fetchError;
-      return data;
+      return data as Professional;
     } catch (err: any) {
       console.error("Error fetching professional:", err);
       setError(err.message);
@@ -69,13 +101,13 @@ export const useProfessionals = () => {
     try {
       const { data, error: insertError } = await supabase
         .from("vl_clinic_core_professionals")
-        .insert([professional])
+        .insert([professional as any])
         .select()
         .single();
 
       if (insertError) throw insertError;
       await fetchProfessionals();
-      return data;
+      return data as Professional;
     } catch (err: any) {
       console.error("Error creating professional:", err);
       setError(err.message);
@@ -87,14 +119,14 @@ export const useProfessionals = () => {
     try {
       const { data, error: updateError } = await supabase
         .from("vl_clinic_core_professionals")
-        .update(updates)
+        .update(updates as any)
         .eq("professional_id", id)
         .select()
         .single();
 
       if (updateError) throw updateError;
       await fetchProfessionals();
-      return data;
+      return data as Professional;
     } catch (err: any) {
       console.error("Error updating professional:", err);
       setError(err.message);
