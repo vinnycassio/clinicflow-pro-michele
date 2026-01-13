@@ -203,7 +203,7 @@ const Appointments = () => {
     const { status, appointment_id } = appointment;
 
     return (
-      <div className="flex gap-2">
+      <div className="flex flex-wrap gap-2">
         {/* Editar */}
         <Button
           variant="outline"
@@ -212,7 +212,7 @@ const Appointments = () => {
           onClick={() => handleEdit(appointment)}
         >
           <Edit className="w-4 h-4" />
-          Editar
+          <span className="hidden sm:inline">Editar</span>
         </Button>
 
         {/* Confirmar (se agendado) */}
@@ -223,7 +223,7 @@ const Appointments = () => {
             onClick={() => handleConfirm(appointment_id)}
           >
             <CheckCircle2 className="w-4 h-4" />
-            Confirmar
+            <span className="hidden sm:inline">Confirmar</span>
           </Button>
         )}
 
@@ -236,7 +236,7 @@ const Appointments = () => {
             onClick={() => handleStart(appointment_id)}
           >
             <PlayCircle className="w-4 h-4" />
-            Iniciar
+            <span className="hidden sm:inline">Iniciar</span>
           </Button>
         )}
 
@@ -248,7 +248,7 @@ const Appointments = () => {
             onClick={() => handleComplete(appointment_id)}
           >
             <CheckCircle2 className="w-4 h-4" />
-            Concluir
+            <span className="hidden sm:inline">Concluir</span>
           </Button>
         )}
 
@@ -261,7 +261,7 @@ const Appointments = () => {
             onClick={() => handleCancelClick(appointment)}
           >
             <XCircle className="w-4 h-4" />
-            Cancelar
+            <span className="hidden sm:inline">Cancelar</span>
           </Button>
         )}
 
@@ -284,10 +284,10 @@ const Appointments = () => {
 
   if (loading) {
     return (
-      <div className="p-8">
+      <div className="p-4 lg:p-8">
         <div className="animate-pulse space-y-4">
           <div className="h-10 bg-gray-200 rounded w-1/3"></div>
-          <div className="grid grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
             {[1, 2, 3, 4].map((i) => (
               <div key={i} className="h-24 bg-gray-200 rounded"></div>
             ))}
@@ -299,7 +299,7 @@ const Appointments = () => {
 
   if (error) {
     return (
-      <div className="p-8">
+      <div className="p-4 lg:p-8">
         <Card className="border-red-200 bg-red-50">
           <CardContent className="p-6">
             <p className="text-red-600 font-medium">Erro ao carregar agenda</p>
@@ -312,19 +312,19 @@ const Appointments = () => {
 
   return (
     <>
-      <div className="p-8 space-y-6">
+      <div className="p-4 lg:p-8 space-y-4 lg:space-y-6">
         {/* Header */}
-        <div className="flex justify-between items-center">
+        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
           <div>
-            <h1 className="text-3xl font-bold">Agenda</h1>
-            <p className="text-gray-500 mt-1">
+            <h1 className="text-2xl lg:text-3xl font-bold">Agenda</h1>
+            <p className="text-sm lg:text-base text-gray-500 mt-1">
               {format(selectedDate, "EEEE, d 'de' MMMM 'de' yyyy", {
                 locale: ptBR,
               })}
             </p>
           </div>
           <Button
-            className="gap-2"
+            className="w-full lg:w-auto gap-2"
             onClick={() => setShowNewAppointmentModal(true)}
           >
             <Plus className="w-4 h-4" />
@@ -333,7 +333,7 @@ const Appointments = () => {
         </div>
 
         {/* Controles */}
-        <div className="flex gap-4 items-center">
+        <div className="flex flex-col lg:flex-row gap-4">
           {/* Navegação de Data */}
           <div className="flex items-center gap-2">
             <Button variant="outline" size="sm" onClick={goToPrevious}>
@@ -352,7 +352,7 @@ const Appointments = () => {
             value={selectedProfessional}
             onValueChange={setSelectedProfessional}
           >
-            <SelectTrigger className="w-64">
+            <SelectTrigger className="w-full lg:w-64">
               <SelectValue placeholder="Todos os profissionais" />
             </SelectTrigger>
             <SelectContent>
@@ -371,8 +371,8 @@ const Appointments = () => {
 
         {/* Calendário Semanal */}
         <Card>
-          <CardContent className="p-4">
-            <div className="grid grid-cols-7 gap-2">
+          <CardContent className="p-2 lg:p-4">
+            <div className="grid grid-cols-7 gap-1 lg:gap-2">
               {weekDays.map((day) => {
                 const isSelected = isSameDay(day, selectedDate);
                 const isToday = isSameDay(day, new Date());
@@ -381,7 +381,7 @@ const Appointments = () => {
                   <button
                     key={day.toISOString()}
                     onClick={() => setSelectedDate(day)}
-                    className={`p-3 rounded-lg text-center transition-colors ${
+                    className={`p-2 lg:p-3 rounded-lg text-center transition-colors ${
                       isSelected
                         ? "bg-blue-600 text-white"
                         : isToday
@@ -392,7 +392,7 @@ const Appointments = () => {
                     <div className="text-xs font-medium">
                       {format(day, "EEE", { locale: ptBR }).toUpperCase()}
                     </div>
-                    <div className="text-2xl font-bold mt-1">
+                    <div className="text-lg lg:text-2xl font-bold mt-1">
                       {format(day, "d")}
                     </div>
                   </button>
@@ -403,26 +403,26 @@ const Appointments = () => {
         </Card>
 
         {/* Estatísticas */}
-        <div className="grid grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600">
+              <CardTitle className="text-xs lg:text-sm font-medium text-gray-600">
                 Total
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold">{stats.total}</div>
+              <div className="text-2xl lg:text-3xl font-bold">{stats.total}</div>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600">
+              <CardTitle className="text-xs lg:text-sm font-medium text-gray-600">
                 Confirmados
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-blue-600">
+              <div className="text-2xl lg:text-3xl font-bold text-blue-600">
                 {stats.confirmed}
               </div>
             </CardContent>
@@ -430,12 +430,12 @@ const Appointments = () => {
 
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600">
+              <CardTitle className="text-xs lg:text-sm font-medium text-gray-600">
                 Realizados
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-green-600">
+              <div className="text-2xl lg:text-3xl font-bold text-green-600">
                 {stats.completed}
               </div>
             </CardContent>
@@ -443,12 +443,12 @@ const Appointments = () => {
 
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600">
+              <CardTitle className="text-xs lg:text-sm font-medium text-gray-600">
                 Cancelados
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-red-600">
+              <div className="text-2xl lg:text-3xl font-bold text-red-600">
                 {stats.cancelled}
               </div>
             </CardContent>
@@ -457,14 +457,14 @@ const Appointments = () => {
 
         {/* Lista de Agendamentos */}
         <div>
-          <h2 className="text-xl font-semibold mb-4">
+          <h2 className="text-lg lg:text-xl font-semibold mb-4">
             Agendamentos do Dia ({todayAppointments.length})
           </h2>
 
           {todayAppointments.length === 0 ? (
             <Card>
-              <CardContent className="p-12 text-center">
-                <Calendar className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+              <CardContent className="p-8 lg:p-12 text-center">
+                <Calendar className="w-10 h-10 lg:w-12 lg:h-12 text-gray-300 mx-auto mb-3" />
                 <p className="text-gray-500 font-medium">
                   Nenhum agendamento para este dia
                 </p>
@@ -484,12 +484,12 @@ const Appointments = () => {
                     key={appointment.appointment_id}
                     className="hover:shadow-md transition-shadow"
                   >
-                    <CardContent className="p-6">
-                      <div className="flex items-start justify-between">
-                        <div className="flex items-start gap-4 flex-1">
+                    <CardContent className="p-4 lg:p-6">
+                      <div className="flex flex-col lg:flex-row items-start gap-4">
+                        <div className="flex items-start gap-4 flex-1 w-full">
                           {/* Horário */}
-                          <div className="text-center min-w-[80px]">
-                            <div className="text-2xl font-bold text-blue-600">
+                          <div className="text-center min-w-[60px] lg:min-w-[80px]">
+                            <div className="text-xl lg:text-2xl font-bold text-blue-600">
                               {appointment.appointment_start_time.slice(0, 5)}
                             </div>
                             <div className="text-xs text-gray-500">
@@ -499,8 +499,8 @@ const Appointments = () => {
 
                           {/* Informações */}
                           <div className="flex-1">
-                            <div className="flex items-center gap-2 mb-2">
-                              <h3 className="font-semibold text-lg">
+                            <div className="flex flex-wrap items-center gap-2 mb-2">
+                              <h3 className="font-semibold text-base lg:text-lg">
                                 {appointment.patient?.full_name ||
                                   "Paciente não identificado"}
                               </h3>
@@ -509,14 +509,14 @@ const Appointments = () => {
 
                             <div className="space-y-1">
                               {appointment.patient?.phone_main && (
-                                <p className="text-sm text-gray-600 flex items-center gap-2">
-                                  <Phone className="w-4 h-4" />
+                                <p className="text-xs lg:text-sm text-gray-600 flex items-center gap-2">
+                                  <Phone className="w-3 h-3 lg:w-4 lg:h-4" />
                                   {appointment.patient.phone_main}
                                 </p>
                               )}
                               {appointment.professional && (
-                                <p className="text-sm text-gray-600 flex items-center gap-2">
-                                  <User className="w-4 h-4" />
+                                <p className="text-xs lg:text-sm text-gray-600 flex items-center gap-2">
+                                  <User className="w-3 h-3 lg:w-4 lg:h-4" />
                                   {appointment.professional.full_name}
                                   {appointment.professional.specialty && (
                                     <span className="text-gray-400">
@@ -526,12 +526,12 @@ const Appointments = () => {
                                 </p>
                               )}
                               {appointment.service_type && (
-                                <p className="text-sm text-gray-500">
+                                <p className="text-xs lg:text-sm text-gray-500">
                                   {appointment.service_type}
                                 </p>
                               )}
                               {appointment.notes && (
-                                <p className="text-sm text-gray-500 mt-2">
+                                <p className="text-xs lg:text-sm text-gray-500 mt-2">
                                   {appointment.notes}
                                 </p>
                               )}
@@ -540,7 +540,9 @@ const Appointments = () => {
                         </div>
 
                         {/* Ações */}
-                        {getActionButtons(appointment)}
+                        <div className="w-full lg:w-auto">
+                          {getActionButtons(appointment)}
+                        </div>
                       </div>
                     </CardContent>
                   </Card>
