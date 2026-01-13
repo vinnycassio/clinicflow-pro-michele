@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
+import type { Json } from '@/types/database';
 
 // ==========================================
 // TYPES - BUDGETS
@@ -49,7 +50,7 @@ export interface BudgetInsert {
   issue_date: string;
   validity_date: string;
   status?: string;
-  items: BudgetItem[];
+  items: Json;
   subtotal: number;
   discount_total: number;
   total_amount: number;
@@ -99,7 +100,7 @@ export interface SaleInsert {
   professional_id: string;
   budget_id?: string;
   sale_date: string;
-  items: BudgetItem[];
+  items: Json;
   subtotal: number;
   discount_total: number;
   total_amount: number;
@@ -172,15 +173,15 @@ export const useFinancial = () => {
         .from('vl_fin_budgets')
         .select(`
           *,
-          patient:vl_clinic_core_patients(patient_id, full_name, phone_main, email),
-          professional:vl_clinic_core_professionals(professional_id, full_name, specialty)
+          patient:patient_id(patient_id, full_name, phone_main, email),
+          professional:professional_id(professional_id, full_name, specialty)
         `)
-        .order('issue_date', { ascending: false });
+        .order('created_at', { ascending: false });
 
       console.log('📊 Orçamentos:', data?.length);
 
       if (fetchError) throw fetchError;
-      setBudgets(data || []);
+      setBudgets((data || []) as unknown as Budget[]);
     } catch (err: any) {
       console.error('❌ Erro ao carregar orçamentos:', err);
       setError(err.message);
@@ -195,19 +196,15 @@ export const useFinancial = () => {
       
       const { data, error: insertError } = await supabase
         .from('vl_fin_budgets')
-        .insert([budget])
-        .select(`
-          *,
-          patient:vl_clinic_core_patients(patient_id, full_name, phone_main, email),
-          professional:vl_clinic_core_professionals(professional_id, full_name, specialty)
-        `)
+        .insert([budget as any])
+        .select()
         .single();
 
       if (insertError) throw insertError;
       
       console.log('✅ Orçamento criado:', data);
       await fetchBudgets();
-      return data;
+      return data as unknown as Budget;
     } catch (err: any) {
       console.error('❌ Erro ao criar orçamento:', err);
       setError(err.message);
@@ -221,16 +218,12 @@ export const useFinancial = () => {
         .from('vl_fin_budgets')
         .update(updates)
         .eq('budget_id', id)
-        .select(`
-          *,
-          patient:vl_clinic_core_patients(patient_id, full_name, phone_main, email),
-          professional:vl_clinic_core_professionals(professional_id, full_name, specialty)
-        `)
+        .select()
         .single();
 
       if (updateError) throw updateError;
       await fetchBudgets();
-      return data;
+      return data as unknown as Budget;
     } catch (err: any) {
       console.error('❌ Erro ao atualizar orçamento:', err);
       setError(err.message);
@@ -265,18 +258,21 @@ export const useFinancial = () => {
         .single();
 
       if (budgetError) throw budgetError;
+      if (!budget) throw new Error('Orçamento não encontrado');
 
+      const budgetData = budget as any;
+      
       // Criar venda
       const saleData: SaleInsert = {
-        patient_id: budget.patient_id,
-        professional_id: budget.professional_id,
+        patient_id: budgetData.patient_id,
+        professional_id: budgetData.professional_id,
         budget_id: budgetId,
         sale_date: new Date().toISOString().split('T')[0],
-        items: budget.items,
-        subtotal: budget.subtotal,
-        discount_total: budget.discount_total,
-        total_amount: budget.total_amount,
-        notes: `Convertido do orçamento ${budget.budget_number}`,
+        items: budgetData.items,
+        subtotal: budgetData.subtotal || 0,
+        discount_total: budgetData.discount_amount || 0,
+        total_amount: budgetData.final_amount || 0,
+        notes: `Convertido do orçamento ${budgetData.budget_number}`,
       };
 
       const sale = await createSale(saleData);
@@ -305,16 +301,16 @@ export const useFinancial = () => {
         .from('vl_fin_sales')
         .select(`
           *,
-          patient:vl_clinic_core_patients(patient_id, full_name, phone_main, email),
-          professional:vl_clinic_core_professionals(professional_id, full_name, specialty),
-          budget:vl_fin_budgets(budget_id, budget_number)
+          patient:patient_id(patient_id, full_name, phone_main, email),
+          professional:professional_id(professional_id, full_name, specialty),
+          budget:budget_id(budget_id, budget_number)
         `)
-        .order('sale_date', { ascending: false });
+        .order('created_at', { ascending: false });
 
       console.log('📊 Vendas:', data?.length);
 
       if (fetchError) throw fetchError;
-      setSales(data || []);
+      setSales((data || []) as unknown as Sale[]);
     } catch (err: any) {
       console.error('❌ Erro ao carregar vendas:', err);
       setError(err.message);
@@ -327,20 +323,15 @@ export const useFinancial = () => {
       
       const { data, error: insertError } = await supabase
         .from('vl_fin_sales')
-        .insert([sale])
-        .select(`
-          *,
-          patient:vl_clinic_core_patients(patient_id, full_name, phone_main, email),
-          professional:vl_clinic_core_professionals(professional_id, full_name, specialty),
-          budget:vl_fin_budgets(budget_id, budget_number)
-        `)
+        .insert([sale as any])
+        .select()
         .single();
 
       if (insertError) throw insertError;
       
       console.log('✅ Venda criada:', data);
       await fetchSales();
-      return data;
+      return data as unknown as Sale;
     } catch (err: any) {
       console.error('❌ Erro ao criar venda:', err);
       setError(err.message);
@@ -354,16 +345,12 @@ export const useFinancial = () => {
         .from('vl_fin_sales')
         .update(updates)
         .eq('sale_id', id)
-        .select(`
-          *,
-          patient:vl_clinic_core_patients(patient_id, full_name, phone_main, email),
-          professional:vl_clinic_core_professionals(professional_id, full_name, specialty)
-        `)
+        .select()
         .single();
 
       if (updateError) throw updateError;
       await fetchSales();
-      return data;
+      return data as unknown as Sale;
     } catch (err: any) {
       console.error('❌ Erro ao atualizar venda:', err);
       setError(err.message);
@@ -399,10 +386,10 @@ export const useFinancial = () => {
         .from('vl_fin_payments')
         .select(`
           *,
-          sale:vl_fin_sales(
+          sale:sale_id(
             sale_id,
             sale_number,
-            patient:vl_clinic_core_patients(full_name)
+            patient:patient_id(full_name)
           )
         `)
         .order('due_date', { ascending: true });
@@ -410,7 +397,7 @@ export const useFinancial = () => {
       console.log('📊 Pagamentos:', data?.length);
 
       if (fetchError) throw fetchError;
-      setPayments(data || []);
+      setPayments((data || []) as unknown as Payment[]);
     } catch (err: any) {
       console.error('❌ Erro ao carregar pagamentos:', err);
       setError(err.message);
@@ -423,15 +410,8 @@ export const useFinancial = () => {
       
       const { data, error: insertError } = await supabase
         .from('vl_fin_payments')
-        .insert([payment])
-        .select(`
-          *,
-          sale:vl_fin_sales(
-            sale_id,
-            sale_number,
-            patient:vl_clinic_core_patients(full_name)
-          )
-        `)
+        .insert([payment as any])
+        .select()
         .single();
 
       if (insertError) throw insertError;
@@ -439,7 +419,7 @@ export const useFinancial = () => {
       console.log('✅ Pagamento criado:', data);
       await fetchPayments();
       await fetchSales(); // Atualizar vendas também
-      return data;
+      return data as unknown as Payment;
     } catch (err: any) {
       console.error('❌ Erro ao criar pagamento:', err);
       setError(err.message);
@@ -453,20 +433,13 @@ export const useFinancial = () => {
         .from('vl_fin_payments')
         .update(updates)
         .eq('payment_id', id)
-        .select(`
-          *,
-          sale:vl_fin_sales(
-            sale_id,
-            sale_number,
-            patient:vl_clinic_core_patients(full_name)
-          )
-        `)
+        .select()
         .single();
 
       if (updateError) throw updateError;
       await fetchPayments();
       await fetchSales(); // Atualizar vendas também
-      return data;
+      return data as unknown as Payment;
     } catch (err: any) {
       console.error('❌ Erro ao atualizar pagamento:', err);
       setError(err.message);
@@ -506,7 +479,7 @@ export const useFinancial = () => {
   };
 
   // ==========================================
-  // LOAD ALL
+  // EFFECTS
   // ==========================================
   useEffect(() => {
     const loadAll = async () => {
@@ -518,27 +491,20 @@ export const useFinancial = () => {
   }, []);
 
   return {
-    // State
     budgets,
     sales,
     payments,
     loading,
     error,
-    
-    // Budgets
     fetchBudgets,
     createBudget,
     updateBudget,
     deleteBudget,
     convertBudgetToSale,
-    
-    // Sales
     fetchSales,
     createSale,
     updateSale,
     deleteSale,
-    
-    // Payments
     fetchPayments,
     createPayment,
     updatePayment,

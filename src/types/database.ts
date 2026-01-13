@@ -338,19 +338,33 @@ export interface SaleWithDetails extends Sale {
 
 // ============================================
 // INSERTS E UPDATES (Para operações do Supabase)
+// Campos opcionais que o banco gera automaticamente
 // ============================================
+
+export interface AppointmentInsert {
+  patient_id: string;
+  professional_id: string;
+  appointment_date: string;
+  appointment_start_time: string;
+  appointment_end_time: string;
+  status?: string;
+  service_type?: string | null;
+  notes?: string | null;
+  channel_origin?: string | null;
+  created_by_agent?: string | null;
+  google_event_id?: string | null;
+  sync_source?: string | null;
+  last_synced_at?: string | null;
+  sync_status?: string | null;
+}
+
+export type AppointmentUpdate = Partial<AppointmentInsert>;
 
 export type PatientInsert = Omit<Patient, "patient_id" | "created_at" | "updated_at"> & {
   patient_id?: string;
 };
 
 export type PatientUpdate = Partial<Omit<Patient, "patient_id" | "created_at">>;
-
-export type AppointmentInsert = Omit<Appointment, "appointment_id" | "created_at" | "updated_at"> & {
-  appointment_id?: string;
-};
-
-export type AppointmentUpdate = Partial<Omit<Appointment, "appointment_id" | "created_at">>;
 
 export type MedicalRecordInsert = Omit<MedicalRecord, "record_id" | "created_at" | "updated_at"> & {
   record_id?: string;
@@ -500,21 +514,6 @@ export interface Database {
         Args: Record<string, never>;
         Returns: boolean;
       };
-      is_professional: {
-        Args: { prof_id: string };
-        Returns: boolean;
-      };
-      get_professional_id: {
-        Args: Record<string, never>;
-        Returns: string;
-      };
-      has_financial_access: {
-        Args: Record<string, never>;
-        Returns: boolean;
-      };
     };
-
-    Enums: Record<string, never>;
-    CompositeTypes: Record<string, never>;
   };
 }
