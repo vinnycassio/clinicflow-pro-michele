@@ -49,6 +49,21 @@ export interface Treatment {
   };
 }
 
+export interface TreatmentInsert {
+  patient_id: string;
+  professional_id: string;
+  protocol_id?: string;
+  treatment_name: string;
+  description?: string;
+  start_date: string;
+  end_date?: string;
+  status?: string;
+  total_sessions?: number;
+  completed_sessions?: number;
+  session_interval_days?: number;
+  notes?: string;
+}
+
 export const useTreatments = (patientId?: string) => {
   const [treatments, setTreatments] = useState<Treatment[]>([]);
   const [protocols, setProtocols] = useState<TreatmentProtocol[]>([]);
@@ -64,24 +79,7 @@ export const useTreatments = (patientId?: string) => {
       
       let query = supabase
         .from('vl_clinic_patient_treatments')
-        .select(`
-          *,
-          patient:vl_clinic_core_patients(
-            patient_id,
-            full_name,
-            phone_main
-          ),
-          professional:vl_clinic_core_professionals(
-            professional_id,
-            full_name,
-            specialty
-          ),
-          protocol:vl_clinic_treatment_protocols(
-            protocol_id,
-            protocol_name,
-            category
-          )
-        `)
+        .select('*')
         .order('start_date', { ascending: false });
 
       if (patientId) {
@@ -97,7 +95,7 @@ export const useTreatments = (patientId?: string) => {
       });
 
       if (fetchError) throw fetchError;
-      setTreatments(data || []);
+      setTreatments((data || []) as Treatment[]);
       console.log('✅ Tratamentos carregados:', data?.length || 0);
     } catch (err: any) {
       console.error('❌ Erro ao carregar tratamentos:', err);
@@ -118,7 +116,7 @@ export const useTreatments = (patientId?: string) => {
         .order('protocol_name', { ascending: true });
 
       if (fetchError) throw fetchError;
-      setProtocols(data || []);
+      setProtocols((data || []) as unknown as TreatmentProtocol[]);
       console.log('✅ Protocolos carregados:', data?.length || 0);
     } catch (err: any) {
       console.error('❌ Erro ao carregar protocolos:', err);
@@ -129,17 +127,12 @@ export const useTreatments = (patientId?: string) => {
     try {
       const { data, error: fetchError } = await supabase
         .from('vl_clinic_patient_treatments')
-        .select(`
-          *,
-          patient:vl_clinic_core_patients(*),
-          professional:vl_clinic_core_professionals(*),
-          protocol:vl_clinic_treatment_protocols(*)
-        `)
+        .select('*')
         .eq('treatment_id', id)
         .single();
 
       if (fetchError) throw fetchError;
-      return data;
+      return data as Treatment;
     } catch (err: any) {
       console.error('Erro ao buscar tratamento:', err);
       setError(err.message);
@@ -147,19 +140,14 @@ export const useTreatments = (patientId?: string) => {
     }
   };
 
-  const createTreatment = async (treatment: Partial<Treatment>): Promise<Treatment | null> => {
+  const createTreatment = async (treatment: TreatmentInsert): Promise<Treatment | null> => {
     try {
       console.log('📝 Criando tratamento...', treatment);
       
       const { data, error: insertError } = await supabase
         .from('vl_clinic_patient_treatments')
-        .insert([treatment])
-        .select(`
-          *,
-          patient:vl_clinic_core_patients(patient_id, full_name, phone_main),
-          professional:vl_clinic_core_professionals(professional_id, full_name, specialty),
-          protocol:vl_clinic_treatment_protocols(protocol_id, protocol_name, category)
-        `)
+        .insert([treatment as any])
+        .select('*')
         .single();
 
       if (insertError) {
@@ -169,7 +157,7 @@ export const useTreatments = (patientId?: string) => {
       
       console.log('✅ Tratamento criado:', data);
       await fetchTreatments();
-      return data;
+      return data as Treatment;
     } catch (err: any) {
       console.error('❌ Erro ao criar tratamento:', err);
       setError(err.message);
@@ -177,27 +165,22 @@ export const useTreatments = (patientId?: string) => {
     }
   };
 
-  const updateTreatment = async (id: string, updates: Partial<Treatment>): Promise<Treatment | null> => {
+  const updateTreatment = async (id: string, updates: Partial<TreatmentInsert>): Promise<Treatment | null> => {
     try {
       console.log('📝 Atualizando tratamento...', id, updates);
       
       const { data, error: updateError } = await supabase
         .from('vl_clinic_patient_treatments')
-        .update(updates)
+        .update(updates as any)
         .eq('treatment_id', id)
-        .select(`
-          *,
-          patient:vl_clinic_core_patients(patient_id, full_name, phone_main),
-          professional:vl_clinic_core_professionals(professional_id, full_name, specialty),
-          protocol:vl_clinic_treatment_protocols(protocol_id, protocol_name, category)
-        `)
+        .select('*')
         .single();
 
       if (updateError) throw updateError;
       
       console.log('✅ Tratamento atualizado:', data);
       await fetchTreatments();
-      return data;
+      return data as Treatment;
     } catch (err: any) {
       console.error('❌ Erro ao atualizar tratamento:', err);
       setError(err.message);

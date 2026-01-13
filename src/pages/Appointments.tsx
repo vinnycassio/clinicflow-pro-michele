@@ -90,7 +90,7 @@ const Appointments = () => {
   const handleStart = async (appointmentId: string) => {
     const result = await updateAppointment(appointmentId, { 
       status: "in_progress",
-      actual_start_time: format(new Date(), "HH:mm:ss")
+      notes: `Iniciado às ${format(new Date(), "HH:mm:ss")}`
     });
     if (result) {
       toast.success("Atendimento iniciado!");
@@ -103,7 +103,7 @@ const Appointments = () => {
   const handleComplete = async (appointmentId: string) => {
     const result = await updateAppointment(appointmentId, { 
       status: "completed",
-      actual_end_time: format(new Date(), "HH:mm:ss")
+      notes: `Concluído às ${format(new Date(), "HH:mm:ss")}`
     });
     if (result) {
       toast.success("Atendimento concluído!");

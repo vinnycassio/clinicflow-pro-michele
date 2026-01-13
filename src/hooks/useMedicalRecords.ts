@@ -61,20 +61,7 @@ export const useMedicalRecords = (patientId?: string) => {
       
       let query = supabase
         .from('vl_clinic_medical_records')
-        .select(`
-          *,
-          patient:vl_clinic_core_patients(
-            patient_id,
-            full_name,
-            phone_main,
-            email
-          ),
-          professional:vl_clinic_core_professionals(
-            professional_id,
-            full_name,
-            specialty
-          )
-        `)
+        .select('*')
         .order('record_date', { ascending: false })
         .order('created_at', { ascending: false });
 
@@ -91,7 +78,7 @@ export const useMedicalRecords = (patientId?: string) => {
       });
 
       if (fetchError) throw fetchError;
-      setRecords(data || []);
+      setRecords((data || []) as MedicalRecord[]);
       console.log('✅ Prontuários carregados:', data?.length || 0);
     } catch (err: any) {
       console.error('❌ Erro ao carregar prontuários:', err);
@@ -105,16 +92,12 @@ export const useMedicalRecords = (patientId?: string) => {
     try {
       const { data, error: fetchError } = await supabase
         .from('vl_clinic_medical_records')
-        .select(`
-          *,
-          patient:vl_clinic_core_patients(*),
-          professional:vl_clinic_core_professionals(*)
-        `)
+        .select('*')
         .eq('record_id', id)
         .single();
 
       if (fetchError) throw fetchError;
-      return data;
+      return data as MedicalRecord;
     } catch (err: any) {
       console.error('Erro ao buscar prontuário:', err);
       setError(err.message);
@@ -128,12 +111,8 @@ export const useMedicalRecords = (patientId?: string) => {
       
       const { data, error: insertError } = await supabase
         .from('vl_clinic_medical_records')
-        .insert([record])
-        .select(`
-          *,
-          patient:vl_clinic_core_patients(patient_id, full_name, phone_main, email),
-          professional:vl_clinic_core_professionals(professional_id, full_name, specialty)
-        `)
+        .insert([record as any])
+        .select('*')
         .single();
 
       if (insertError) {
@@ -143,7 +122,7 @@ export const useMedicalRecords = (patientId?: string) => {
       
       console.log('✅ Prontuário criado:', data);
       await fetchRecords();
-      return data;
+      return data as MedicalRecord;
     } catch (err: any) {
       console.error('❌ Erro ao criar prontuário:', err);
       setError(err.message);
@@ -157,20 +136,16 @@ export const useMedicalRecords = (patientId?: string) => {
       
       const { data, error: updateError } = await supabase
         .from('vl_clinic_medical_records')
-        .update(updates)
+        .update(updates as any)
         .eq('record_id', id)
-        .select(`
-          *,
-          patient:vl_clinic_core_patients(patient_id, full_name, phone_main, email),
-          professional:vl_clinic_core_professionals(professional_id, full_name, specialty)
-        `)
+        .select('*')
         .single();
 
       if (updateError) throw updateError;
       
       console.log('✅ Prontuário atualizado:', data);
       await fetchRecords();
-      return data;
+      return data as MedicalRecord;
     } catch (err: any) {
       console.error('❌ Erro ao atualizar prontuário:', err);
       setError(err.message);

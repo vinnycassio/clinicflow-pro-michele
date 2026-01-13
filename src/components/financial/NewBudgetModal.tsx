@@ -136,13 +136,13 @@ export const NewBudgetModal = ({ open, onOpenChange }: NewBudgetModalProps) => {
     try {
       const budgetData = {
         ...formData,
-        items,
+        items: items as any, // Cast to any for JSON compatibility
         subtotal: totals.subtotal,
         discount_total: totals.discount_total,
         total_amount: totals.total_amount,
       };
 
-      const result = await createBudget(budgetData);
+      const result = await createBudget(budgetData as any);
 
       if (result) {
         toast.success("Orçamento criado com sucesso!");

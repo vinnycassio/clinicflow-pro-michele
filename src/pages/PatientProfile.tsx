@@ -99,14 +99,14 @@ export default function PatientProfile() {
   const [activeTab, setActiveTab] = useState("resumo");
 
   return (
-    <AppLayout>
-      <PageHeader
-        title=""
-        breadcrumbs={[
-          { label: "Pacientes", href: "/pacientes" },
-          { label: patientData.name },
-        ]}
-      />
+    <>
+      <div className="px-6 lg:px-8 py-4">
+        <nav className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
+          <a href="/pacientes" className="hover:text-foreground transition-colors">Pacientes</a>
+          <span>/</span>
+          <span className="text-foreground">{patientData.name}</span>
+        </nav>
+      </div>
 
       <div className="px-6 lg:px-8 py-6">
         {/* Patient Header Card */}
@@ -345,6 +345,6 @@ export default function PatientProfile() {
           </TabsContent>
         </Tabs>
       </div>
-    </AppLayout>
+    </>
   );
 }
