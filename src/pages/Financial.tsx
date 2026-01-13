@@ -412,17 +412,6 @@ const Financial = () => {
           </Card>
         </TabsContent>
       </Tabs>
-
- //     {/* Modais */}
-//      <NewBudgetModal
- //       open={showNewBudgetModal}
- //       onOpenChange={setShowNewBudgetModal}
- //     />
-//
-//      <NewSaleModal
-//        open={showNewSaleModal}
-//        onOpenChange={setShowNewSaleModal}
-//      />
     </div>
   );
 };
