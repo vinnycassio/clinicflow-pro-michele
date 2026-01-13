@@ -4,8 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { NewBudgetModal } from "@/components/financial/NewBudgetModal";
-import { NewSaleModal } from "@/components/financial/NewSaleModal";
 import {
   DollarSign,
   Clock,
@@ -18,10 +16,14 @@ import {
 } from "lucide-react";
 import { format } from "date-fns";
 import { toast } from "sonner";
+import { NewBudgetModal } from "@/components/financial/NewBudgetModal";
+import { NewSaleModal } from "@/components/financial/NewSaleModal";
 
 const Financial = () => {
   const { budgets, sales, payments, loading, error, markPaymentAsPaid } = useFinancial();
   const [activeTab, setActiveTab] = useState("overview");
+  const [showNewBudgetModal, setShowNewBudgetModal] = useState(false);
+  const [showNewSaleModal, setShowNewSaleModal] = useState(false);
 
   // Proteção contra undefined
   const safeBudgets = budgets || [];
@@ -410,6 +412,17 @@ const Financial = () => {
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* Modais */}
+      <NewBudgetModal
+        open={showNewBudgetModal}
+        onOpenChange={setShowNewBudgetModal}
+      />
+
+      <NewSaleModal
+        open={showNewSaleModal}
+        onOpenChange={setShowNewSaleModal}
+      />
     </div>
   );
 };
