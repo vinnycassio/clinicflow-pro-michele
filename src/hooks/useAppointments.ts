@@ -16,13 +16,13 @@ export const useAppointments = (professionalId?: string, date?: string) => {
         .from('vl_clinic_core_appointments')
         .select(`
           *,
-          patient:vl_clinic_core_patients(
+          patient:patient_id(
             patient_id,
             full_name,
             phone_main,
             email
           ),
-          professional:vl_clinic_core_professionals(
+          professional:professional_id(
             professional_id,
             full_name,
             short_name,
@@ -43,7 +43,7 @@ export const useAppointments = (professionalId?: string, date?: string) => {
       const { data, error: fetchError } = await query;
 
       if (fetchError) throw fetchError;
-      setAppointments(data as AppointmentWithDetails[] || []);
+      setAppointments((data || []) as unknown as AppointmentWithDetails[]);
     } catch (err: any) {
       console.error('Erro ao carregar agendamentos:', err);
       setError(err.message);
@@ -58,14 +58,14 @@ export const useAppointments = (professionalId?: string, date?: string) => {
         .from('vl_clinic_core_appointments')
         .select(`
           *,
-          patient:vl_clinic_core_patients(*),
-          professional:vl_clinic_core_professionals(*)
+          patient:patient_id(*),
+          professional:professional_id(*)
         `)
         .eq('appointment_id', id)
         .single();
 
       if (fetchError) throw fetchError;
-      return data as AppointmentWithDetails;
+      return data as unknown as AppointmentWithDetails;
     } catch (err: any) {
       console.error('Erro ao buscar agendamento:', err);
       setError(err.message);
@@ -78,16 +78,12 @@ export const useAppointments = (professionalId?: string, date?: string) => {
       const { data, error: insertError } = await supabase
         .from('vl_clinic_core_appointments')
         .insert([appointment])
-        .select(`
-          *,
-          patient:vl_clinic_core_patients(patient_id, full_name, phone_main, email),
-          professional:vl_clinic_core_professionals(professional_id, full_name, specialty)
-        `)
+        .select()
         .single();
   
       if (insertError) throw insertError;
       await fetchAppointments();
-      return data;
+      return data as Appointment;
     } catch (err: any) {
       console.error('Erro ao criar agendamento:', err);
       setError(err.message);
@@ -106,7 +102,7 @@ export const useAppointments = (professionalId?: string, date?: string) => {
 
       if (updateError) throw updateError;
       await fetchAppointments();
-      return data;
+      return data as Appointment;
     } catch (err: any) {
       console.error('Erro ao atualizar agendamento:', err);
       setError(err.message);
@@ -128,7 +124,7 @@ export const useAppointments = (professionalId?: string, date?: string) => {
 
       if (updateError) throw updateError;
       await fetchAppointments();
-      return data;
+      return data as Appointment;
     } catch (err: any) {
       console.error('Erro ao cancelar agendamento:', err);
       setError(err.message);
