@@ -25,6 +25,9 @@ const Financial = () => {
   const [showNewBudgetModal, setShowNewBudgetModal] = useState(false);
   const [showNewSaleModal, setShowNewSaleModal] = useState(false);
 
+  // Debug
+  console.log('Estados dos modais:', { showNewBudgetModal, showNewSaleModal });
+
   // Proteção contra undefined
   const safeBudgets = budgets || [];
   const safeSales = sales || [];
@@ -157,14 +160,20 @@ const Financial = () => {
           <Button 
             variant="outline" 
             className="gap-2 w-full sm:w-auto"
-            onClick={() => setShowNewBudgetModal(true)}
+            onClick={() => {
+              console.log('Botão Orçamento clicado!');
+              setShowNewBudgetModal(true);
+            }}
           >
             <FileText className="w-4 h-4" />
             Novo Orçamento
           </Button>
           <Button 
             className="gap-2 w-full sm:w-auto"
-            onClick={() => setShowNewSaleModal(true)}
+            onClick={() => {
+              console.log('Botão Venda clicado!');
+              setShowNewSaleModal(true);
+            }}
           >
             <Plus className="w-4 h-4" />
             Nova Venda
