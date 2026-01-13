@@ -22,9 +22,9 @@ import { NewSaleModal } from "@/components/financial/NewSaleModal";
 const Financial = () => {
   const { budgets, sales, payments, loading, error, markPaymentAsPaid } = useFinancial();
   const [activeTab, setActiveTab] = useState("overview");
-  const [showNewBudgetModal, setShowNewBudgetModal] = useState(false);
-  const [showNewSaleModal, setShowNewSaleModal] = useState(false);
-
+  const [showNewBudgetModal, setShowNewBudgetModal] = useState<boolean>(false);
+  const [showNewSaleModal, setShowNewSaleModal] = useState<boolean>(false);
+  
   // Proteção contra undefined
   const safeBudgets = budgets || [];
   const safeSales = sales || [];
