@@ -193,26 +193,23 @@ export const NewSaleModal = ({
       }
 
       toast.success(`Venda criada com sucesso! ${formData.installments} parcela(s) gerada(s).`);
-        onOpenChange(false);
-        
-        // Reset form
-        setFormData({
-          patient_id: "",
-          professional_id: "",
-          budget_id: "",
-          sale_date: new Date().toISOString().split("T")[0],
-          total_amount: 0,
-          discount_amount: 0,
-          final_amount: 0,
-          payment_method: "pix",
-          installments: 1,
-          first_payment_date: new Date().toISOString().split("T")[0],
-          notes: "",
-        });
-        setSelectedBudget(null);
-      } else {
-        toast.error("Erro ao criar venda");
-      }
+      onOpenChange(false);
+      
+      // Reset form
+      setFormData({
+        patient_id: "",
+        professional_id: "",
+        budget_id: "",
+        sale_date: new Date().toISOString().split("T")[0],
+        total_amount: 0,
+        discount_amount: 0,
+        final_amount: 0,
+        payment_method: "pix",
+        installments: 1,
+        first_payment_date: new Date().toISOString().split("T")[0],
+        notes: "",
+      });
+      setSelectedBudget(null);
     } catch (error: any) {
       console.error("Erro ao criar venda:", error);
       toast.error(error.message || "Erro ao criar venda");
