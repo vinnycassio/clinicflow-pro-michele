@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { NewBudgetModal } from "@/components/financial/NewBudgetModal";
+import { NewSaleModal } from "@/components/financial/NewSaleModal";
 import {
   DollarSign,
   Clock,
