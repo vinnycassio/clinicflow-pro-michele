@@ -154,7 +154,7 @@ const Financial = () => {
           <Button 
             variant="outline" 
             className="gap-2 w-full sm:w-auto"
-            onClick={() => toast.info("Modal de orçamento em desenvolvimento")}
+            onClick={() => setShowNewBudgetModal(true)}
           >
             <FileText className="w-4 h-4" />
             Novo Orçamento
