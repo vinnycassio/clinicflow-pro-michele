@@ -102,21 +102,29 @@ export const NewUserModal = ({
 
       const userId = authData.user.id;
 
-      // Wait a moment for triggers to run
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      // Create profile directly (don't rely on triggers)
+      const { error: profileError } = await supabase
+        .from("profiles")
+        .upsert({
+          id: userId,
+          email: data.email,
+          full_name: data.full_name,
+        }, { onConflict: 'id' });
 
-      // Update role
+      if (profileError) {
+        console.error("Error creating profile:", profileError);
+      }
+
+      // Create or update role
       const { error: roleError } = await supabase
         .from("user_roles")
-        .update({ role: data.role })
-        .eq("user_id", userId);
-
-      if (roleError) {
-        // If update fails, try insert
-        await supabase.from("user_roles").insert({
+        .upsert({
           user_id: userId,
           role: data.role,
-        });
+        }, { onConflict: 'user_id' });
+
+      if (roleError) {
+        console.error("Error setting role:", roleError);
       }
 
       // Link to professional if selected
