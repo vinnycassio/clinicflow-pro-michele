@@ -13,6 +13,7 @@ import Appointments from "./pages/Appointments";
 import MedicalRecords from "./pages/MedicalRecords";
 import Treatments from "./pages/Treatments";
 import Financial from "./pages/Financial";
+import Settings from "./pages/Settings";
 import Auth from "./pages/Auth";
 import Unauthorized from "./pages/Unauthorized";
 import NotFound from "./pages/NotFound";
@@ -78,6 +79,16 @@ const App = () => {
                 <Route path="/treatments" element={<Treatments />} />
                 <Route path="/financeiro" element={<Financial />} />
                 <Route path="/financial" element={<Financial />} />
+                <Route path="/configuracoes" element={
+                  <ProtectedRoute requiredRoles={['admin']}>
+                    <Settings />
+                  </ProtectedRoute>
+                } />
+                <Route path="/settings" element={
+                  <ProtectedRoute requiredRoles={['admin']}>
+                    <Settings />
+                  </ProtectedRoute>
+                } />
                 <Route path="*" element={<NotFound />} />
               </Route>
             </Routes>
