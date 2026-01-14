@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAppointments } from "@/hooks/useAppointments";
 import { useProfessionals } from "@/hooks/useProfessionals";
+import { useUserProfessional } from "@/hooks/useUserProfessional";
 import { NewAppointmentModal } from "@/components/appointments/NewAppointmentModal";
 import { EditAppointmentModal } from "@/components/appointments/EditAppointmentModal";
 import { Button } from "@/components/ui/button";
@@ -51,12 +52,31 @@ const Appointments = () => {
   const [showCancelDialog, setShowCancelDialog] = useState(false);
   const [appointmentToCancel, setAppointmentToCancel] = useState<any>(null);
 
+  const { getProfessionalFilter, canSeeAllProfessionals, loading: userProfLoading } = useUserProfessional();
+  const { professionals } = useProfessionals();
+
+  // Set professional filter based on role
+  useEffect(() => {
+    if (!userProfLoading) {
+      const filter = getProfessionalFilter();
+      if (filter) {
+        // Professional user - force their professional_id
+        setSelectedProfessional(filter);
+      }
+    }
+  }, [userProfLoading, getProfessionalFilter]);
+
   const dateString = format(selectedDate, "yyyy-MM-dd");
+  
+  // Use the appropriate filter based on role
+  const effectiveProfessionalFilter = canSeeAllProfessionals() 
+    ? (selectedProfessional === "all" ? undefined : selectedProfessional)
+    : getProfessionalFilter();
+    
   const { appointments, loading, error, updateAppointment, cancelAppointment, deleteAppointment } = useAppointments(
-    selectedProfessional === "all" ? undefined : selectedProfessional,
+    effectiveProfessionalFilter,
     dateString
   );
-  const { professionals } = useProfessionals();
 
   // Gerar dias da semana
   const weekStart = startOfWeek(selectedDate, { locale: ptBR });
@@ -348,26 +368,28 @@ const Appointments = () => {
             </Button>
           </div>
 
-          {/* Filtro de Profissional */}
-          <Select
-            value={selectedProfessional}
-            onValueChange={setSelectedProfessional}
-          >
-            <SelectTrigger className="w-full sm:w-56 lg:w-64">
-              <SelectValue placeholder="Todos os profissionais" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Todos os profissionais</SelectItem>
-              {professionals.map((prof) => (
-                <SelectItem
-                  key={prof.professional_id}
-                  value={prof.professional_id}
-                >
-                  {prof.full_name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          {/* Filtro de Profissional - Only show for admin/receptionist */}
+          {canSeeAllProfessionals() && (
+            <Select
+              value={selectedProfessional}
+              onValueChange={setSelectedProfessional}
+            >
+              <SelectTrigger className="w-full sm:w-56 lg:w-64">
+                <SelectValue placeholder="Todos os profissionais" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos os profissionais</SelectItem>
+                {professionals.map((prof) => (
+                  <SelectItem
+                    key={prof.professional_id}
+                    value={prof.professional_id}
+                  >
+                    {prof.full_name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
         </div>
 
         {/* Calendário Semanal */}

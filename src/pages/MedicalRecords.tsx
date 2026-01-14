@@ -1,7 +1,8 @@
 import { useMedicalRecords } from "@/hooks/useMedicalRecords";
 import { usePatients } from "@/hooks/usePatients";
 import { useProfessionals } from "@/hooks/useProfessionals";
-import { useState } from "react";
+import { useUserProfessional } from "@/hooks/useUserProfessional";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -41,6 +42,7 @@ const MedicalRecords = () => {
   const { records, loading, error, createRecord, deleteRecord } = useMedicalRecords();
   const { patients } = usePatients();
   const { professionals } = useProfessionals();
+  const { getProfessionalFilter, canSeeAllProfessionals, professional: userProfessional } = useUserProfessional();
   
   const [searchTerm, setSearchTerm] = useState("");
   const [showNewRecordModal, setShowNewRecordModal] = useState(false);
@@ -60,7 +62,19 @@ const MedicalRecords = () => {
     recommendations: "",
   });
 
-  const filteredRecords = records.filter((record) => {
+  // Set default professional_id for professionals
+  useEffect(() => {
+    if (userProfessional?.professional_id && !formData.professional_id) {
+      setFormData(prev => ({ ...prev, professional_id: userProfessional.professional_id }));
+    }
+  }, [userProfessional?.professional_id]);
+
+  // Filter records based on user role
+  const roleFilteredRecords = canSeeAllProfessionals() 
+    ? records 
+    : records.filter(r => r.professional_id === getProfessionalFilter());
+
+  const filteredRecords = roleFilteredRecords.filter((record) => {
     const searchLower = searchTerm.toLowerCase();
     return (
       record.patient?.full_name.toLowerCase().includes(searchLower) ||
