@@ -100,60 +100,64 @@ export const UserCard = ({
 
   return (
     <Card className="transition-all hover:shadow-md">
-      <CardContent className="p-4">
-        <div className="flex items-start gap-4">
-          <Avatar className="h-12 w-12">
-            <AvatarImage src={user.avatar_url || undefined} />
-            <AvatarFallback className="bg-primary/10 text-primary">
-              {getInitials(user.full_name, user.email)}
-            </AvatarFallback>
-          </Avatar>
+      <CardContent className="p-3 sm:p-4">
+        <div className="flex flex-col sm:flex-row sm:items-start gap-3 sm:gap-4">
+          {/* Avatar + Info Section */}
+          <div className="flex items-start gap-3 flex-1 min-w-0">
+            <Avatar className="h-10 w-10 sm:h-12 sm:w-12 shrink-0">
+              <AvatarImage src={user.avatar_url || undefined} />
+              <AvatarFallback className="bg-primary/10 text-primary text-sm sm:text-base">
+                {getInitials(user.full_name, user.email)}
+              </AvatarFallback>
+            </Avatar>
 
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 mb-1">
-              <h3 className="font-semibold text-foreground truncate">
-                {user.full_name || "Sem nome"}
-              </h3>
-              {isCurrentUser && (
-                <Badge variant="outline" className="text-xs">
-                  Você
-                </Badge>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 mb-1 flex-wrap">
+                <h3 className="font-semibold text-foreground truncate text-sm sm:text-base">
+                  {user.full_name || "Sem nome"}
+                </h3>
+                {isCurrentUser && (
+                  <Badge variant="outline" className="text-xs shrink-0">
+                    Você
+                  </Badge>
+                )}
+              </div>
+
+              <div className="flex items-center gap-2 text-xs sm:text-sm text-muted-foreground mb-1.5 sm:mb-2">
+                <Mail className="h-3 w-3 shrink-0" />
+                <span className="truncate">{user.email}</span>
+              </div>
+
+              {user.phone && (
+                <div className="flex items-center gap-2 text-xs sm:text-sm text-muted-foreground mb-1.5 sm:mb-2">
+                  <Phone className="h-3 w-3 shrink-0" />
+                  <span>{user.phone}</span>
+                </div>
               )}
-            </div>
 
-            <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
-              <Mail className="h-3 w-3" />
-              <span className="truncate">{user.email}</span>
-            </div>
+              {user.linked_professional_name && (
+                <div className="flex items-center gap-2 text-xs sm:text-sm text-muted-foreground mb-1.5 sm:mb-2">
+                  <User className="h-3 w-3 shrink-0" />
+                  <span className="truncate">Vinculado a: {user.linked_professional_name}</span>
+                </div>
+              )}
 
-            {user.phone && (
-              <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
-                <Phone className="h-3 w-3" />
-                <span>{user.phone}</span>
+              <div className="flex items-center gap-2 mt-2 sm:mt-3">
+                <Badge className={`${ROLE_COLORS[user.role]} text-xs`}>
+                  {ROLE_LABELS[user.role]}
+                </Badge>
               </div>
-            )}
-
-            {user.linked_professional_name && (
-              <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
-                <User className="h-3 w-3" />
-                <span>Vinculado a: {user.linked_professional_name}</span>
-              </div>
-            )}
-
-            <div className="flex items-center gap-2 mt-3">
-              <Badge className={ROLE_COLORS[user.role]}>
-                {ROLE_LABELS[user.role]}
-              </Badge>
             </div>
           </div>
 
-          <div className="flex flex-col gap-2">
+          {/* Actions Section */}
+          <div className="flex flex-row sm:flex-col gap-2 mt-2 sm:mt-0 border-t sm:border-t-0 pt-3 sm:pt-0">
             <Select
               value={user.role}
               onValueChange={(value) => handleRoleChange(value as AppRole)}
               disabled={isUpdating || isCurrentUser}
             >
-              <SelectTrigger className="w-[140px]">
+              <SelectTrigger className="w-full sm:w-[140px] h-9 text-xs sm:text-sm">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -163,7 +167,7 @@ export const UserCard = ({
               </SelectContent>
             </Select>
 
-            <div className="flex gap-1">
+            <div className="flex gap-1 shrink-0">
               {user.linked_professional_id ? (
                 <Button
                   variant="outline"

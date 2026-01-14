@@ -71,41 +71,41 @@ const Settings = () => {
   }));
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-4 md:p-6 space-y-4 md:space-y-6">
       <PageHeader
         title="Configurações"
         subtitle="Gerencie usuários e configurações do sistema"
       />
 
-      <Tabs defaultValue="users" className="space-y-6">
-        <TabsList>
-          <TabsTrigger value="users" className="flex items-center gap-2">
-            <Users className="h-4 w-4" />
-            Usuários
+      <Tabs defaultValue="users" className="space-y-4 md:space-y-6">
+        <TabsList className="w-full flex flex-wrap h-auto gap-1 p-1">
+          <TabsTrigger value="users" className="flex items-center gap-1.5 text-xs sm:text-sm flex-1 min-w-0">
+            <Users className="h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0" />
+            <span className="truncate">Usuários</span>
           </TabsTrigger>
-          <TabsTrigger value="security" className="flex items-center gap-2">
-            <Shield className="h-4 w-4" />
-            Segurança
+          <TabsTrigger value="security" className="flex items-center gap-1.5 text-xs sm:text-sm flex-1 min-w-0">
+            <Shield className="h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0" />
+            <span className="truncate">Segurança</span>
           </TabsTrigger>
-          <TabsTrigger value="general" className="flex items-center gap-2">
-            <SettingsIcon className="h-4 w-4" />
-            Geral
+          <TabsTrigger value="general" className="flex items-center gap-1.5 text-xs sm:text-sm flex-1 min-w-0">
+            <SettingsIcon className="h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0" />
+            <span className="truncate">Geral</span>
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="users" className="space-y-6">
+        <TabsContent value="users" className="space-y-4 md:space-y-6">
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
-              <CardTitle className="flex items-center gap-2">
-                <Users className="h-5 w-5" />
+            <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0 space-y-0 pb-4 px-4 md:px-6">
+              <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+                <Users className="h-4 w-4 sm:h-5 sm:w-5" />
                 Gerenciamento de Usuários
               </CardTitle>
-              <Button onClick={() => setShowNewUserModal(true)}>
+              <Button onClick={() => setShowNewUserModal(true)} className="w-full sm:w-auto" size="sm">
                 <UserPlus className="h-4 w-4 mr-2" />
                 Novo Usuário
               </Button>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-4 px-4 md:px-6">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
