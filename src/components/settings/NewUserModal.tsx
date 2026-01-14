@@ -48,7 +48,9 @@ const formSchema = z.object({
   email: z.string().email("Email inválido").max(255),
   password: z.string().min(6, "Senha deve ter no mínimo 6 caracteres").max(72),
   full_name: z.string().min(2, "Nome deve ter no mínimo 2 caracteres").max(100),
-  role: z.enum(["admin", "professional", "receptionist"]),
+  role: z.enum(["admin", "professional", "receptionist"], {
+    required_error: "Selecione um perfil",
+  }),
   professional_id: z.string().optional(),
 });
 
@@ -68,7 +70,7 @@ export const NewUserModal = ({
       email: "",
       password: "",
       full_name: "",
-      role: "receptionist",
+      role: undefined,
       professional_id: "",
     },
   });
