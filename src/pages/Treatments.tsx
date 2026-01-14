@@ -1,7 +1,8 @@
 import { useTreatments } from "@/hooks/useTreatments";
 import { usePatients } from "@/hooks/usePatients";
 import { useProfessionals } from "@/hooks/useProfessionals";
-import { useState } from "react";
+import { useUserProfessional } from "@/hooks/useUserProfessional";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -44,6 +45,7 @@ const Treatments = () => {
   const { treatments, protocols, loading, error, createTreatment, completeTreatment, cancelTreatment, deleteTreatment } = useTreatments();
   const { patients } = usePatients();
   const { professionals } = useProfessionals();
+  const { getProfessionalFilter, canSeeAllProfessionals, professional: userProfessional } = useUserProfessional();
   
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
@@ -64,8 +66,20 @@ const Treatments = () => {
     status: "active",
   });
 
+  // Set default professional_id for professionals
+  useEffect(() => {
+    if (userProfessional?.professional_id && !formData.professional_id) {
+      setFormData(prev => ({ ...prev, professional_id: userProfessional.professional_id }));
+    }
+  }, [userProfessional?.professional_id]);
+
+  // Filter treatments based on user role
+  const roleFilteredTreatments = canSeeAllProfessionals() 
+    ? treatments 
+    : treatments.filter(t => t.professional_id === getProfessionalFilter());
+
   // Filtrar tratamentos
-  const filteredTreatments = treatments.filter((treatment) => {
+  const filteredTreatments = roleFilteredTreatments.filter((treatment) => {
     const searchLower = searchTerm.toLowerCase();
     const matchesSearch =
       treatment.patient?.full_name.toLowerCase().includes(searchLower) ||
@@ -77,12 +91,12 @@ const Treatments = () => {
     return matchesSearch && matchesStatus;
   });
 
-  // Estatísticas
+  // Estatísticas (baseadas nos tratamentos filtrados por role)
   const stats = {
-    total: treatments.length,
-    active: treatments.filter((t) => t.status === "active").length,
-    completed: treatments.filter((t) => t.status === "completed").length,
-    paused: treatments.filter((t) => t.status === "paused").length,
+    total: roleFilteredTreatments.length,
+    active: roleFilteredTreatments.filter((t) => t.status === "active").length,
+    completed: roleFilteredTreatments.filter((t) => t.status === "completed").length,
+    paused: roleFilteredTreatments.filter((t) => t.status === "paused").length,
   };
 
   const handleSubmit = async (e: React.FormEvent) => {

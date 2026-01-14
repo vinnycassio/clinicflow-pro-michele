@@ -7,6 +7,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface DashboardHeaderProps {
   onRefresh: () => void;
@@ -21,14 +22,20 @@ export const DashboardHeader = ({
   selectedPeriod,
   onPeriodChange,
 }: DashboardHeaderProps) => {
+  const { authUser } = useAuth();
   const today = new Date();
   const greeting = today.getHours() < 12 ? "Bom dia" : today.getHours() < 18 ? "Boa tarde" : "Boa noite";
+  
+  // Get first name from profile or email
+  const firstName = authUser?.profile?.full_name?.split(' ')[0] || 
+                    authUser?.email?.split('@')[0] || 
+                    'Usuário';
 
   return (
     <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
       <div>
         <h1 className="text-3xl font-bold text-foreground mb-1">
-          {greeting}, Dr. Rafael! 👋
+          {greeting}, {firstName}! 👋
         </h1>
         <p className="text-muted-foreground flex items-center gap-2">
           <Calendar className="h-4 w-4" />
