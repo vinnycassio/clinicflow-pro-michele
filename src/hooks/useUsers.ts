@@ -32,20 +32,30 @@ export const useUsers = () => {
       setLoading(true);
       setError(null);
 
+      console.log('🔍 Buscando usuários...');
+
       // Fetch profiles with their roles
       const { data: profiles, error: profilesError } = await supabase
         .from('profiles')
         .select('*')
         .order('full_name', { ascending: true });
 
-      if (profilesError) throw profilesError;
+      console.log('📋 Profiles encontrados:', profiles?.length, profiles);
+      if (profilesError) {
+        console.error('❌ Erro ao buscar profiles:', profilesError);
+        throw profilesError;
+      }
 
       // Fetch roles
       const { data: roles, error: rolesError } = await supabase
         .from('user_roles')
         .select('*');
 
-      if (rolesError) throw rolesError;
+      console.log('🔐 Roles encontrados:', roles?.length, roles);
+      if (rolesError) {
+        console.error('❌ Erro ao buscar roles:', rolesError);
+        throw rolesError;
+      }
 
       // Fetch professionals to get links
       const { data: professionals, error: profError } = await supabase
@@ -53,7 +63,10 @@ export const useUsers = () => {
         .select('professional_id, full_name, user_id')
         .not('user_id', 'is', null);
 
-      if (profError) throw profError;
+      if (profError) {
+        console.error('❌ Erro ao buscar profissionais:', profError);
+        throw profError;
+      }
 
       // Combine the data
       const combinedUsers: SystemUser[] = (profiles || []).map((profile: any) => {
@@ -73,9 +86,10 @@ export const useUsers = () => {
         };
       });
 
+      console.log('✅ Usuários combinados:', combinedUsers.length, combinedUsers);
       setUsers(combinedUsers);
     } catch (err: any) {
-      console.error('Error fetching users:', err);
+      console.error('❌ Error fetching users:', err);
       setError(err.message);
     } finally {
       setLoading(false);
