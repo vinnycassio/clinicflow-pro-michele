@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { NewBudgetModal } from "@/components/financial/NewBudgetModal";
+import { NewSaleModal } from "@/components/financial/Newsalemodal";
 import {
   DollarSign,
   Clock,
@@ -25,6 +26,7 @@ const Financial = () => {
   const { budgets, sales, payments, loading, error, markPaymentAsPaid } = useFinancial();
   const [activeTab, setActiveTab] = useState("overview");
   const [showNewBudgetModal, setShowNewBudgetModal] = useState(false);
+  const [showNewSaleModal, setShowNewSaleModal] = useState(false);
 
   // Calcular estatísticas
   const stats = {
@@ -180,7 +182,10 @@ const Financial = () => {
               <FileText className="w-4 h-4" />
               <span className="hidden sm:inline">Novo</span> Orçamento
             </Button>
-            <Button className="gap-2 flex-1 sm:flex-none">
+            <Button 
+              className="gap-2 flex-1 sm:flex-none"
+              onClick={() => setShowNewSaleModal(true)}
+            >
               <Plus className="w-4 h-4" />
               <span className="hidden sm:inline">Nova</span> Venda
             </Button>
@@ -652,10 +657,14 @@ const Financial = () => {
         </Tabs>
       </div>
 
-      {/* Modal - FORA de tudo */}
+      {/* Modais - FORA de tudo */}
       <NewBudgetModal
         open={showNewBudgetModal}
         onOpenChange={setShowNewBudgetModal}
+      />
+      <NewSaleModal
+        open={showNewSaleModal}
+        onOpenChange={setShowNewSaleModal}
       />
     </>
   );
