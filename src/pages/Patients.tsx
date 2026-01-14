@@ -4,11 +4,17 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { useState } from "react";
 import { toast } from "sonner";
-import { Search, UserPlus, Eye, Trash2, Users } from "lucide-react";
+import { Search, UserPlus, Eye, Trash2, Users, Pencil } from "lucide-react";
+import { NewPatientModal } from "@/components/patients/NewPatientModal";
+import { EditPatientModal } from "@/components/patients/EditPatientModal";
+import type { Patient } from "@/types/database";
 
 const Patients = () => {
-  const { patients, loading, error, searchPatients, deletePatient, fetchPatients } = usePatients();
+  const { patients, loading, error, searchPatients, deletePatient, fetchPatients, createPatient, updatePatient } = usePatients();
   const [searchTerm, setSearchTerm] = useState("");
+  const [isNewModalOpen, setIsNewModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
 
   const handleSearch = () => {
     if (searchTerm.trim()) {
@@ -26,6 +32,71 @@ const Patients = () => {
       } else {
         toast.error("Erro ao excluir paciente");
       }
+    }
+  };
+
+  const handleCreatePatient = async (data: any) => {
+    const patientData = {
+      full_name: data.fullName,
+      social_name: data.socialName || null,
+      birth_date: data.birthDate || null,
+      gender: data.gender || null,
+      document_cpf: data.cpf || null,
+      document_rg: data.rg || null,
+      phone_main: data.phone || null,
+      email: data.email || null,
+      address_street: data.addressStreet || null,
+      address_number: data.addressNumber || null,
+      address_complement: data.addressComplement || null,
+      address_district: data.addressDistrict || null,
+      address_city: data.addressCity || null,
+      address_state: data.addressState || null,
+      address_zipcode: data.addressZipcode || null,
+      status: "active",
+    };
+
+    const result = await createPatient(patientData as any);
+    if (result) {
+      toast.success("Paciente criado com sucesso!");
+      setIsNewModalOpen(false);
+    } else {
+      toast.error("Erro ao criar paciente");
+    }
+  };
+
+  const handleEditPatient = (patient: Patient) => {
+    setSelectedPatient(patient);
+    setIsEditModalOpen(true);
+  };
+
+  const handleUpdatePatient = async (data: any) => {
+    if (!selectedPatient) return;
+
+    const patientData = {
+      full_name: data.fullName,
+      social_name: data.socialName || null,
+      birth_date: data.birthDate || null,
+      gender: data.gender || null,
+      document_cpf: data.cpf || null,
+      document_rg: data.rg || null,
+      phone_main: data.phone || null,
+      email: data.email || null,
+      address_street: data.addressStreet || null,
+      address_number: data.addressNumber || null,
+      address_complement: data.addressComplement || null,
+      address_district: data.addressDistrict || null,
+      address_city: data.addressCity || null,
+      address_state: data.addressState || null,
+      address_zipcode: data.addressZipcode || null,
+    };
+
+    const result = await updatePatient(selectedPatient.patient_id, patientData as any);
+    if (result) {
+      toast.success("Paciente atualizado com sucesso!");
+      setIsEditModalOpen(false);
+      setSelectedPatient(null);
+    } else {
+      toast.error("Erro ao atualizar paciente");
     }
   };
 
@@ -67,7 +138,7 @@ const Patients = () => {
             {patients.length} pacientes cadastrados
           </p>
         </div>
-        <Button className="w-full lg:w-auto gap-2">
+        <Button className="w-full lg:w-auto gap-2" onClick={() => setIsNewModalOpen(true)}>
           <UserPlus className="w-4 h-4" />
           Novo Paciente
         </Button>
@@ -164,6 +235,14 @@ const Patients = () => {
                       <span className="sm:hidden">Ver</span>
                     </Button>
                     <Button
+                      variant="outline"
+                      size="sm"
+                      className="text-xs"
+                      onClick={() => handleEditPatient(patient)}
+                    >
+                      <Pencil className="w-3 h-3 lg:w-4 lg:h-4" />
+                    </Button>
+                    <Button
                       variant="destructive"
                       size="sm"
                       className="text-xs"
@@ -180,6 +259,24 @@ const Patients = () => {
           ))
         )}
       </div>
+      {/* Modais */}
+      <NewPatientModal
+        open={isNewModalOpen}
+        onClose={() => setIsNewModalOpen(false)}
+        onSubmit={handleCreatePatient}
+      />
+
+      {selectedPatient && (
+        <EditPatientModal
+          open={isEditModalOpen}
+          onClose={() => {
+            setIsEditModalOpen(false);
+            setSelectedPatient(null);
+          }}
+          patient={selectedPatient}
+          onSubmit={handleUpdatePatient}
+        />
+      )}
     </div>
   );
 };
