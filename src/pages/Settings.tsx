@@ -5,12 +5,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
-import { UserPlus, Users, Search, Shield, Settings as SettingsIcon } from "lucide-react";
+import { UserPlus, Users, Search, Shield, Settings as SettingsIcon, Bell } from "lucide-react";
 import { useUsers } from "@/hooks/useUsers";
 import { useProfessionals } from "@/hooks/useProfessionals";
 import { useAuth } from "@/contexts/AuthContext";
 import { UserCard } from "@/components/settings/UserCard";
 import { NewUserModal } from "@/components/settings/NewUserModal";
+import { NotificationsTab } from "@/components/settings/notifications/NotificationsTab";
 import { toast } from "@/hooks/use-toast";
 import { AppRole } from "@/types/auth";
 
@@ -82,6 +83,10 @@ const Settings = () => {
           <TabsTrigger value="users" className="flex items-center gap-1.5 text-xs sm:text-sm flex-1 min-w-0">
             <Users className="h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0" />
             <span className="truncate">Usuários</span>
+          </TabsTrigger>
+          <TabsTrigger value="notifications" className="flex items-center gap-1.5 text-xs sm:text-sm flex-1 min-w-0">
+            <Bell className="h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0" />
+            <span className="truncate">Notificações</span>
           </TabsTrigger>
           <TabsTrigger value="security" className="flex items-center gap-1.5 text-xs sm:text-sm flex-1 min-w-0">
             <Shield className="h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0" />
@@ -158,6 +163,10 @@ const Settings = () => {
               </div>
             </CardContent>
           </Card>
+        </TabsContent>
+
+        <TabsContent value="notifications" className="space-y-6">
+          <NotificationsTab />
         </TabsContent>
 
         <TabsContent value="security" className="space-y-6">
