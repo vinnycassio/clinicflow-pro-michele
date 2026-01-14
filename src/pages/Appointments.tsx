@@ -203,27 +203,27 @@ const Appointments = () => {
     const { status, appointment_id } = appointment;
 
     return (
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap gap-1.5 sm:gap-2">
         {/* Editar */}
         <Button
           variant="outline"
           size="sm"
-          className="gap-1"
+          className="h-8 px-2 sm:px-3 gap-1"
           onClick={() => handleEdit(appointment)}
         >
-          <Edit className="w-4 h-4" />
-          <span className="hidden sm:inline">Editar</span>
+          <Edit className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+          <span className="hidden md:inline">Editar</span>
         </Button>
 
         {/* Confirmar (se agendado) */}
         {status === "scheduled" && (
           <Button
             size="sm"
-            className="gap-1"
+            className="h-8 px-2 sm:px-3 gap-1"
             onClick={() => handleConfirm(appointment_id)}
           >
-            <CheckCircle2 className="w-4 h-4" />
-            <span className="hidden sm:inline">Confirmar</span>
+            <CheckCircle2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+            <span className="hidden md:inline">Confirmar</span>
           </Button>
         )}
 
@@ -232,11 +232,11 @@ const Appointments = () => {
           <Button
             size="sm"
             variant="default"
-            className="gap-1"
+            className="h-8 px-2 sm:px-3 gap-1"
             onClick={() => handleStart(appointment_id)}
           >
-            <PlayCircle className="w-4 h-4" />
-            <span className="hidden sm:inline">Iniciar</span>
+            <PlayCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+            <span className="hidden md:inline">Iniciar</span>
           </Button>
         )}
 
@@ -244,11 +244,11 @@ const Appointments = () => {
         {status === "in_progress" && (
           <Button
             size="sm"
-            className="gap-1"
+            className="h-8 px-2 sm:px-3 gap-1"
             onClick={() => handleComplete(appointment_id)}
           >
-            <CheckCircle2 className="w-4 h-4" />
-            <span className="hidden sm:inline">Concluir</span>
+            <CheckCircle2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+            <span className="hidden md:inline">Concluir</span>
           </Button>
         )}
 
@@ -257,11 +257,11 @@ const Appointments = () => {
           <Button
             size="sm"
             variant="destructive"
-            className="gap-1"
+            className="h-8 px-2 sm:px-3 gap-1"
             onClick={() => handleCancelClick(appointment)}
           >
-            <XCircle className="w-4 h-4" />
-            <span className="hidden sm:inline">Cancelar</span>
+            <XCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+            <span className="hidden md:inline">Cancelar</span>
           </Button>
         )}
 
@@ -269,9 +269,10 @@ const Appointments = () => {
         <Button
           size="sm"
           variant="ghost"
+          className="h-8 w-8 p-0"
           onClick={() => handleDelete(appointment_id)}
         >
-          <Trash2 className="w-4 h-4" />
+          <Trash2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
         </Button>
       </div>
     );
@@ -332,17 +333,17 @@ const Appointments = () => {
           </Button>
         </div>
 
-        {/* Controles */}
-        <div className="flex flex-col lg:flex-row gap-4">
+      {/* Controles */}
+        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
           {/* Navegação de Data */}
-          <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" onClick={goToPrevious}>
+          <div className="flex items-center justify-center sm:justify-start gap-1 sm:gap-2">
+            <Button variant="outline" size="sm" className="h-9 w-9 p-0 sm:h-9 sm:w-auto sm:px-3" onClick={goToPrevious}>
               <ChevronLeft className="w-4 h-4" />
             </Button>
-            <Button variant="outline" size="sm" onClick={goToToday}>
+            <Button variant="outline" size="sm" className="h-9 px-3" onClick={goToToday}>
               Hoje
             </Button>
-            <Button variant="outline" size="sm" onClick={goToNext}>
+            <Button variant="outline" size="sm" className="h-9 w-9 p-0 sm:h-9 sm:w-auto sm:px-3" onClick={goToNext}>
               <ChevronRight className="w-4 h-4" />
             </Button>
           </div>
@@ -352,7 +353,7 @@ const Appointments = () => {
             value={selectedProfessional}
             onValueChange={setSelectedProfessional}
           >
-            <SelectTrigger className="w-full lg:w-64">
+            <SelectTrigger className="w-full sm:w-56 lg:w-64">
               <SelectValue placeholder="Todos os profissionais" />
             </SelectTrigger>
             <SelectContent>
@@ -370,9 +371,9 @@ const Appointments = () => {
         </div>
 
         {/* Calendário Semanal */}
-        <Card>
-          <CardContent className="p-2 lg:p-4">
-            <div className="grid grid-cols-7 gap-1 lg:gap-2">
+        <Card className="overflow-hidden">
+          <CardContent className="p-2 sm:p-3 lg:p-4">
+            <div className="grid grid-cols-7 gap-0.5 sm:gap-1 lg:gap-2">
               {weekDays.map((day) => {
                 const isSelected = isSameDay(day, selectedDate);
                 const isToday = isSameDay(day, new Date());
@@ -381,18 +382,18 @@ const Appointments = () => {
                   <button
                     key={day.toISOString()}
                     onClick={() => setSelectedDate(day)}
-                    className={`p-2 lg:p-3 rounded-lg text-center transition-colors ${
+                    className={`p-1.5 sm:p-2 lg:p-3 rounded-md sm:rounded-lg text-center transition-colors ${
                       isSelected
-                        ? "bg-blue-600 text-white"
+                        ? "bg-primary text-primary-foreground"
                         : isToday
-                        ? "bg-blue-50 text-blue-600 border border-blue-200"
-                        : "hover:bg-gray-100"
+                        ? "bg-primary/10 text-primary border border-primary/30"
+                        : "hover:bg-muted"
                     }`}
                   >
-                    <div className="text-xs font-medium">
-                      {format(day, "EEE", { locale: ptBR }).toUpperCase()}
+                    <div className="text-[10px] sm:text-xs font-medium truncate">
+                      {format(day, "EEEEE", { locale: ptBR }).toUpperCase()}
                     </div>
-                    <div className="text-lg lg:text-2xl font-bold mt-1">
+                    <div className="text-sm sm:text-lg lg:text-2xl font-bold mt-0.5 sm:mt-1">
                       {format(day, "d")}
                     </div>
                   </button>
@@ -484,54 +485,57 @@ const Appointments = () => {
                     key={appointment.appointment_id}
                     className="hover:shadow-md transition-shadow"
                   >
-                    <CardContent className="p-4 lg:p-6">
-                      <div className="flex flex-col lg:flex-row items-start gap-4">
-                        <div className="flex items-start gap-4 flex-1 w-full">
+                    <CardContent className="p-3 sm:p-4 lg:p-6">
+                      <div className="flex flex-col gap-3 sm:gap-4">
+                        {/* Mobile: Linha superior com horário e status */}
+                        <div className="flex items-start gap-3 sm:gap-4">
                           {/* Horário */}
-                          <div className="text-center min-w-[60px] lg:min-w-[80px]">
-                            <div className="text-xl lg:text-2xl font-bold text-blue-600">
+                          <div className="text-center min-w-[50px] sm:min-w-[60px] lg:min-w-[80px] shrink-0">
+                            <div className="text-lg sm:text-xl lg:text-2xl font-bold text-primary">
                               {appointment.appointment_start_time.slice(0, 5)}
                             </div>
-                            <div className="text-xs text-gray-500">
+                            <div className="text-[10px] sm:text-xs text-muted-foreground">
                               {appointment.appointment_end_time.slice(0, 5)}
                             </div>
                           </div>
 
                           {/* Informações */}
-                          <div className="flex-1">
-                            <div className="flex flex-wrap items-center gap-2 mb-2">
-                              <h3 className="font-semibold text-base lg:text-lg">
+                          <div className="flex-1 min-w-0">
+                            <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 mb-1.5 sm:mb-2">
+                              <h3 className="font-semibold text-sm sm:text-base lg:text-lg truncate max-w-[200px] sm:max-w-none">
                                 {appointment.patient?.full_name ||
                                   "Paciente não identificado"}
                               </h3>
                               {getStatusBadge(appointment.status)}
                             </div>
 
-                            <div className="space-y-1">
+                            <div className="space-y-0.5 sm:space-y-1">
                               {appointment.patient?.phone_main && (
-                                <p className="text-xs lg:text-sm text-gray-600 flex items-center gap-2">
-                                  <Phone className="w-3 h-3 lg:w-4 lg:h-4" />
-                                  {appointment.patient.phone_main}
+                                <p className="text-[11px] sm:text-xs lg:text-sm text-muted-foreground flex items-center gap-1.5 sm:gap-2">
+                                  <Phone className="w-3 h-3 shrink-0" />
+                                  <span className="truncate">{appointment.patient.phone_main}</span>
                                 </p>
                               )}
                               {appointment.professional && (
-                                <p className="text-xs lg:text-sm text-gray-600 flex items-center gap-2">
-                                  <User className="w-3 h-3 lg:w-4 lg:h-4" />
-                                  {appointment.professional.full_name}
-                                  {appointment.professional.specialty && (
-                                    <span className="text-gray-400">
-                                      • {appointment.professional.specialty}
-                                    </span>
-                                  )}
+                                <p className="text-[11px] sm:text-xs lg:text-sm text-muted-foreground flex items-center gap-1.5 sm:gap-2">
+                                  <User className="w-3 h-3 shrink-0" />
+                                  <span className="truncate">
+                                    {appointment.professional.full_name}
+                                    {appointment.professional.specialty && (
+                                      <span className="hidden sm:inline text-muted-foreground/70">
+                                        {" "}• {appointment.professional.specialty}
+                                      </span>
+                                    )}
+                                  </span>
                                 </p>
                               )}
                               {appointment.service_type && (
-                                <p className="text-xs lg:text-sm text-gray-500">
+                                <p className="text-[11px] sm:text-xs lg:text-sm text-muted-foreground truncate">
                                   {appointment.service_type}
                                 </p>
                               )}
                               {appointment.notes && (
-                                <p className="text-xs lg:text-sm text-gray-500 mt-2">
+                                <p className="text-[11px] sm:text-xs lg:text-sm text-muted-foreground/80 mt-1 sm:mt-2 line-clamp-2">
                                   {appointment.notes}
                                 </p>
                               )}
@@ -539,8 +543,8 @@ const Appointments = () => {
                           </div>
                         </div>
 
-                        {/* Ações */}
-                        <div className="w-full lg:w-auto">
+                        {/* Ações - sempre abaixo em mobile, ao lado em desktop */}
+                        <div className="flex justify-end border-t pt-3 sm:border-t-0 sm:pt-0 lg:border-t-0">
                           {getActionButtons(appointment)}
                         </div>
                       </div>
