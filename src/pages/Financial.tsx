@@ -1,4 +1,4 @@
-import { useFinancial } from "@/hooks/useFinancial";
+import { useFinancial, type Budget } from "@/hooks/useFinancial";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -6,6 +6,8 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { NewBudgetModal } from "@/components/financial/NewBudgetModal";
 import { NewSaleModal } from "@/components/financial/Newsalemodal";
+import { ViewBudgetModal } from "@/components/financial/ViewBudgetModal";
+import { EditBudgetModal } from "@/components/financial/EditBudgetModal";
 import {
   DollarSign,
   Clock,
@@ -17,6 +19,8 @@ import {
   Calendar,
   User,
   Plus,
+  Eye,
+  Pencil,
 } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -27,6 +31,10 @@ const Financial = () => {
   const [activeTab, setActiveTab] = useState("overview");
   const [showNewBudgetModal, setShowNewBudgetModal] = useState(false);
   const [showNewSaleModal, setShowNewSaleModal] = useState(false);
+  const [showViewBudgetModal, setShowViewBudgetModal] = useState(false);
+  const [showEditBudgetModal, setShowEditBudgetModal] = useState(false);
+  const [selectedBudget, setSelectedBudget] = useState<Budget | null>(null);
+  const [preSelectedBudgetId, setPreSelectedBudgetId] = useState<string | undefined>(undefined);
 
   // Calcular estatísticas
   const stats = {
@@ -472,11 +480,41 @@ const Financial = () => {
                             )}
                           </div>
                           <div className="flex gap-2">
-                            <Button variant="outline" size="sm">
-                              Ver
+                            <Button 
+                              variant="outline" 
+                              size="sm"
+                              onClick={() => {
+                                setSelectedBudget(budget);
+                                setShowViewBudgetModal(true);
+                              }}
+                            >
+                              <Eye className="w-4 h-4 sm:mr-1" />
+                              <span className="hidden sm:inline">Ver</span>
                             </Button>
+                            {budget.status !== "approved" && (
+                              <Button 
+                                variant="outline" 
+                                size="sm"
+                                onClick={() => {
+                                  setSelectedBudget(budget);
+                                  setShowEditBudgetModal(true);
+                                }}
+                              >
+                                <Pencil className="w-4 h-4 sm:mr-1" />
+                                <span className="hidden sm:inline">Editar</span>
+                              </Button>
+                            )}
                             {budget.status === "approved" && (
-                              <Button size="sm" className="hidden sm:inline-flex">Converter em Venda</Button>
+                              <Button 
+                                size="sm" 
+                                className="hidden sm:inline-flex"
+                                onClick={() => {
+                                  setPreSelectedBudgetId(budget.budget_id);
+                                  setShowNewSaleModal(true);
+                                }}
+                              >
+                                Converter em Venda
+                              </Button>
                             )}
                           </div>
                         </div>
@@ -664,7 +702,32 @@ const Financial = () => {
       />
       <NewSaleModal
         open={showNewSaleModal}
-        onOpenChange={setShowNewSaleModal}
+        onOpenChange={(open) => {
+          setShowNewSaleModal(open);
+          if (!open) setPreSelectedBudgetId(undefined);
+        }}
+        preSelectedBudgetId={preSelectedBudgetId}
+      />
+      <ViewBudgetModal
+        open={showViewBudgetModal}
+        onOpenChange={setShowViewBudgetModal}
+        budget={selectedBudget}
+        onEdit={() => {
+          setShowViewBudgetModal(false);
+          setShowEditBudgetModal(true);
+        }}
+        onConvertToSale={() => {
+          if (selectedBudget) {
+            setPreSelectedBudgetId(selectedBudget.budget_id);
+            setShowViewBudgetModal(false);
+            setShowNewSaleModal(true);
+          }
+        }}
+      />
+      <EditBudgetModal
+        open={showEditBudgetModal}
+        onOpenChange={setShowEditBudgetModal}
+        budget={selectedBudget}
       />
     </>
   );
