@@ -1,0 +1,17 @@
+project_id = "urqxtqfszqwbixpeeusd"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "graphql_public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[functions.send-whatsapp]
+verify_jwt = true
+
+[functions.appointment-reminders]
+verify_jwt = false
+
+[functions.payment-reminders]
+verify_jwt = false
