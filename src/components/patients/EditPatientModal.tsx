@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { X, Upload, User } from "lucide-react";
+import { useState, useEffect } from "react";
+import { User, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -17,11 +17,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { cn } from "@/lib/utils";
+import type { Patient } from "@/types/database";
 
-interface NewPatientModalProps {
+interface EditPatientModalProps {
   open: boolean;
   onClose: () => void;
+  patient: Patient;
   onSubmit?: (data: PatientFormData) => void;
 }
 
@@ -43,9 +44,8 @@ interface PatientFormData {
   addressZipcode?: string;
 }
 
-export function NewPatientModal({ open, onClose, onSubmit }: NewPatientModalProps) {
+export function EditPatientModal({ open, onClose, patient, onSubmit }: EditPatientModalProps) {
   const [activeTab, setActiveTab] = useState("basic");
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState<PatientFormData>({
     fullName: "",
     socialName: "",
@@ -64,40 +64,35 @@ export function NewPatientModal({ open, onClose, onSubmit }: NewPatientModalProp
     addressZipcode: "",
   });
 
+  useEffect(() => {
+    if (patient) {
+      setFormData({
+        fullName: patient.full_name || "",
+        socialName: patient.social_name || "",
+        birthDate: patient.birth_date || "",
+        gender: patient.gender || "",
+        cpf: patient.document_cpf || "",
+        rg: patient.document_rg || "",
+        phone: patient.phone_main || "",
+        email: patient.email || "",
+        addressStreet: patient.address_street || "",
+        addressNumber: patient.address_number || "",
+        addressComplement: patient.address_complement || "",
+        addressDistrict: patient.address_district || "",
+        addressCity: patient.address_city || "",
+        addressState: patient.address_state || "",
+        addressZipcode: patient.address_zipcode || "",
+      });
+    }
+  }, [patient]);
+
   const handleChange = (field: keyof PatientFormData, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.fullName.trim()) {
-      return;
-    }
-    setIsSubmitting(true);
-    try {
-      await onSubmit?.(formData);
-      // Reset form after successful submission
-      setFormData({
-        fullName: "",
-        socialName: "",
-        birthDate: "",
-        gender: "",
-        cpf: "",
-        rg: "",
-        phone: "",
-        email: "",
-        addressStreet: "",
-        addressNumber: "",
-        addressComplement: "",
-        addressDistrict: "",
-        addressCity: "",
-        addressState: "",
-        addressZipcode: "",
-      });
-      setActiveTab("basic");
-    } finally {
-      setIsSubmitting(false);
-    }
+    onSubmit?.(formData);
   };
 
   return (
@@ -105,10 +100,10 @@ export function NewPatientModal({ open, onClose, onSubmit }: NewPatientModalProp
       <DialogContent className="sm:max-w-[600px] max-h-[90vh] p-0 gap-0 overflow-hidden">
         <DialogHeader className="px-4 sm:px-6 py-4 sm:py-5 border-b border-border-subtle">
           <DialogTitle className="font-display text-lg sm:text-display-2">
-            Novo Paciente
+            Editar Paciente
           </DialogTitle>
           <p className="text-xs sm:text-sm text-muted-foreground mt-1">
-            Preencha os dados do paciente
+            Atualize os dados do paciente
           </p>
         </DialogHeader>
 
@@ -171,7 +166,6 @@ export function NewPatientModal({ open, onClose, onSubmit }: NewPatientModalProp
                       value={formData.fullName}
                       onChange={(e) => handleChange("fullName", e.target.value)}
                       className="input-focus-ring text-sm"
-                      required
                     />
                   </div>
 
@@ -397,11 +391,11 @@ export function NewPatientModal({ open, onClose, onSubmit }: NewPatientModalProp
 
           {/* Footer */}
           <div className="flex items-center justify-end gap-2 sm:gap-3 px-4 sm:px-6 py-3 sm:py-4 border-t border-border-subtle bg-muted/30">
-            <Button type="button" variant="outline" onClick={onClose} size="sm" className="text-sm" disabled={isSubmitting}>
+            <Button type="button" variant="outline" onClick={onClose} size="sm" className="text-sm">
               Cancelar
             </Button>
-            <Button type="submit" className="bg-primary hover:bg-primary/90" size="sm" disabled={isSubmitting}>
-              {isSubmitting ? "Salvando..." : "Salvar Paciente"}
+            <Button type="submit" className="bg-primary hover:bg-primary/90" size="sm">
+              Salvar Alterações
             </Button>
           </div>
         </form>
