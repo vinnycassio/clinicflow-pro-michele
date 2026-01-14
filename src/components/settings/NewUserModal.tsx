@@ -257,8 +257,8 @@ export const NewUserModal = ({
                   <FormItem>
                     <FormLabel>Vincular a Profissional (Opcional)</FormLabel>
                     <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
+                      onValueChange={(value) => field.onChange(value === "none" ? "" : value)}
+                      defaultValue={field.value || "none"}
                     >
                       <FormControl>
                         <SelectTrigger>
@@ -266,7 +266,7 @@ export const NewUserModal = ({
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="">Nenhum</SelectItem>
+                        <SelectItem value="none">Nenhum</SelectItem>
                         {availableProfessionals.map((prof) => (
                           <SelectItem
                             key={prof.professional_id}
