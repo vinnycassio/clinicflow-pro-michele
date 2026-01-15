@@ -48,7 +48,7 @@ serve(async (req) => {
           full_name
         )
       `)
-      .eq('scheduled_date', tomorrowStr)
+      .eq('appointment_date', tomorrowStr)
       .in('status', ['scheduled', 'confirmed']);
 
     if (error) {
