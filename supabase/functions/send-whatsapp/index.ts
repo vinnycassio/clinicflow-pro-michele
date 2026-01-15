@@ -6,7 +6,8 @@ const corsHeaders = {
 };
 
 interface WhatsAppRequest {
-  phone: string;
+  phone?: string;
+  to?: string;
   message: string;
 }
 
@@ -25,14 +26,17 @@ serve(async (req) => {
       throw new Error('Evolution API credentials not configured');
     }
 
-    const { phone, message }: WhatsAppRequest = await req.json();
+    const { phone, to, message }: WhatsAppRequest = await req.json();
+    
+    // Accept either 'phone' or 'to' field
+    const phoneNumber = phone || to;
 
-    if (!phone || !message) {
-      throw new Error('Phone and message are required');
+    if (!phoneNumber || !message) {
+      throw new Error('Phone/to and message are required');
     }
 
     // Format phone number (remove non-digits and ensure country code)
-    let formattedPhone = phone.replace(/\D/g, '');
+    let formattedPhone = phoneNumber.replace(/\D/g, '');
     if (!formattedPhone.startsWith('55')) {
       formattedPhone = '55' + formattedPhone;
     }
