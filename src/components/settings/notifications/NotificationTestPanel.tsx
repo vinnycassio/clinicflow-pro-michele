@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Send, CheckCircle2, XCircle, Loader2, Smartphone } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
-import { SUPABASE_CONFIG } from "@/lib/supabase.config";
+import { supabase } from "@/lib/supabase";
 
 interface TestResult {
   success: boolean;
@@ -49,27 +49,31 @@ export function NotificationTestPanel() {
     try {
       const formattedPhone = formatPhoneNumber(phoneNumber);
       
-      // Call edge function directly without JWT to avoid auth issues
-      const response = await fetch(
-        `${SUPABASE_CONFIG.url}/functions/v1/send-whatsapp`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'apikey': SUPABASE_CONFIG.anonKey,
-            'Authorization': `Bearer ${SUPABASE_CONFIG.anonKey}`,
-          },
-          body: JSON.stringify({
-            to: formattedPhone,
-            message: testMessage,
-          }),
-        }
-      );
+      // Enviar usando o Supabase client (com JWT do usuário)
+      const {
+        data: { session },
+        error: sessionError,
+      } = await supabase.auth.getSession();
 
-      const data = await response.json();
-      
-      if (!response.ok) {
-        throw new Error(data.error || 'Erro ao enviar mensagem');
+      if (sessionError) throw sessionError;
+      if (!session?.access_token) throw new Error("Sessão expirada. Faça login novamente.");
+
+      const { data, error } = await supabase.functions.invoke("send-whatsapp", {
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: {
+          to: formattedPhone,
+          message: testMessage,
+        },
+      });
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      if (!data?.success) {
+        throw new Error(data?.error || "Erro ao enviar mensagem");
       }
 
       setLastResult({
