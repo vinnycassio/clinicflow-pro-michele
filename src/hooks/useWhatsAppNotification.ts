@@ -38,8 +38,26 @@ export const useWhatsAppNotification = () => {
     setSending(true);
     try {
       const formattedPhone = formatPhoneNumber(phone);
-      
+
+      // Garantir JWT válido do usuário (evita "Invalid JWT" quando cai no anonKey)
+      const {
+        data: { session },
+        error: sessionError,
+      } = await supabase.auth.getSession();
+
+      if (sessionError) {
+        console.error('Erro ao obter sessão:', sessionError);
+        return { success: false, error: sessionError.message };
+      }
+
+      if (!session?.access_token) {
+        return { success: false, error: 'Sessão expirada. Faça login novamente.' };
+      }
+
       const { data, error } = await supabase.functions.invoke('send-whatsapp', {
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+        },
         body: {
           to: formattedPhone,
           message,
