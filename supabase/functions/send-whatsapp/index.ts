@@ -20,11 +20,14 @@ serve(async (req) => {
   try {
     const evolutionApiUrl = Deno.env.get('EVOLUTION_API_URL');
     const evolutionApiKey = Deno.env.get('EVOLUTION_API_KEY');
+    const instanceName = Deno.env.get('EVOLUTION_INSTANCE_NAME') || 'default';
 
     if (!evolutionApiUrl || !evolutionApiKey) {
       console.error('Missing Evolution API credentials');
       throw new Error('Evolution API credentials not configured');
     }
+
+    console.log(`🔧 Using Evolution instance: ${instanceName}`);
 
     const { phone, to, message }: WhatsAppRequest = await req.json();
     
@@ -45,7 +48,7 @@ serve(async (req) => {
     console.log(`📝 Message: ${message.substring(0, 50)}...`);
 
     // Send message via Evolution API
-    const response = await fetch(`${evolutionApiUrl}/message/sendText/default`, {
+    const response = await fetch(`${evolutionApiUrl}/message/sendText/${instanceName}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
