@@ -5,8 +5,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Send, CheckCircle2, XCircle, Loader2, Smartphone } from "lucide-react";
-import { supabase } from "@/lib/supabase";
 import { toast } from "@/hooks/use-toast";
+import { SUPABASE_CONFIG } from "@/lib/supabase.config";
 
 interface TestResult {
   success: boolean;
@@ -49,14 +49,27 @@ export function NotificationTestPanel() {
     try {
       const formattedPhone = formatPhoneNumber(phoneNumber);
       
-      const { data, error } = await supabase.functions.invoke("send-whatsapp", {
-        body: {
-          phone: formattedPhone,
-          message: testMessage,
-        },
-      });
+      // Call edge function directly without JWT to avoid auth issues
+      const response = await fetch(
+        `${SUPABASE_CONFIG.url}/functions/v1/send-whatsapp`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'apikey': SUPABASE_CONFIG.anonKey,
+          },
+          body: JSON.stringify({
+            phone: formattedPhone,
+            message: testMessage,
+          }),
+        }
+      );
 
-      if (error) throw error;
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.error || 'Erro ao enviar mensagem');
+      }
 
       setLastResult({
         success: true,
