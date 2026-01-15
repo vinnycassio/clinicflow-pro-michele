@@ -42,7 +42,7 @@ serve(async (req) => {
         vl_clinic_core_patients!inner (
           patient_id,
           full_name,
-          phone_primary
+          phone_main
         ),
         vl_clinic_core_professionals!inner (
           full_name
