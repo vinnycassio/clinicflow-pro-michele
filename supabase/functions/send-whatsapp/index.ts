@@ -36,8 +36,9 @@ serve(async (req) => {
       throw new Error('Phone/to and message are required');
     }
 
-    // Use instanceName from request or default to 'VLTRA_CLINIC'
-    const instance = instanceName || 'VLTRA_CLINIC';
+    // Use instanceName from request, or env variable, or fallback to 'VLTRA_CLINIC'
+    const defaultInstance = Deno.env.get('EVOLUTION_INSTANCE_NAME') || 'VLTRA_CLINIC';
+    const instance = instanceName || defaultInstance;
 
     // Format phone number (remove non-digits and ensure country code)
     let formattedPhone = phoneNumber.replace(/\D/g, '');
