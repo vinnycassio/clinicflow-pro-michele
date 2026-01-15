@@ -9,6 +9,7 @@ interface WhatsAppRequest {
   phone?: string;
   to?: string;
   message: string;
+  instanceName?: string;
 }
 
 serve(async (req) => {
@@ -26,14 +27,17 @@ serve(async (req) => {
       throw new Error('Evolution API credentials not configured');
     }
 
-    const { phone, to, message }: WhatsAppRequest = await req.json();
+    const { phone, to, message, instanceName }: WhatsAppRequest = await req.json();
     
     // Accept either 'phone' or 'to' field
     const phoneNumber = phone || to;
-
+    
     if (!phoneNumber || !message) {
       throw new Error('Phone/to and message are required');
     }
+
+    // Use instanceName from request or default to 'VLTRA_CLINIC'
+    const instance = instanceName || 'VLTRA_CLINIC';
 
     // Format phone number (remove non-digits and ensure country code)
     let formattedPhone = phoneNumber.replace(/\D/g, '');
@@ -43,9 +47,13 @@ serve(async (req) => {
 
     console.log(`📱 Sending WhatsApp to: ${formattedPhone}`);
     console.log(`📝 Message: ${message.substring(0, 50)}...`);
+    console.log(`🔧 Instance: ${instance}`);
 
-    // Send message via Evolution API
-    const response = await fetch(`${evolutionApiUrl}/message/sendText/default`, {
+    // Send message via Evolution API with dynamic instance name
+    const evolutionUrl = `${evolutionApiUrl}/message/sendText/${instance}`;
+    console.log(`🌐 Evolution URL: ${evolutionUrl}`);
+
+    const response = await fetch(evolutionUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -73,6 +81,7 @@ serve(async (req) => {
 
   } catch (error: any) {
     console.error('❌ Error sending WhatsApp:', error);
+    
     return new Response(
       JSON.stringify({ success: false, error: error.message }),
       { 
