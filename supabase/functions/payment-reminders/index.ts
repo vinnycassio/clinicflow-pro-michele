@@ -21,9 +21,6 @@ serve(async (req) => {
       throw new Error('Evolution API credentials not configured');
     }
 
-    // Get instance name from env or use default
-    const instanceName = Deno.env.get('EVOLUTION_INSTANCE_NAME') || 'VLTRA_CLINIC';
-
     const supabase = createClient(supabaseUrl, supabaseKey);
 
     // Get dates for reminders (today + 3 days ahead for upcoming, past dates for overdue)
@@ -113,7 +110,7 @@ serve(async (req) => {
       }
 
       try {
-        const response = await fetch(`${evolutionApiUrl}/message/sendText/${instanceName}`, {
+        const response = await fetch(`${evolutionApiUrl}/message/sendText/default`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

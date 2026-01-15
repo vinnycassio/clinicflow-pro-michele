@@ -9,7 +9,6 @@ interface WhatsAppRequest {
   phone?: string;
   to?: string;
   message: string;
-  instanceName?: string;
 }
 
 serve(async (req) => {
@@ -17,8 +16,6 @@ serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
-
-  let debugInfo: Record<string, unknown> = {};
 
   try {
     const evolutionApiUrl = Deno.env.get('EVOLUTION_API_URL');
@@ -29,22 +26,14 @@ serve(async (req) => {
       throw new Error('Evolution API credentials not configured');
     }
 
-    const { phone, to, message, instanceName }: WhatsAppRequest = await req.json();
-
-    debugInfo = {
-      received: { hasPhone: !!phone, hasTo: !!to, hasMessage: !!message, instanceName },
-    };
-
+    const { phone, to, message }: WhatsAppRequest = await req.json();
+    
     // Accept either 'phone' or 'to' field
     const phoneNumber = phone || to;
 
     if (!phoneNumber || !message) {
       throw new Error('Phone/to and message are required');
     }
-
-    // Use instanceName from request, or env variable, or fallback to 'VLTRA_CLINIC'
-    const defaultInstance = Deno.env.get('EVOLUTION_INSTANCE_NAME') || 'VLTRA_CLINIC';
-    const instance = instanceName || defaultInstance;
 
     // Format phone number (remove non-digits and ensure country code)
     let formattedPhone = phoneNumber.replace(/\D/g, '');
@@ -54,14 +43,9 @@ serve(async (req) => {
 
     console.log(`📱 Sending WhatsApp to: ${formattedPhone}`);
     console.log(`📝 Message: ${message.substring(0, 50)}...`);
-    console.log(`🔧 Instance: ${instance}`);
 
-    // Send message via Evolution API with dynamic instance name
-    const evolutionUrl = `${evolutionApiUrl}/message/sendText/${instance}`;
-    debugInfo = { ...debugInfo, instance, evolutionUrl };
-    console.log(`🌐 Evolution URL: ${evolutionUrl}`);
-
-    const response = await fetch(evolutionUrl, {
+    // Send message via Evolution API
+    const response = await fetch(`${evolutionApiUrl}/message/sendText/default`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -89,9 +73,8 @@ serve(async (req) => {
 
   } catch (error: any) {
     console.error('❌ Error sending WhatsApp:', error);
-    
     return new Response(
-      JSON.stringify({ success: false, error: error.message, debug: debugInfo }),
+      JSON.stringify({ success: false, error: error.message }),
       { 
         status: 500, 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
