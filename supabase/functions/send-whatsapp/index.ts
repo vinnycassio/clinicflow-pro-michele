@@ -20,7 +20,7 @@ serve(async (req) => {
   try {
     const evolutionApiUrl = Deno.env.get('EVOLUTION_API_URL');
     const evolutionApiKey = Deno.env.get('EVOLUTION_API_KEY');
-    const instanceName = Deno.env.get('EVOLUTION_INSTANCE_NAME') || 'default';
+    const instanceName = Deno.env.get('EVOLUTION_INSTANCE_NAME') || 'VLTRA_AI_OFICIAL';
 
     if (!evolutionApiUrl || !evolutionApiKey) {
       console.error('Missing Evolution API credentials');
