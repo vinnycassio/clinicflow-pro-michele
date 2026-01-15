@@ -57,6 +57,7 @@ export function NotificationTestPanel() {
           headers: {
             'Content-Type': 'application/json',
             'apikey': SUPABASE_CONFIG.anonKey,
+            'Authorization': `Bearer ${SUPABASE_CONFIG.anonKey}`,
           },
           body: JSON.stringify({
             phone: formattedPhone,
