@@ -35,8 +35,8 @@ serve(async (req) => {
       .from('vl_clinic_core_appointments')
       .select(`
         appointment_id,
-        scheduled_date,
-        scheduled_time,
+        appointment_date,
+        appointment_start_time,
         patient_id,
         professional_id,
         vl_clinic_core_patients!inner (
