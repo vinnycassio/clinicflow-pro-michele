@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Send, CheckCircle2, XCircle, Loader2, Smartphone } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/lib/supabase";
+import { SUPABASE_CONFIG } from "@/lib/supabase.config";
 
 interface TestResult {
   success: boolean;
@@ -49,24 +50,33 @@ export function NotificationTestPanel() {
     try {
       const formattedPhone = formatPhoneNumber(phoneNumber);
       
-      // Enviar usando o Supabase client (com JWT do usuário)
+      const invokeWithBearer = async (bearerToken: string) => {
+        return supabase.functions.invoke("send-whatsapp", {
+          headers: {
+            Authorization: `Bearer ${bearerToken}`,
+          },
+          body: {
+            to: formattedPhone,
+            message: testMessage,
+          },
+        });
+      };
+
       const {
         data: { session },
-        error: sessionError,
       } = await supabase.auth.getSession();
 
-      if (sessionError) throw sessionError;
-      if (!session?.access_token) throw new Error("Sessão expirada. Faça login novamente.");
+      const primaryBearer = session?.access_token || SUPABASE_CONFIG.anonKey;
+      let { data, error } = await invokeWithBearer(primaryBearer);
 
-      const { data, error } = await supabase.functions.invoke("send-whatsapp", {
-        headers: {
-          Authorization: `Bearer ${session.access_token}`,
-        },
-        body: {
-          to: formattedPhone,
-          message: testMessage,
-        },
-      });
+      const errorBody = (error as any)?.context?.body;
+      const isInvalidJwt =
+        typeof errorBody === "string" &&
+        (errorBody.includes("Invalid JWT") || errorBody.includes('"Invalid JWT"'));
+
+      if (error && isInvalidJwt && primaryBearer !== SUPABASE_CONFIG.anonKey) {
+        ({ data, error } = await invokeWithBearer(SUPABASE_CONFIG.anonKey));
+      }
 
       if (error) {
         throw new Error(error.message);
