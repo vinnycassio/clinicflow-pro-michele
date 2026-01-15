@@ -60,7 +60,7 @@ export function NotificationTestPanel() {
             'Authorization': `Bearer ${SUPABASE_CONFIG.anonKey}`,
           },
           body: JSON.stringify({
-            phone: formattedPhone,
+            to: formattedPhone,
             message: testMessage,
           }),
         }
