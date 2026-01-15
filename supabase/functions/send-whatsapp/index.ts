@@ -18,6 +18,8 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
+  let debugInfo: Record<string, unknown> = {};
+
   try {
     const evolutionApiUrl = Deno.env.get('EVOLUTION_API_URL');
     const evolutionApiKey = Deno.env.get('EVOLUTION_API_KEY');
@@ -28,10 +30,14 @@ serve(async (req) => {
     }
 
     const { phone, to, message, instanceName }: WhatsAppRequest = await req.json();
-    
+
+    debugInfo = {
+      received: { hasPhone: !!phone, hasTo: !!to, hasMessage: !!message, instanceName },
+    };
+
     // Accept either 'phone' or 'to' field
     const phoneNumber = phone || to;
-    
+
     if (!phoneNumber || !message) {
       throw new Error('Phone/to and message are required');
     }
@@ -52,6 +58,7 @@ serve(async (req) => {
 
     // Send message via Evolution API with dynamic instance name
     const evolutionUrl = `${evolutionApiUrl}/message/sendText/${instance}`;
+    debugInfo = { ...debugInfo, instance, evolutionUrl };
     console.log(`🌐 Evolution URL: ${evolutionUrl}`);
 
     const response = await fetch(evolutionUrl, {
@@ -84,7 +91,7 @@ serve(async (req) => {
     console.error('❌ Error sending WhatsApp:', error);
     
     return new Response(
-      JSON.stringify({ success: false, error: error.message }),
+      JSON.stringify({ success: false, error: error.message, debug: debugInfo }),
       { 
         status: 500, 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
