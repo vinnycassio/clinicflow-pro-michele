@@ -38,7 +38,10 @@ import {
   PlayCircle,
   Edit,
   Trash2,
+  MessageCircle,
+  Loader2,
 } from "lucide-react";
+import { useWhatsAppNotification } from "@/hooks/useWhatsAppNotification";
 import { format, addDays, startOfWeek, isSameDay, parseISO } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { toast } from "sonner";
@@ -54,6 +57,7 @@ const Appointments = () => {
 
   const { getProfessionalFilter, canSeeAllProfessionals, loading: userProfLoading } = useUserProfessional();
   const { professionals } = useProfessionals();
+  const { sendAppointmentReminder, sending: sendingNotification } = useWhatsAppNotification();
 
   // Set professional filter based on role
   useEffect(() => {
@@ -218,12 +222,34 @@ const Appointments = () => {
     );
   };
 
+  // Enviar notificação WhatsApp
+  const handleSendNotification = async (appointment: any) => {
+    await sendAppointmentReminder(appointment);
+  };
+
   // Botões de ação por status
   const getActionButtons = (appointment: any) => {
     const { status, appointment_id } = appointment;
 
     return (
       <div className="flex flex-wrap gap-1.5 sm:gap-2">
+        {/* Enviar WhatsApp */}
+        <Button
+          variant="outline"
+          size="sm"
+          className="h-8 px-2 sm:px-3 gap-1"
+          onClick={() => handleSendNotification(appointment)}
+          disabled={sendingNotification || !appointment.patient?.phone_main}
+          title={!appointment.patient?.phone_main ? "Paciente sem telefone" : "Enviar lembrete"}
+        >
+          {sendingNotification ? (
+            <Loader2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 animate-spin" />
+          ) : (
+            <MessageCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+          )}
+          <span className="hidden md:inline">WhatsApp</span>
+        </Button>
+
         {/* Editar */}
         <Button
           variant="outline"

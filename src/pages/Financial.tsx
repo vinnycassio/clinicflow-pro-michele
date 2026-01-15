@@ -21,13 +21,17 @@ import {
   Plus,
   Eye,
   Pencil,
+  MessageCircle,
+  Loader2,
 } from "lucide-react";
+import { useWhatsAppNotification } from "@/hooks/useWhatsAppNotification";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { toast } from "sonner";
 
 const Financial = () => {
   const { budgets, sales, payments, loading, error, markPaymentAsPaid } = useFinancial();
+  const { sendPaymentReminder, sendOverdueNotice, sending: sendingNotification } = useWhatsAppNotification();
   const [activeTab, setActiveTab] = useState("overview");
   const [showNewBudgetModal, setShowNewBudgetModal] = useState(false);
   const [showNewSaleModal, setShowNewSaleModal] = useState(false);
@@ -383,6 +387,22 @@ const Financial = () => {
                                 </p>
                               </div>
                               <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => payment.status === "overdue" 
+                                  ? sendOverdueNotice(payment) 
+                                  : sendPaymentReminder(payment)
+                                }
+                                disabled={sendingNotification || !payment.sale?.patient?.phone_main}
+                                title={!payment.sale?.patient?.phone_main ? "Paciente sem telefone" : "Enviar lembrete"}
+                              >
+                                {sendingNotification ? (
+                                  <Loader2 className="w-4 h-4 animate-spin" />
+                                ) : (
+                                  <MessageCircle className="w-4 h-4" />
+                                )}
+                              </Button>
+                              <Button
                                 size="sm"
                                 onClick={() => handleMarkAsPaid(payment.payment_id)}
                               >
@@ -677,12 +697,30 @@ const Financial = () => {
                             {formatCurrency(Number(payment.amount || 0))}
                           </p>
                           {(payment.status === "pending" || payment.status === "overdue") && (
-                            <Button
-                              size="sm"
-                              onClick={() => handleMarkAsPaid(payment.payment_id)}
-                            >
-                              Marcar como Pago
-                            </Button>
+                            <div className="flex gap-2">
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => payment.status === "overdue" 
+                                  ? sendOverdueNotice(payment) 
+                                  : sendPaymentReminder(payment)
+                                }
+                                disabled={sendingNotification || !payment.sale?.patient?.phone_main}
+                                title={!payment.sale?.patient?.phone_main ? "Paciente sem telefone" : "Enviar lembrete"}
+                              >
+                                {sendingNotification ? (
+                                  <Loader2 className="w-4 h-4 animate-spin" />
+                                ) : (
+                                  <MessageCircle className="w-4 h-4" />
+                                )}
+                              </Button>
+                              <Button
+                                size="sm"
+                                onClick={() => handleMarkAsPaid(payment.payment_id)}
+                              >
+                                Marcar como Pago
+                              </Button>
+                            </div>
                           )}
                         </div>
                       </div>

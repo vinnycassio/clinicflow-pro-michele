@@ -132,6 +132,7 @@ export interface Payment {
     sale_number: string;
     patient?: {
       full_name: string;
+      phone_main?: string;
     };
   };
 }
@@ -389,7 +390,7 @@ export const useFinancial = () => {
           sale:sale_id(
             sale_id,
             sale_number,
-            patient:patient_id(full_name)
+            patient:patient_id(full_name, phone_main)
           )
         `)
         .order('due_date', { ascending: true });
