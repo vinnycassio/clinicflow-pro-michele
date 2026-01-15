@@ -16,6 +16,7 @@ serve(async (req) => {
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const evolutionApiUrl = Deno.env.get('EVOLUTION_API_URL');
     const evolutionApiKey = Deno.env.get('EVOLUTION_API_KEY');
+    const instanceName = Deno.env.get('EVOLUTION_INSTANCE_NAME') || 'default';
 
     if (!evolutionApiUrl || !evolutionApiKey) {
       throw new Error('Evolution API credentials not configured');
@@ -33,24 +34,26 @@ serve(async (req) => {
 
     console.log(`🔍 Buscando pagamentos pendentes...`);
 
-    // Fetch pending payments (upcoming and overdue)
+    // Fetch pending payments with patient info through sales
     const { data: payments, error } = await supabase
-      .from('vl_clinic_financial_transactions')
+      .from('vl_fin_payments')
       .select(`
-        transaction_id,
-        description,
+        payment_id,
         amount,
         due_date,
         status,
-        patient_id,
-        vl_clinic_core_patients!inner (
-          patient_id,
-          full_name,
-          phone_primary
+        payment_method,
+        sale:sale_id(
+          sale_id,
+          sale_number,
+          patient:patient_id(
+            patient_id,
+            full_name,
+            phone_main
+          )
         )
       `)
       .eq('status', 'pending')
-      .eq('transaction_type', 'income')
       .not('due_date', 'is', null)
       .lte('due_date', threeDaysAheadStr)
       .order('due_date', { ascending: true });
@@ -65,10 +68,11 @@ serve(async (req) => {
     const results: any[] = [];
 
     for (const payment of payments || []) {
-      const patient = payment.vl_clinic_core_patients as any;
+      const sale = payment.sale as any;
+      const patient = sale?.patient as any;
 
-      if (!patient?.phone_primary) {
-        console.log(`⚠️ Paciente ${patient?.full_name} sem telefone cadastrado`);
+      if (!patient?.phone_main) {
+        console.log(`⚠️ Pagamento ${payment.payment_id} - paciente sem telefone cadastrado`);
         continue;
       }
 
@@ -86,31 +90,31 @@ serve(async (req) => {
         message = `⚠️ *Pagamento em Atraso*\n\n` +
           `Olá ${patient.full_name}!\n\n` +
           `Identificamos um pagamento em atraso:\n\n` +
-          `📋 *Descrição:* ${payment.description || 'Serviço clínico'}\n` +
+          `📋 *Venda:* #${sale?.sale_number || 'N/A'}\n` +
           `💰 *Valor:* ${formattedAmount}\n` +
           `📅 *Vencimento:* ${formattedDueDate}\n\n` +
           `Por favor, regularize o pagamento o mais breve possível para evitar inconvenientes.\n\n` +
           `Em caso de dúvidas, entre em contato conosco.\n\n` +
-          `_VL Clinic_`;
+          `_Vltra Clinic Pro_`;
       } else {
         message = `💳 *Lembrete de Pagamento*\n\n` +
           `Olá ${patient.full_name}!\n\n` +
           `Lembramos que você tem um pagamento próximo ao vencimento:\n\n` +
-          `📋 *Descrição:* ${payment.description || 'Serviço clínico'}\n` +
+          `📋 *Venda:* #${sale?.sale_number || 'N/A'}\n` +
           `💰 *Valor:* ${formattedAmount}\n` +
           `📅 *Vencimento:* ${formattedDueDate}\n\n` +
           `Evite juros e multas realizando o pagamento até a data de vencimento.\n\n` +
-          `_VL Clinic_`;
+          `_Vltra Clinic Pro_`;
       }
 
       // Format phone number
-      let phone = patient.phone_primary.replace(/\D/g, '');
+      let phone = patient.phone_main.replace(/\D/g, '');
       if (!phone.startsWith('55')) {
         phone = '55' + phone;
       }
 
       try {
-        const response = await fetch(`${evolutionApiUrl}/message/sendText/default`, {
+        const response = await fetch(`${evolutionApiUrl}/message/sendText/${instanceName}`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

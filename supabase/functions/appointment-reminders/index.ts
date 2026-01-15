@@ -16,6 +16,7 @@ serve(async (req) => {
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const evolutionApiUrl = Deno.env.get('EVOLUTION_API_URL');
     const evolutionApiKey = Deno.env.get('EVOLUTION_API_KEY');
+    const instanceName = Deno.env.get('EVOLUTION_INSTANCE_NAME') || 'default';
 
     if (!evolutionApiUrl || !evolutionApiKey) {
       throw new Error('Evolution API credentials not configured');
@@ -64,13 +65,13 @@ serve(async (req) => {
       const patient = appointment.vl_clinic_core_patients as any;
       const professional = appointment.vl_clinic_core_professionals as any;
 
-      if (!patient?.phone_primary) {
+      if (!patient?.phone_main) {
         console.log(`⚠️ Paciente ${patient?.full_name} sem telefone cadastrado`);
         continue;
       }
 
-      const formattedTime = appointment.scheduled_time?.substring(0, 5) || '';
-      const formattedDate = new Date(appointment.scheduled_date + 'T12:00:00').toLocaleDateString('pt-BR');
+      const formattedTime = appointment.appointment_start_time?.substring(0, 5) || '';
+      const formattedDate = new Date(appointment.appointment_date + 'T12:00:00').toLocaleDateString('pt-BR');
 
       const message = `🏥 *Lembrete de Consulta*\n\n` +
         `Olá ${patient.full_name}!\n\n` +
@@ -80,16 +81,16 @@ serve(async (req) => {
         `👨‍⚕️ *Profissional:* ${professional?.full_name || 'Não informado'}\n\n` +
         `Por favor, chegue com 15 minutos de antecedência.\n\n` +
         `Em caso de impossibilidade, entre em contato para remarcar.\n\n` +
-        `_VL Clinic_`;
+        `_Vltra Clinic Pro_`;
 
       // Format phone number
-      let phone = patient.phone_primary.replace(/\D/g, '');
+      let phone = patient.phone_main.replace(/\D/g, '');
       if (!phone.startsWith('55')) {
         phone = '55' + phone;
       }
 
       try {
-        const response = await fetch(`${evolutionApiUrl}/message/sendText/default`, {
+        const response = await fetch(`${evolutionApiUrl}/message/sendText/${instanceName}`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
