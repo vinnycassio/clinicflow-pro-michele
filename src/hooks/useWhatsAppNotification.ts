@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { SUPABASE_CONFIG } from '@/lib/supabase.config';
 
 interface SendNotificationResult {
   success: boolean;
@@ -39,52 +39,27 @@ export const useWhatsAppNotification = () => {
     try {
       const formattedPhone = formatPhoneNumber(phone);
 
-      // 1) tenta com a sessão do usuário (Supabase injeta JWT automaticamente quando há sessão)
-      // 2) se vier 401 Invalid JWT, faz retry SEM Authorization (chamada anônima via apikey do client)
-      const invokeAuthed = async (accessToken: string) => {
-        return supabase.functions.invoke('send-whatsapp', {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-          body: {
-            to: formattedPhone,
-            message,
-          },
-        });
-      };
+      // Importante: o supabase-js injeta Authorization automaticamente quando existe sessão,
+      // e isso está causando 401 "Invalid JWT" no gateway da Edge Function neste projeto.
+      // Então chamamos a função via fetch, enviando APENAS o apikey (anon) e o body.
+      const functionUrl = `${import.meta.env.VITE_SUPABASE_URL || SUPABASE_CONFIG.url}/functions/v1/send-whatsapp`;
+      const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || SUPABASE_CONFIG.anonKey;
 
-      const invokeAnon = async () => {
-        return supabase.functions.invoke('send-whatsapp', {
-          body: {
-            to: formattedPhone,
-            message,
-          },
-        });
-      };
+      const res = await fetch(functionUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          apikey: anonKey,
+        },
+        body: JSON.stringify({ to: formattedPhone, message }),
+      });
 
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
+      const data = await res.json().catch(() => null);
 
-      let result = session?.access_token
-        ? await invokeAuthed(session.access_token)
-        : await invokeAnon();
-
-      const errorBody = (result.error as any)?.context?.body;
-      const isInvalidJwt =
-        result.error?.status === 401 ||
-        (typeof errorBody === 'string' &&
-          (errorBody.includes('Invalid JWT') || errorBody.includes('"Invalid JWT"')));
-
-      if (result.error && isInvalidJwt) {
-        result = await invokeAnon();
-      }
-
-      const { data, error } = result;
-
-      if (error) {
-        console.error('Erro ao enviar WhatsApp:', error);
-        return { success: false, error: error.message };
+      if (!res.ok) {
+        const msg = data?.message || data?.error || `Erro HTTP ${res.status}`;
+        console.error('Erro ao enviar WhatsApp (edge):', res.status, data);
+        return { success: false, error: msg };
       }
 
       if (!data?.success) {

@@ -73,21 +73,32 @@ const Treatments = () => {
     }
   }, [userProfessional?.professional_id]);
 
+  // Enriquecer com dados de paciente/profissional quando a query não traz relacionamentos
+  const enrichedTreatments = treatments.map((t) => ({
+    ...t,
+    patient: t.patient || patients.find((p) => p.patient_id === t.patient_id),
+    professional: t.professional || professionals.find((p) => p.professional_id === t.professional_id),
+  }));
+
   // Filter treatments based on user role
-  const roleFilteredTreatments = canSeeAllProfessionals() 
-    ? treatments 
-    : treatments.filter(t => t.professional_id === getProfessionalFilter());
+  const roleFilteredTreatments = canSeeAllProfessionals()
+    ? enrichedTreatments
+    : enrichedTreatments.filter((t) => t.professional_id === getProfessionalFilter());
 
   // Filtrar tratamentos
   const filteredTreatments = roleFilteredTreatments.filter((treatment) => {
     const searchLower = searchTerm.toLowerCase();
+    const patientName = treatment.patient?.full_name || "";
+    const professionalName = treatment.professional?.full_name || "";
+    const treatmentName = treatment.treatment_name || "";
+
     const matchesSearch =
-      treatment.patient?.full_name.toLowerCase().includes(searchLower) ||
-      treatment.treatment_name.toLowerCase().includes(searchLower) ||
-      treatment.professional?.full_name.toLowerCase().includes(searchLower);
-    
+      patientName.toLowerCase().includes(searchLower) ||
+      treatmentName.toLowerCase().includes(searchLower) ||
+      professionalName.toLowerCase().includes(searchLower);
+
     const matchesStatus = statusFilter === "all" || treatment.status === statusFilter;
-    
+
     return matchesSearch && matchesStatus;
   });
 
@@ -358,7 +369,7 @@ const Treatments = () => {
                       <div className="flex-1 w-full">
                         <div className="flex items-start gap-3 mb-3">
                           <div className="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-400 to-indigo-600 flex items-center justify-center text-white font-semibold flex-shrink-0">
-                            {treatment.patient?.full_name.charAt(0).toUpperCase()}
+                            {(treatment.patient?.full_name || "?").charAt(0).toUpperCase()}
                           </div>
                           <div className="flex-1 min-w-0">
                             <h3 className="font-semibold text-base lg:text-lg truncate">

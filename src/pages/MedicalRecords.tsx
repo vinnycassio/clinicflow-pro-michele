@@ -69,17 +69,28 @@ const MedicalRecords = () => {
     }
   }, [userProfessional?.professional_id]);
 
+  // Enriquecer com dados de paciente/profissional quando a query não traz relacionamentos
+  const enrichedRecords = records.map((r) => ({
+    ...r,
+    patient: r.patient || patients.find((p) => p.patient_id === r.patient_id),
+    professional: r.professional || professionals.find((p) => p.professional_id === r.professional_id),
+  }));
+
   // Filter records based on user role
-  const roleFilteredRecords = canSeeAllProfessionals() 
-    ? records 
-    : records.filter(r => r.professional_id === getProfessionalFilter());
+  const roleFilteredRecords = canSeeAllProfessionals()
+    ? enrichedRecords
+    : enrichedRecords.filter((r) => r.professional_id === getProfessionalFilter());
 
   const filteredRecords = roleFilteredRecords.filter((record) => {
     const searchLower = searchTerm.toLowerCase();
+    const patientName = record.patient?.full_name || "";
+    const professionalName = record.professional?.full_name || "";
+    const complaint = record.chief_complaint || "";
+
     return (
-      record.patient?.full_name.toLowerCase().includes(searchLower) ||
-      record.professional?.full_name.toLowerCase().includes(searchLower) ||
-      record.chief_complaint?.toLowerCase().includes(searchLower)
+      patientName.toLowerCase().includes(searchLower) ||
+      professionalName.toLowerCase().includes(searchLower) ||
+      complaint.toLowerCase().includes(searchLower)
     );
   });
 
@@ -231,7 +242,7 @@ const MedicalRecords = () => {
                     <div className="flex-1 w-full">
                       <div className="flex items-start gap-3 mb-3">
                         <div className="w-10 h-10 rounded-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center text-white font-semibold flex-shrink-0">
-                          {record.patient?.full_name.charAt(0).toUpperCase()}
+                          {(record.patient?.full_name || "?").charAt(0).toUpperCase()}
                         </div>
                         <div className="flex-1 min-w-0">
                           <h3 className="font-semibold text-base lg:text-lg truncate">
