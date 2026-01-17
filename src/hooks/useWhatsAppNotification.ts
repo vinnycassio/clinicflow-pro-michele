@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { supabase } from '@/lib/supabase';
-import { SUPABASE_CONFIG } from '@/lib/supabase.config';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -40,10 +39,12 @@ export const useWhatsAppNotification = () => {
     try {
       const formattedPhone = formatPhoneNumber(phone);
 
-      const invokeWithBearer = async (bearerToken: string) => {
+      // 1) tenta com a sessão do usuário (Supabase injeta JWT automaticamente quando há sessão)
+      // 2) se vier 401 Invalid JWT, faz retry SEM Authorization (chamada anônima via apikey do client)
+      const invokeAuthed = async (accessToken: string) => {
         return supabase.functions.invoke('send-whatsapp', {
           headers: {
-            Authorization: `Bearer ${bearerToken}`,
+            Authorization: `Bearer ${accessToken}`,
           },
           body: {
             to: formattedPhone,
@@ -52,26 +53,34 @@ export const useWhatsAppNotification = () => {
         });
       };
 
-      // 1) tenta com o JWT do usuário (quando disponível)
+      const invokeAnon = async () => {
+        return supabase.functions.invoke('send-whatsapp', {
+          body: {
+            to: formattedPhone,
+            message,
+          },
+        });
+      };
+
       const {
         data: { session },
       } = await supabase.auth.getSession();
 
-      const primaryBearer = session?.access_token || SUPABASE_CONFIG.anonKey;
-      let { data, error } = await invokeWithBearer(primaryBearer);
+      let result = session?.access_token
+        ? await invokeAuthed(session.access_token)
+        : await invokeAnon();
 
-      // 2) fallback: alguns projetos retornam "Invalid JWT" para o access_token (assinatura/keys).
-      // Nesses casos, usar anonKey como Bearer mantém a função acessível (a função não depende de auth).
-      const errorBody = (error as any)?.context?.body;
+      const errorBody = (result.error as any)?.context?.body;
       const isInvalidJwt =
-        typeof errorBody === 'string' &&
-        (errorBody.includes('Invalid JWT') || errorBody.includes('"Invalid JWT"'));
+        result.error?.status === 401 ||
+        (typeof errorBody === 'string' &&
+          (errorBody.includes('Invalid JWT') || errorBody.includes('"Invalid JWT"')));
 
-      if (error && !primaryBearer.includes('.') && !isInvalidJwt) {
-        // bearer já era anonKey (sem motivo para retry)
-      } else if (error && isInvalidJwt && primaryBearer !== SUPABASE_CONFIG.anonKey) {
-        ({ data, error } = await invokeWithBearer(SUPABASE_CONFIG.anonKey));
+      if (result.error && isInvalidJwt) {
+        result = await invokeAnon();
       }
+
+      const { data, error } = result;
 
       if (error) {
         console.error('Erro ao enviar WhatsApp:', error);
