@@ -7,7 +7,6 @@ import { Badge } from "@/components/ui/badge";
 import { Send, CheckCircle2, XCircle, Loader2, Smartphone } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/lib/supabase";
-import { SUPABASE_CONFIG } from "@/lib/supabase.config";
 
 interface TestResult {
   success: boolean;
@@ -26,7 +25,7 @@ export function NotificationTestPanel() {
   const formatPhoneNumber = (phone: string) => {
     // Remove all non-numeric characters
     const numbers = phone.replace(/\D/g, "");
-    
+
     // If it doesn't start with country code, assume Brazil (55)
     if (numbers.length <= 11) {
       return `55${numbers}`;
@@ -49,12 +48,21 @@ export function NotificationTestPanel() {
 
     try {
       const formattedPhone = formatPhoneNumber(phoneNumber);
-      
-      const invokeWithBearer = async (bearerToken: string) => {
+
+      const invokeAuthed = async (accessToken: string) => {
         return supabase.functions.invoke("send-whatsapp", {
           headers: {
-            Authorization: `Bearer ${bearerToken}`,
+            Authorization: `Bearer ${accessToken}`,
           },
+          body: {
+            to: formattedPhone,
+            message: testMessage,
+          },
+        });
+      };
+
+      const invokeAnon = async () => {
+        return supabase.functions.invoke("send-whatsapp", {
           body: {
             to: formattedPhone,
             message: testMessage,
@@ -66,17 +74,21 @@ export function NotificationTestPanel() {
         data: { session },
       } = await supabase.auth.getSession();
 
-      const primaryBearer = session?.access_token || SUPABASE_CONFIG.anonKey;
-      let { data, error } = await invokeWithBearer(primaryBearer);
+      let result = session?.access_token
+        ? await invokeAuthed(session.access_token)
+        : await invokeAnon();
 
-      const errorBody = (error as any)?.context?.body;
+      const errorBody = (result.error as any)?.context?.body;
       const isInvalidJwt =
-        typeof errorBody === "string" &&
-        (errorBody.includes("Invalid JWT") || errorBody.includes('"Invalid JWT"'));
+        result.error?.status === 401 ||
+        (typeof errorBody === "string" &&
+          (errorBody.includes("Invalid JWT") || errorBody.includes('"Invalid JWT"')));
 
-      if (error && isInvalidJwt && primaryBearer !== SUPABASE_CONFIG.anonKey) {
-        ({ data, error } = await invokeWithBearer(SUPABASE_CONFIG.anonKey));
+      if (result.error && isInvalidJwt) {
+        result = await invokeAnon();
       }
+
+      const { data, error } = result;
 
       if (error) {
         throw new Error(error.message);
