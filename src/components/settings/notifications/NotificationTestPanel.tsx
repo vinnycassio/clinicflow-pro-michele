@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Send, CheckCircle2, XCircle, Loader2, Smartphone } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
-import { supabase } from "@/lib/supabase";
+import { SUPABASE_CONFIG } from "@/lib/supabase.config";
 
 interface TestResult {
   success: boolean;
@@ -49,53 +49,29 @@ export function NotificationTestPanel() {
     try {
       const formattedPhone = formatPhoneNumber(phoneNumber);
 
-      const invokeAuthed = async (accessToken: string) => {
-        return supabase.functions.invoke("send-whatsapp", {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-          body: {
-            to: formattedPhone,
-            message: testMessage,
-          },
-        });
-      };
+      const functionUrl = `${import.meta.env.VITE_SUPABASE_URL || SUPABASE_CONFIG.url}/functions/v1/send-whatsapp`;
+      const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || SUPABASE_CONFIG.anonKey;
 
-      const invokeAnon = async () => {
-        return supabase.functions.invoke("send-whatsapp", {
-          body: {
-            to: formattedPhone,
-            message: testMessage,
-          },
-        });
-      };
+      const res = await fetch(functionUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          apikey: anonKey,
+        },
+        body: JSON.stringify({
+          to: formattedPhone,
+          message: testMessage,
+        }),
+      });
 
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
+      const data = await res.json().catch(() => null);
 
-      let result = session?.access_token
-        ? await invokeAuthed(session.access_token)
-        : await invokeAnon();
-
-      const errorBody = (result.error as any)?.context?.body;
-      const isInvalidJwt =
-        result.error?.status === 401 ||
-        (typeof errorBody === "string" &&
-          (errorBody.includes("Invalid JWT") || errorBody.includes('"Invalid JWT"')));
-
-      if (result.error && isInvalidJwt) {
-        result = await invokeAnon();
-      }
-
-      const { data, error } = result;
-
-      if (error) {
-        throw new Error(error.message);
+      if (!res.ok) {
+        throw new Error(data?.message || data?.error || `Erro HTTP ${res.status}`);
       }
 
       if (!data?.success) {
-        throw new Error(data?.error || "Erro ao enviar mensagem");
+        throw new Error(data?.error || 'Erro ao enviar mensagem');
       }
 
       setLastResult({
