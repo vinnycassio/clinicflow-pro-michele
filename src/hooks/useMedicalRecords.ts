@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 
-// Helper para adicionar clinic_id automaticamente
+
+
 const addClinicId = async (data: any) => {
   const { data: { user } } = await supabase.auth.getUser();
   
