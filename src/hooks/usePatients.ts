@@ -44,15 +44,38 @@ export const usePatients = () => {
       return null;
     }
   };
-
+  
   const createPatient = async (patient: PatientInsert): Promise<Patient | null> => {
     try {
+      // Buscar clinic_id do usuário logado
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        throw new Error('Usuário não autenticado');
+      }
+  
+      const { data: userData } = await supabase
+        .from('vl_clinic_core_users')
+        .select('clinic_id')
+        .eq('auth_user_id', user.id)
+        .single();
+  
+      if (!userData?.clinic_id) {
+        throw new Error('Clínica não encontrada para o usuário');
+      }
+  
+      // Adicionar clinic_id ao paciente
+      const patientData = {
+        ...patient,
+        clinic_id: userData.clinic_id
+      };
+  
       const { data, error: insertError } = await supabase
         .from("vl_clinic_core_patients")
-        .insert([patient]) // Envolver em array
+        .insert([patientData])
         .select()
         .single();
-
+  
       if (insertError) throw insertError;
       await fetchPatients();
       return (data as Patient) ?? null;
