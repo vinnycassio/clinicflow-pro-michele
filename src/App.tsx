@@ -12,6 +12,7 @@ import Patients from "./pages/Patients";
 import Professionals from "./pages/Professionals";
 import Appointments from "./pages/Appointments";
 import MedicalRecords from "./pages/MedicalRecords";
+import TreatmentProtocols from "./pages/TreatmentProtocols";
 import Treatments from "./pages/Treatments";
 import Financial from "./pages/Financial";
 import Settings from "./pages/Settings";
@@ -55,6 +56,11 @@ const App = () => {
                   <Route path="/dashboard" element={<Dashboard />} />
                   <Route path="/pacientes" element={<Patients />} />
                   <Route path="/patients" element={<Patients />} />
+                  <Route path="/protocolos" element={
+                    <ProtectedRoute requiredRoles={['admin', 'owner', 'professional']}>
+                      <TreatmentProtocols />
+                    </ProtectedRoute>
+                  } />                  
                   <Route path="/profissionais" element={
                     <ProtectedRoute requiredRoles={['admin']}>
                       <Professionals />
