@@ -42,9 +42,9 @@ const menuItems = [
     permission: "medical_records",
   },
   {
-    icon: <FileText />,  
+    icon: FileText,  
     label: 'Protocolos',
-    href: '/clinic/treatment-protocols',
+    href: '/clinic/treatment-protocols/index',
     permission: "medical_records",
   },
   {
