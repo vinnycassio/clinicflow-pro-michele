@@ -220,12 +220,15 @@ export const useFinancial = () => {
     try {
       console.log('📝 Criando orçamento...', budget);
       
+      // Adicionar clinic_id
+      const budgetData = await addClinicId(budget);
+      
       const { data, error: insertError } = await supabase
         .from('vl_fin_budgets')
-        .insert([budget as any])
+        .insert([budgetData as any])
         .select()
         .single();
-
+  
       if (insertError) throw insertError;
       
       console.log('✅ Orçamento criado:', data);
@@ -347,12 +350,15 @@ export const useFinancial = () => {
     try {
       console.log('📝 Criando venda...', sale);
       
+      // Adicionar clinic_id
+      const saleData = await addClinicId(sale);
+      
       const { data, error: insertError } = await supabase
         .from('vl_fin_sales')
-        .insert([sale as any])
+        .insert([saleData as any])
         .select()
         .single();
-
+  
       if (insertError) throw insertError;
       
       console.log('✅ Venda criada:', data);
@@ -434,12 +440,15 @@ export const useFinancial = () => {
     try {
       console.log('📝 Criando pagamento...', payment);
       
+      // Adicionar clinic_id
+      const paymentData = await addClinicId(payment);
+      
       const { data, error: insertError } = await supabase
         .from('vl_fin_payments')
-        .insert([payment as any])
+        .insert([paymentData as any])
         .select()
         .single();
-
+  
       if (insertError) throw insertError;
       
       console.log('✅ Pagamento criado:', data);
@@ -452,7 +461,7 @@ export const useFinancial = () => {
       return null;
     }
   };
-
+  
   const updatePayment = async (id: string, updates: Partial<PaymentInsert>): Promise<Payment | null> => {
     try {
       const { data, error: updateError } = await supabase
