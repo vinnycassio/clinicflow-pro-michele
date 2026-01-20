@@ -59,5 +59,22 @@ export const testSupabaseConnection = async (): Promise<boolean> => {
 
 // Testar conexão ao inicializar (apenas em desenvolvimento)
 if (import.meta.env.DEV) {
+  export const debugAuth = async () => {
+  const { data: { user }, error } = await supabase.auth.getUser();
+  console.log('👤 Usuário atual:', user);
+  console.log('🔑 Auth user ID:', user?.id);
+  
+  if (user) {
+    // Verificar se existe em vl_clinic_core_users
+    const { data: userData, error: userError } = await supabase
+      .from('vl_clinic_core_users')
+      .select('id, email, clinic_id')
+      .eq('auth_user_id', user.id)
+      .single();
+    
+    console.log('📋 Dados do usuário em vl_clinic_core_users:', userData);
+    console.log('❌ Erro ao buscar usuário:', userError);
+  }
+};
   testSupabaseConnection();
 }
