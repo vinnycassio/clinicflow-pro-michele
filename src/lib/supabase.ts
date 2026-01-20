@@ -1,4 +1,3 @@
-// VLTRA Clinic Pro - Supabase Client
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from '@/types/database';
 import { SUPABASE_CONFIG } from './supabase.config';
@@ -24,12 +23,7 @@ export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
 
 // Verificar se está configurado
 export const isSupabaseConfigured = (): boolean => {
-  return Boolean(
-    supabaseUrl && 
-    supabaseAnonKey && 
-    supabaseUrl !== 'https://wboumcppekffsqzyqmqd.supabase.co' &&
-    supabaseAnonKey !== 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indib3VtY3BwZWtmZnNxenlxbXFkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg4NTY4OTIsImV4cCI6MjA4NDQzMjg5Mn0.erMs3Cy0RE4aLNOXFhrEow4GOEDgZcZnhkbL3Cdb2a8'
-  );
+  return Boolean(supabaseUrl && supabaseAnonKey);
 };
 
 // Testar conexão
@@ -58,15 +52,13 @@ export const testSupabaseConnection = async (): Promise<boolean> => {
   }
 };
 
-// Testar conexão ao inicializar (apenas em desenvolvimento)
-if (import.meta.env.DEV) {
-  export const debugAuth = async () => {
+// Função de debug
+export const debugAuth = async () => {
   const { data: { user }, error } = await supabase.auth.getUser();
   console.log('👤 Usuário atual:', user);
   console.log('🔑 Auth user ID:', user?.id);
   
   if (user) {
-    // Verificar se existe em vl_clinic_core_users
     const { data: userData, error: userError } = await supabase
       .from('vl_clinic_core_users')
       .select('id, email, clinic_id')
@@ -77,5 +69,8 @@ if (import.meta.env.DEV) {
     console.log('❌ Erro ao buscar usuário:', userError);
   }
 };
+
+// Testar conexão ao inicializar (apenas em desenvolvimento)
+if (import.meta.env.DEV) {
   testSupabaseConnection();
 }
