@@ -1,3 +1,4 @@
+// VLTRA Clinic Pro - Supabase Client
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from '@/types/database';
 import { SUPABASE_CONFIG } from './supabase.config';
