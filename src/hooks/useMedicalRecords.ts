@@ -135,12 +135,15 @@ export const useMedicalRecords = (patientId?: string) => {
     try {
       console.log('📝 Criando prontuário...', record);
       
+      // Adicionar clinic_id
+      const recordData = await addClinicId(record);
+      
       const { data, error: insertError } = await supabase
         .from('vl_clinic_medical_records')
-        .insert([record as any])
+        .insert([recordData as any])
         .select('*')
         .single();
-
+  
       if (insertError) {
         console.error('❌ Erro ao criar:', insertError);
         throw insertError;
