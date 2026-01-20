@@ -25,6 +25,19 @@ const addClinicId = async (data: any) => {
   };
 };
 
+
+// Helper para limpar campos vazios de UUID
+const cleanUuidFields = (data: any) => {
+  const cleaned = { ...data };
+  
+  // Converter strings vazias em null para campos UUID opcionais
+  if (cleaned.protocol_id === '') cleaned.protocol_id = null;
+  if (cleaned.end_date === '') cleaned.end_date = null;
+  
+  return cleaned;
+};
+
+
 export interface TreatmentProtocol {
   protocol_id: string;
   protocol_name: string;
@@ -164,33 +177,34 @@ export const useTreatments = (patientId?: string) => {
     }
   };
 
-  const createTreatment = async (treatment: TreatmentInsert): Promise<Treatment | null> => {
-    try {
-      console.log('📝 Criando tratamento...', treatment);
-      
-      // Adicionar clinic_id
-      const treatmentData = await addClinicId(treatment);
-      
-      const { data, error: insertError } = await supabase
-        .from('vl_clinic_patient_treatments')
-        .insert([treatmentData as any])
-        .select('*')
-        .single();
-  
-      if (insertError) {
-        console.error('❌ Erro ao criar:', insertError);
-        throw insertError;
-      }
-      
-      console.log('✅ Tratamento criado:', data);
-      await fetchTreatments();
-      return data as Treatment;
-    } catch (err: any) {
-      console.error('❌ Erro ao criar tratamento:', err);
-      setError(err.message);
-      return null;
+const createTreatment = async (treatment: TreatmentInsert): Promise<Treatment | null> => {
+  try {
+    console.log('📝 Criando tratamento...', treatment);
+    
+    // Limpar campos vazios e adicionar clinic_id
+    const cleanedData = cleanUuidFields(treatment);
+    const treatmentData = await addClinicId(cleanedData);
+    
+    const { data, error: insertError } = await supabase
+      .from('vl_clinic_patient_treatments')
+      .insert([treatmentData as any])
+      .select('*')
+      .single();
+
+    if (insertError) {
+      console.error('❌ Erro ao criar:', insertError);
+      throw insertError;
     }
-  };
+    
+    console.log('✅ Tratamento criado:', data);
+    await fetchTreatments();
+    return data as Treatment;
+  } catch (err: any) {
+    console.error('❌ Erro ao criar tratamento:', err);
+    setError(err.message);
+    return null;
+  }
+};
 
   const updateTreatment = async (id: string, updates: Partial<TreatmentInsert>): Promise<Treatment | null> => {
     try {
