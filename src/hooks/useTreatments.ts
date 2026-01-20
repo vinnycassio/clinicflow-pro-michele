@@ -287,6 +287,74 @@ const createTreatment = async (treatment: TreatmentInsert): Promise<Treatment | 
     }
   };
 
+// ==========================================
+// PROTOCOLS - CRUD
+// ==========================================
+
+const createProtocol = async (protocol: Partial<TreatmentProtocol>): Promise<TreatmentProtocol | null> => {
+  try {
+    console.log('📝 Criando protocolo...', protocol);
+    
+    // Adicionar clinic_id
+    const protocolData = await addClinicId(protocol);
+    
+    const { data, error: insertError } = await supabase
+      .from('vl_clinic_treatment_protocols')
+      .insert([protocolData as any])
+      .select('*')
+      .single();
+
+    if (insertError) {
+      console.error('❌ Erro ao criar:', insertError);
+      throw insertError;
+    }
+    
+    console.log('✅ Protocolo criado:', data);
+    await fetchProtocols();
+    return data as TreatmentProtocol;
+  } catch (err: any) {
+    console.error('❌ Erro ao criar protocolo:', err);
+    setError(err.message);
+    return null;
+  }
+};
+
+const updateProtocol = async (id: string, updates: Partial<TreatmentProtocol>): Promise<TreatmentProtocol | null> => {
+  try {
+    const { data, error: updateError } = await supabase
+      .from('vl_clinic_treatment_protocols')
+      .update(updates as any)
+      .eq('protocol_id', id)
+      .select('*')
+      .single();
+
+    if (updateError) throw updateError;
+    await fetchProtocols();
+    return data as TreatmentProtocol;
+  } catch (err: any) {
+    console.error('❌ Erro ao atualizar protocolo:', err);
+    setError(err.message);
+    return null;
+  }
+};
+
+const deleteProtocol = async (id: string): Promise<boolean> => {
+  try {
+    const { error: deleteError } = await supabase
+      .from('vl_clinic_treatment_protocols')
+      .delete()
+      .eq('protocol_id', id);
+
+    if (deleteError) throw deleteError;
+    await fetchProtocols();
+    return true;
+  } catch (err: any) {
+    console.error('❌ Erro ao deletar protocolo:', err);
+    setError(err.message);
+    return false;
+  }
+};
+  
   useEffect(() => {
     fetchTreatments();
     fetchProtocols();
@@ -305,5 +373,8 @@ const createTreatment = async (treatment: TreatmentInsert): Promise<Treatment | 
     completeTreatment,
     cancelTreatment,
     deleteTreatment,
+    createProtocol,     // ← ADICIONAR
+    updateProtocol,     // ← ADICIONAR
+    deleteProtocol,     // ← ADICIONAR
   };
 };
