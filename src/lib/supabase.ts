@@ -27,8 +27,8 @@ export const isSupabaseConfigured = (): boolean => {
   return Boolean(
     supabaseUrl && 
     supabaseAnonKey && 
-    supabaseUrl !== 'https://urqxtqfszqwbixpeeusd.supabase.co' &&
-    supabaseAnonKey !== 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVycXh0cWZzenF3Yml4cGVldXNkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc4ODU4OTAsImV4cCI6MjA4MzQ2MTg5MH0.TPHGDuG1gm7CJiaw7LdkRrVncX60nSZcDUEzWl0L850'
+    supabaseUrl !== 'https://wboumcppekffsqzyqmqd.supabase.co' &&
+    supabaseAnonKey !== 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indib3VtY3BwZWtmZnNxenlxbXFkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg4NTY4OTIsImV4cCI6MjA4NDQzMjg5Mn0.erMs3Cy0RE4aLNOXFhrEow4GOEDgZcZnhkbL3Cdb2a8'
   );
 };
 
