@@ -150,25 +150,29 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return authUser?.roles.includes(role) || authUser?.roles.includes('admin') || false;
   };
 
-  const hasPermission = (permission: string): boolean => {
-    if (!authUser) return false;
+ const hasPermission = (permission: string): boolean => {
+  if (!authUser) return false;
+  
+  for (const role of authUser.roles) {
+    // Admin e Owner têm todas as permissões
+    if (role === 'admin' || role === 'owner') return true;
     
-    for (const role of authUser.roles) {
-      if (role === 'admin') return true;
-      
-      const permissions = {
-        admin: ['all'],
-        professional: ['appointments', 'patients', 'medical_records', 'treatments'],
-        receptionist: ['appointments', 'patients', 'financial'],
-      }[role];
-      
-      if (permissions?.includes(permission) || permissions?.includes('all')) {
-        return true;
-      }
+    const permissions = {
+      admin: ['all'],
+      owner: ['all'],
+      professional: ['appointments', 'patients', 'medical_records', 'treatments'],
+      receptionist: ['appointments', 'patients', 'financial'],
+      staff: ['appointments', 'patients', 'financial'],
+      atendente: ['appointments', 'patients'],
+    }[role];
+    
+    if (permissions?.includes(permission) || permissions?.includes('all')) {
+      return true;
     }
-    
-    return false;
-  };
+  }
+  
+  return false;
+};
 
   return (
     <AuthContext.Provider
