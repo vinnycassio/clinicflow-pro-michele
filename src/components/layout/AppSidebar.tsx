@@ -42,6 +42,12 @@ const menuItems = [
     permission: "medical_records",
   },
   {
+  icon: <FileText />,  
+  label: 'Protocolos',
+  href: '/clinic/treatment-protocols',
+  roles: ['admin', 'therapist']
+  },
+  {
     icon: Activity,
     label: "Tratamentos",
     path: "/tratamentos",
