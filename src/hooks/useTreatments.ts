@@ -1,6 +1,30 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 
+// Helper para adicionar clinic_id automaticamente
+const addClinicId = async (data: any) => {
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  if (!user) {
+    throw new Error('Usuário não autenticado');
+  }
+
+  const { data: userData } = await supabase
+    .from('vl_clinic_core_users')
+    .select('clinic_id')
+    .eq('auth_user_id', user.id)
+    .single();
+
+  if (!userData?.clinic_id) {
+    throw new Error('Clínica não encontrada para o usuário');
+  }
+
+  return {
+    ...data,
+    clinic_id: userData.clinic_id
+  };
+};
+
 export interface TreatmentProtocol {
   protocol_id: string;
   protocol_name: string;
@@ -144,12 +168,15 @@ export const useTreatments = (patientId?: string) => {
     try {
       console.log('📝 Criando tratamento...', treatment);
       
+      // Adicionar clinic_id
+      const treatmentData = await addClinicId(treatment);
+      
       const { data, error: insertError } = await supabase
         .from('vl_clinic_patient_treatments')
-        .insert([treatment as any])
+        .insert([treatmentData as any])
         .select('*')
         .single();
-
+  
       if (insertError) {
         console.error('❌ Erro ao criar:', insertError);
         throw insertError;
