@@ -40,11 +40,11 @@ const menuItems = [
     label: "Prontuários",
     path: "/prontuarios",
     permission: "medical_records",
-  },
+  },  
   {
     icon: FileText,  
     label: 'Protocolos',
-    href: '/clinic/treatment-protocols/index',
+    path: '/protocolos', 
     permission: "medical_records",
   },
   {
