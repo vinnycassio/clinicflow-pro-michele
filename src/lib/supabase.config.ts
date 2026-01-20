@@ -1,7 +1,6 @@
 // ============================================
 // CONFIGURAÇÃO DO SUPABASE
 // ============================================
-
 export const SUPABASE_CONFIG = {
   // Project URL
   url: 'https://wboumcppekffsqzyqmqd.supabase.co',
