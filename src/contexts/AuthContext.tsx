@@ -33,48 +33,47 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [loading, setLoading] = useState(true);
 
   const fetchUserProfile = async (userId: string, userEmail?: string): Promise<void> => {
-    try {
-      // Fetch profile - using any type since table may not exist yet
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', userId)
-        .maybeSingle() as { data: Record<string, unknown> | null };
+  try {
+    // Fetch profile da tabela vl_profiles
+    const { data: profile } = await supabase
+      .from('vl_profiles')  // ← NOVO
+      .select('*')
+      .eq('id', userId)
+      .maybeSingle() as { data: Record<string, unknown> | null };
 
-      // Fetch roles - using any type since table may not exist yet
-      const { data: roles } = await supabase
-        .from('user_roles')
-        .select('role')
-        .eq('user_id', userId) as { data: Array<{ role: string }> | null };
+    // Fetch roles da tabela vl_user_roles
+    const { data: roles } = await supabase
+      .from('vl_user_roles')  // ← NOVO
+      .select('role')
+      .eq('user_id', userId) as { data: Array<{ role: string }> | null };
 
-      const userRoles = roles?.map(r => r.role as AppRole) || ['receptionist'];
+    const userRoles = roles?.map(r => r.role as AppRole) || ['receptionist'];
 
-      const typedProfile: UserProfile | null = profile ? {
-        id: String(profile.id || userId),
-        full_name: String(profile.full_name || ''),
-        avatar_url: profile.avatar_url ? String(profile.avatar_url) : null,
-        phone: profile.phone ? String(profile.phone) : null,
-        created_at: String(profile.created_at || new Date().toISOString()),
-        updated_at: String(profile.updated_at || new Date().toISOString()),
-      } : null;
+    const typedProfile: UserProfile | null = profile ? {
+      id: String(profile.id || userId),
+      full_name: String(profile.full_name || ''),
+      avatar_url: profile.avatar_url ? String(profile.avatar_url) : null,
+      phone: profile.phone ? String(profile.phone) : null,
+      created_at: String(profile.created_at || new Date().toISOString()),
+      updated_at: String(profile.updated_at || new Date().toISOString()),
+    } : null;
 
-      setAuthUser({
-        id: userId,
-        email: userEmail || user?.email || '',
-        profile: typedProfile,
-        roles: userRoles,
-      });
-    } catch (error) {
-      console.error('Error fetching user profile:', error);
-      // Set basic auth user even if profile fetch fails
-      setAuthUser({
-        id: userId,
-        email: userEmail || user?.email || '',
-        profile: null,
-        roles: ['receptionist'],
-      });
-    }
-  };
+    setAuthUser({
+      id: userId,
+      email: userEmail || user?.email || '',
+      profile: typedProfile,
+      roles: userRoles,
+    });
+  } catch (error) {
+    console.error('Error fetching user profile:', error);
+    setAuthUser({
+      id: userId,
+      email: userEmail || user?.email || '',
+      profile: null,
+      roles: ['receptionist'],
+    });
+  }
+};
 
   const refreshProfile = async () => {
     if (user?.id) {
@@ -150,7 +149,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return authUser?.roles.includes(role) || authUser?.roles.includes('admin') || false;
   };
 
- const hasPermission = (permission: string): boolean => {
+const hasPermission = (permission: string): boolean => {
   if (!authUser) return false;
   
   for (const role of authUser.roles) {
