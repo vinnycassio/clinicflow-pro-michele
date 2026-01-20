@@ -7,16 +7,20 @@ import { Plus, Edit, Trash2, X, FileText } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface Protocol {
-  id: string;
-  name: string;
-  description: string;
-  specialty: string;
-  sessions_count: number;
-  session_duration_minutes: number;
-  goals: string[];
-  materials: string[];
-  is_active: boolean;
+  protocol_id: string;
+  protocol_name: string;
+  description: string | null;
+  category: string | null;
+  estimated_sessions: number | null;
+  estimated_duration_days: number | null;
+  default_interval_days: number | null;
+  instructions: string | null;
+  contraindications: string | null;
+  expected_results: string | null;
+  is_active: boolean | null;
   created_at: string;
+  updated_at: string;
+  clinic_id: string | null;
 }
 
 export default function TreatmentProtocols() {
@@ -53,7 +57,7 @@ export default function TreatmentProtocols() {
       const { error } = await supabase
         .from('vl_clinic_treatment_protocols')
         .delete()
-        .eq('id', id);
+        .eq('protocol_id', id);
 
       if (error) throw error;
       
@@ -120,15 +124,20 @@ export default function TreatmentProtocols() {
         ) : (
           protocols.map((protocol) => (
             <div
-              key={protocol.id}
+              key={protocol.protocol_id}
               className="bg-white border rounded-lg p-6 hover:shadow-md transition-shadow"
             >
               <div className="flex justify-between items-start">
                 <div className="flex-1">
                   <div className="flex items-center gap-3 mb-2">
                     <h3 className="text-xl font-semibold text-gray-900">
-                      {protocol.name}
+                      {protocol.protocol_name}
                     </h3>
+                    {protocol.category && (
+                      <span className="px-2 py-1 rounded text-xs font-medium bg-blue-100 text-blue-700">
+                        {protocol.category}
+                      </span>
+                    )}
                     <span className={`px-2 py-1 rounded text-xs font-medium ${
                       protocol.is_active 
                         ? 'bg-green-100 text-green-700' 
@@ -138,31 +147,32 @@ export default function TreatmentProtocols() {
                     </span>
                   </div>
                   
-                  <p className="text-gray-600 mb-3">{protocol.description}</p>
+                  {protocol.description && (
+                    <p className="text-gray-600 mb-3">{protocol.description}</p>
+                  )}
                   
                   <div className="flex flex-wrap gap-4 text-sm text-gray-500">
-                    <span>
-                      <strong>Especialidade:</strong> {protocol.specialty}
-                    </span>
-                    <span>
-                      <strong>Sessões:</strong> {protocol.sessions_count}
-                    </span>
-                    <span>
-                      <strong>Duração:</strong> {protocol.session_duration_minutes} min
-                    </span>
+                    {protocol.estimated_sessions && (
+                      <span>
+                        <strong>Sessões:</strong> {protocol.estimated_sessions}
+                      </span>
+                    )}
+                    {protocol.estimated_duration_days && (
+                      <span>
+                        <strong>Duração:</strong> {protocol.estimated_duration_days} dias
+                      </span>
+                    )}
+                    {protocol.default_interval_days && (
+                      <span>
+                        <strong>Intervalo:</strong> {protocol.default_interval_days} dias
+                      </span>
+                    )}
                   </div>
 
-                  {protocol.goals && protocol.goals.length > 0 && (
+                  {protocol.expected_results && (
                     <div className="mt-3">
-                      <strong className="text-sm text-gray-700">Objetivos:</strong>
-                      <ul className="list-disc list-inside mt-1 text-sm text-gray-600">
-                        {protocol.goals.slice(0, 3).map((goal, idx) => (
-                          <li key={idx}>{goal}</li>
-                        ))}
-                        {protocol.goals.length > 3 && (
-                          <li className="text-blue-600">+{protocol.goals.length - 3} objetivos</li>
-                        )}
-                      </ul>
+                      <strong className="text-sm text-gray-700">Resultados Esperados:</strong>
+                      <p className="text-sm text-gray-600 mt-1">{protocol.expected_results}</p>
                     </div>
                   )}
                 </div>
@@ -178,7 +188,7 @@ export default function TreatmentProtocols() {
                   <Button
                     variant="destructive"
                     size="sm"
-                    onClick={() => deleteProtocol(protocol.id)}
+                    onClick={() => deleteProtocol(protocol.protocol_id)}
                   >
                     <Trash2 className="w-4 h-4" />
                   </Button>
@@ -214,13 +224,15 @@ interface ProtocolFormProps {
 function ProtocolFormModal({ onClose, onSuccess, editData }: ProtocolFormProps) {
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
-    name: editData?.name || '',
+    protocol_name: editData?.protocol_name || '',
     description: editData?.description || '',
-    specialty: editData?.specialty || 'fonoaudiologia',
-    sessions_count: editData?.sessions_count || 12,
-    session_duration_minutes: editData?.session_duration_minutes || 50,
-    goals: editData?.goals?.join('\n') || '',
-    materials: editData?.materials?.join('\n') || '',
+    category: editData?.category || 'fonoaudiologia',
+    estimated_sessions: editData?.estimated_sessions || 12,
+    estimated_duration_days: editData?.estimated_duration_days || 90,
+    default_interval_days: editData?.default_interval_days || 7,
+    instructions: editData?.instructions || '',
+    contraindications: editData?.contraindications || '',
+    expected_results: editData?.expected_results || '',
     is_active: editData?.is_active ?? true,
   });
 
@@ -248,28 +260,34 @@ function ProtocolFormModal({ onClose, onSuccess, editData }: ProtocolFormProps) 
 
       const protocolData = {
         clinic_id: userData.clinic_id,
-        name: formData.name.trim(),
-        description: formData.description.trim(),
-        specialty: formData.specialty,
-        sessions_count: parseInt(formData.sessions_count.toString()),
-        session_duration_minutes: parseInt(formData.session_duration_minutes.toString()),
-        goals: formData.goals.split('\n').filter(g => g.trim()).map(g => g.trim()),
-        materials: formData.materials.split('\n').filter(m => m.trim()).map(m => m.trim()),
+        protocol_name: formData.protocol_name.trim(),
+        description: formData.description.trim() || null,
+        category: formData.category,
+        estimated_sessions: parseInt(formData.estimated_sessions.toString()) || null,
+        estimated_duration_days: parseInt(formData.estimated_duration_days.toString()) || null,
+        default_interval_days: parseInt(formData.default_interval_days.toString()) || null,
+        instructions: formData.instructions.trim() || null,
+        contraindications: formData.contraindications.trim() || null,
+        expected_results: formData.expected_results.trim() || null,
         is_active: formData.is_active,
+        updated_at: new Date().toISOString(),
       };
 
       if (editData) {
         const { error } = await supabase
           .from('vl_clinic_treatment_protocols')
           .update(protocolData)
-          .eq('id', editData.id);
+          .eq('protocol_id', editData.protocol_id);
 
         if (error) throw error;
         toast.success('Protocolo atualizado com sucesso!');
       } else {
         const { error } = await supabase
           .from('vl_clinic_treatment_protocols')
-          .insert(protocolData);
+          .insert({
+            ...protocolData,
+            created_at: new Date().toISOString(),
+          });
 
         if (error) throw error;
         toast.success('Protocolo criado com sucesso!');
@@ -286,9 +304,9 @@ function ProtocolFormModal({ onClose, onSuccess, editData }: ProtocolFormProps) 
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+      <div className="bg-white rounded-lg max-w-3xl w-full max-h-[90vh] overflow-y-auto">
         {/* Header */}
-        <div className="flex justify-between items-center p-6 border-b sticky top-0 bg-white">
+        <div className="flex justify-between items-center p-6 border-b sticky top-0 bg-white z-10">
           <h2 className="text-2xl font-bold text-gray-900">
             {editData ? 'Editar Protocolo' : 'Novo Protocolo'}
           </h2>
@@ -302,24 +320,25 @@ function ProtocolFormModal({ onClose, onSuccess, editData }: ProtocolFormProps) 
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
+          {/* Nome do Protocolo */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Nome do Protocolo *
             </label>
             <Input
               required
-              value={formData.name}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              value={formData.protocol_name}
+              onChange={(e) => setFormData({ ...formData, protocol_name: e.target.value })}
               placeholder="Ex: Protocolo de Apraxia de Fala Infantil"
             />
           </div>
 
+          {/* Descrição */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Descrição *
+              Descrição
             </label>
             <Textarea
-              required
               rows={3}
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
@@ -327,20 +346,23 @@ function ProtocolFormModal({ onClose, onSuccess, editData }: ProtocolFormProps) 
             />
           </div>
 
+          {/* Categoria e Status */}
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Especialidade
+                Categoria / Especialidade
               </label>
               <select
                 className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                value={formData.specialty}
-                onChange={(e) => setFormData({ ...formData, specialty: e.target.value })}
+                value={formData.category}
+                onChange={(e) => setFormData({ ...formData, category: e.target.value })}
               >
                 <option value="fonoaudiologia">Fonoaudiologia</option>
                 <option value="psicologia">Psicologia</option>
                 <option value="fisioterapia">Fisioterapia</option>
                 <option value="terapia_ocupacional">Terapia Ocupacional</option>
+                <option value="nutricao">Nutrição</option>
+                <option value="outros">Outros</option>
               </select>
             </div>
 
@@ -359,54 +381,84 @@ function ProtocolFormModal({ onClose, onSuccess, editData }: ProtocolFormProps) 
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          {/* Estimativas */}
+          <div className="grid grid-cols-3 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Número de Sessões
+                Sessões Estimadas
               </label>
               <Input
                 type="number"
                 min="1"
-                value={formData.sessions_count}
-                onChange={(e) => setFormData({ ...formData, sessions_count: parseInt(e.target.value) || 1 })}
+                value={formData.estimated_sessions}
+                onChange={(e) => setFormData({ ...formData, estimated_sessions: parseInt(e.target.value) || 0 })}
+                placeholder="12"
               />
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Duração (minutos)
+                Duração (dias)
               </label>
               <Input
                 type="number"
-                min="15"
-                step="15"
-                value={formData.session_duration_minutes}
-                onChange={(e) => setFormData({ ...formData, session_duration_minutes: parseInt(e.target.value) || 30 })}
+                min="1"
+                value={formData.estimated_duration_days}
+                onChange={(e) => setFormData({ ...formData, estimated_duration_days: parseInt(e.target.value) || 0 })}
+                placeholder="90"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Intervalo (dias)
+              </label>
+              <Input
+                type="number"
+                min="1"
+                value={formData.default_interval_days}
+                onChange={(e) => setFormData({ ...formData, default_interval_days: parseInt(e.target.value) || 0 })}
+                placeholder="7"
               />
             </div>
           </div>
 
+          {/* Instruções */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Objetivos (um por linha)
+              Instruções de Aplicação
             </label>
             <Textarea
               rows={4}
-              value={formData.goals}
-              onChange={(e) => setFormData({ ...formData, goals: e.target.value })}
-              placeholder="Melhorar articulação dos fonemas&#10;Desenvolver consciência fonológica&#10;Ampliar vocabulário expressivo"
+              value={formData.instructions}
+              onChange={(e) => setFormData({ ...formData, instructions: e.target.value })}
+              placeholder="Descreva como aplicar este protocolo, passo a passo..."
             />
           </div>
 
+          {/* Contraindicações */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Materiais Necessários (um por linha)
+              Contraindicações
+            </label>
+            <Textarea
+              rows={3}
+              value={formData.contraindications}
+              onChange={(e) => setFormData({ ...formData, contraindications: e.target.value })}
+              placeholder="Liste as contraindicações deste protocolo..."
+            />
+          </div>
+
+          {/* Resultados Esperados */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Resultados Esperados
             </label>
             <Textarea
               rows={4}
-              value={formData.materials}
-              onChange={(e) => setFormData({ ...formData, materials: e.target.value })}
-              placeholder="Espelho de mesa&#10;Cartões ilustrados&#10;Jogos de consciência fonológica"
+              value={formData.expected_results}
+              onChange={(e) => setFormData({ ...formData, expected_results: e.target.value })}
+              placeholder="Descreva os resultados esperados com este tratamento..."
             />
           </div>
 
