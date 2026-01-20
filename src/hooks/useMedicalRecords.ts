@@ -1,6 +1,31 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 
+// Helper para adicionar clinic_id automaticamente
+const addClinicId = async (data: any) => {
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  if (!user) {
+    throw new Error('Usuário não autenticado');
+  }
+
+  const { data: userData } = await supabase
+    .from('vl_clinic_core_users')
+    .select('clinic_id')
+    .eq('auth_user_id', user.id)
+    .single();
+
+  if (!userData?.clinic_id) {
+    throw new Error('Clínica não encontrada para o usuário');
+  }
+
+  return {
+    ...data,
+    clinic_id: userData.clinic_id
+  };
+};
+
+
 export interface MedicalRecord {
   record_id: string;
   patient_id: string;
