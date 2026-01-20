@@ -75,9 +75,32 @@ export const useAppointments = (professionalId?: string, date?: string) => {
 
   const createAppointment = async (appointment: AppointmentInsert): Promise<Appointment | null> => {
     try {
+      // Buscar clinic_id do usuário logado
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        throw new Error('Usuário não autenticado');
+      }
+  
+      const { data: userData } = await supabase
+        .from('vl_clinic_core_users')
+        .select('clinic_id')
+        .eq('auth_user_id', user.id)
+        .single();
+  
+      if (!userData?.clinic_id) {
+        throw new Error('Clínica não encontrada para o usuário');
+      }
+  
+      // Adicionar clinic_id ao agendamento
+      const appointmentData = {
+        ...appointment,
+        clinic_id: userData.clinic_id
+      };
+  
       const { data, error: insertError } = await supabase
         .from('vl_clinic_core_appointments')
-        .insert([appointment])
+        .insert([appointmentData])
         .select()
         .single();
   
