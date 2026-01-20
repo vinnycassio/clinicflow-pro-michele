@@ -68,12 +68,12 @@ const App = () => {
                   <Route path="/agenda" element={<Appointments />} />
                   <Route path="/appointments" element={<Appointments />} />
                   <Route path="/prontuarios" element={
-                    <ProtectedRoute requiredRoles={['admin', 'professional']}>
+                    <ProtectedRoute requiredRoles={['admin',  'owner', 'professional']}>
                       <MedicalRecords />
                     </ProtectedRoute>
                   } />
                   <Route path="/medical-records" element={
-                    <ProtectedRoute requiredRoles={['admin', 'professional']}>
+                    <ProtectedRoute requiredRoles={['admin', 'owner', 'professional']}>
                       <MedicalRecords />
                     </ProtectedRoute>
                   } />
